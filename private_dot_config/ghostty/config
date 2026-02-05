@@ -1,0 +1,11 @@
+font-family = Hack
+theme = deep
+font-feature = -dlig
+font-size = 13
+confirm-close-surface = false
+background-blur = true
+background-opacity = 1.0
+window-width = 220
+window-height = 72
+auto-update-channel = tip
+macos-option-as-alt = true

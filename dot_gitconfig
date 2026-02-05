@@ -1,0 +1,49 @@
+[user]
+  name = Yusuke Shibata
+  email = yusukeshib@gmail.com
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHU+tFJRax7dVnTEiFM2+kwasijxiQ/GxXm0UqOXTTE
+
+[core]
+  pager = delta
+
+[push]
+  default = current
+  autoSetupRemote = true
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true  # use n and N to move between diff sections
+  line-numbers = true
+  side-by-side = false
+
+[merge]
+  conflictstyle = diff3
+
+[diff]
+  colorMoved = default
+
+[init]
+  defaultBranch = main
+
+[commit]
+  gpgsign = true
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+
+[rerere]
+  enabled = true
+
+[pull]
+  autoSetupRemote = true

@@ -1,0 +1,122 @@
+{
+  "version": 3,
+  "active_profile": "default",
+  "profiles": {
+    "default": {
+      "packages": [
+        "awscli",
+        "bash",
+        "bat",
+        "cargo",
+        "clippy",
+        "delta",
+        "direnv",
+        "entr",
+        "eza",
+        "fd",
+        "fzf",
+        "gh",
+        "glow",
+        "graphite-cli",
+        "jujutsu",
+        "kubectx",
+        "kubernetes-helm",
+        "nix-direnv",
+        "ripgrep",
+        "rustfmt",
+        "starship",
+        "terraform",
+        "uv",
+        "vhs",
+        "zellij",
+        "zplug"
+      ],
+      "resolved_packages": [
+        {
+          "name": "atuin",
+          "version_spec": null,
+          "resolved_version": "18.11.0",
+          "attribute_path": "atuin",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
+          "name": "buf",
+          "version_spec": null,
+          "resolved_version": "1.60.0",
+          "attribute_path": "buf",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
+          "name": "bun",
+          "version_spec": null,
+          "resolved_version": "1.3.8",
+          "attribute_path": "bun",
+          "commit_hash": "6308c3b21396534d8aaeac46179c14c439a89b8a"
+        },
+        {
+          "name": "chezmoi",
+          "version_spec": null,
+          "resolved_version": "2.69.3",
+          "attribute_path": "chezmoi",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
+          "name": "nodejs",
+          "version_spec": "24.9",
+          "resolved_version": "24.9.0",
+          "attribute_path": "nodejs_24",
+          "commit_hash": "bce5fe2bb998488d8e7e7856315f90496723793c"
+        },
+        {
+          "name": "python",
+          "version_spec": "3.11",
+          "resolved_version": "3.11.14",
+          "attribute_path": "python311",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
+          "name": "temporal-cli",
+          "version_spec": null,
+          "resolved_version": "1.5.1",
+          "attribute_path": "temporal-cli",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
+          "name": "terminal-notifier",
+          "version_spec": null,
+          "resolved_version": "2.0.0",
+          "attribute_path": "terminal-notifier",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe",
+          "platforms": [
+            "aarch64-darwin",
+            "x86_64-darwin"
+          ]
+        }
+      ],
+      "custom_packages": [
+        {
+          "name": "neovim",
+          "input_name": "github-nix-community-neovim-nightly-overlay",
+          "input_url": "github:nix-community/neovim-nightly-overlay",
+          "package_output": "packages",
+          "source_name": null
+        },
+        {
+          "name": "worktrunk",
+          "input_name": "github-max-sixty-worktrunk",
+          "input_url": "github:max-sixty/worktrunk",
+          "package_output": "packages",
+          "source_name": null
+        }
+      ]
+    },
+    "work": {
+      "packages": [
+        "delta",
+        "starship"
+      ],
+      "resolved_packages": [],
+      "custom_packages": []
+    }
+  }
+}
