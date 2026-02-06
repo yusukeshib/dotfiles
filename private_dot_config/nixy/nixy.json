@@ -61,6 +61,13 @@
           "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
         },
         {
+          "name": "lld",
+          "version_spec": null,
+          "resolved_version": "21.1.8",
+          "attribute_path": "lld",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
           "name": "nodejs",
           "version_spec": "24.9",
           "resolved_version": "24.9.0",
@@ -72,6 +79,13 @@
           "version_spec": "3.11",
           "resolved_version": "3.11.14",
           "attribute_path": "python311",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
+          "name": "rustc",
+          "version_spec": null,
+          "resolved_version": "1.92.0",
+          "attribute_path": "rustc",
           "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
         },
         {
@@ -105,6 +119,13 @@
           "name": "neovim",
           "input_name": "github-nix-community-neovim-nightly-overlay",
           "input_url": "github:nix-community/neovim-nightly-overlay",
+          "package_output": "packages",
+          "source_name": null
+        },
+        {
+          "name": "wb",
+          "input_name": "github-yusukeshib-wb",
+          "input_url": "github:yusukeshib/wb",
           "package_output": "packages",
           "source_name": null
         },
