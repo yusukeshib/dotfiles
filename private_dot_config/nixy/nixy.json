@@ -112,6 +112,13 @@
             "aarch64-darwin",
             "x86_64-darwin"
           ]
+        },
+        {
+          "name": "wasm-pack",
+          "version_spec": null,
+          "resolved_version": "0.13.1",
+          "attribute_path": "wasm-pack",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
         }
       ],
       "custom_packages": [
