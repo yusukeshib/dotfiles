@@ -62,12 +62,6 @@
     "defaultMode": "plan"
   },
   "model": "opus",
-  "enabledPlugins": {
-    "pyright-lsp@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
-  },
-  "alwaysThinkingEnabled": true,
   "hooks": {
     "Stop": [
       {
@@ -91,5 +85,11 @@
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "alwaysThinkingEnabled": true
 }

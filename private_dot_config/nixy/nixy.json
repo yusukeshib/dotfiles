@@ -61,6 +61,13 @@
           "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
         },
         {
+          "name": "ffmpeg",
+          "version_spec": null,
+          "resolved_version": "8.0.1",
+          "attribute_path": "ffmpeg",
+          "commit_hash": "5b265bda51b42a2a85af0a543c3e57b778b01b7d"
+        },
+        {
           "name": "lld",
           "version_spec": null,
           "resolved_version": "21.1.8",
@@ -126,13 +133,6 @@
           "name": "neovim",
           "input_name": "github-nix-community-neovim-nightly-overlay",
           "input_url": "github:nix-community/neovim-nightly-overlay",
-          "package_output": "packages",
-          "source_name": null
-        },
-        {
-          "name": "wb",
-          "input_name": "github-yusukeshib-wb",
-          "input_url": "github:yusukeshib/wb",
           "package_output": "packages",
           "source_name": null
         },
