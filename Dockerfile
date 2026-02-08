@@ -58,6 +58,7 @@ RUN nix profile install nixpkgs#chezmoi
 # Init and apply dotfiles (targets /home/yusuke)
 RUN echo "redeploy=1"
 RUN chezmoi init yusukeshib && chezmoi apply
+RUN echo "alias claude='claude --allow-dangerously-skip-permissions'" >> ~/.zshrc
 
 # Trust all directories for git safe.directory (needed for mounted workspaces in container)
 RUN git config --global --add safe.directory '*'
