@@ -1,18 +1,23 @@
-FROM nixos/nix
+FROM debian:bookworm-slim
 
-# Enable flakes and nix-command
-RUN echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf
+# Install dependencies needed for Nix and Claude Code
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl xz-utils ca-certificates sudo git \
+    && rm -rf /var/lib/apt/lists/*
 
-# Create user and grant nix store access (single-user mode)
-RUN echo "yusuke:x:1000:1000:yusuke:/home/yusuke:/bin/sh" >> /etc/passwd && \
-    echo "yusuke:x:1000:" >> /etc/group && \
-    mkdir -p /home/yusuke && \
-    chown -R yusuke /home/yusuke /nix
+# Create user
+RUN useradd -m -s /bin/sh -u 1000 yusuke
 
-# Switch to yusuke — all subsequent commands run as yusuke in /home/yusuke
+# Install Nix (single-user mode, owned by yusuke)
+RUN mkdir -m 0755 /nix && chown yusuke /nix
 USER yusuke
 ENV HOME=/home/yusuke
+RUN curl -L https://nixos.org/nix/install | sh -s -- --no-daemon
 ENV PATH=/home/yusuke/.nix-profile/bin:$PATH
+
+# Enable flakes and nix-command
+RUN mkdir -p ~/.config/nix && \
+    echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
 
 # Install chezmoi and nixy via nix (into yusuke's nix profile)
 RUN nix profile install nixpkgs#chezmoi
