@@ -35,6 +35,7 @@ RUN nix profile install nixpkgs#fzf
 RUN nix profile install nixpkgs#gh
 RUN nix profile install nixpkgs#ripgrep
 RUN nix profile install nixpkgs#starship
+RUN nix profile install github:nix-community/neovim-nightly-overlay#neovim
 
 # work
 RUN nix profile install nixpkgs#uv
@@ -52,7 +53,7 @@ RUN nix profile install nixpkgs#rustfmt
 RUN nix profile install nixpkgs#chezmoi
 
 # Init and apply dotfiles (targets /home/yusuke)
-RUN chezmoi init yusukeshib --branch main && chezmoi apply
+RUN chezmoi init yusukeshib && chezmoi apply
 
 # Install Claude Code
 RUN curl -fsSL https://claude.ai/install.sh | bash

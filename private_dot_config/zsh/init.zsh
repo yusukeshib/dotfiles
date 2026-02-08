@@ -12,19 +12,49 @@ export LC_ALL=en_US.UTF-8
 export FZF_DEFAULT_COMMAND='fd --type f -i'
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 export PATH=$HOME/.opencode/bin:$PATH
-export ZPLUG_HOME=$HOME/.zplug
 export REALM_DOCKERFILE=$HOME/Dockerfile
 
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"
 fi
 
-source ${0:A:h}/zplug.zsh
+#
+# Plugins (must come before native integrations that use compdef)
+#
 
+source ${0:A:h}/plugins.zsh
+
+#
+# Native tool integrations
+#
+
+if type "starship" > /dev/null; then
+  eval "$(starship init zsh)"
+fi
+
+if type "direnv" > /dev/null; then
+  eval "$(direnv hook zsh)"
+fi
+
+if type "fzf" > /dev/null; then
+  source <(fzf --zsh)
+fi
+
+if type "kubectl" > /dev/null; then
+  source <(kubectl completion zsh)
+fi
 
 #
 # Aliases
 #
+
+# eza
+if type "eza" > /dev/null; then
+  alias ls='eza'
+  alias ll='eza -lg'
+  alias la='eza -la'
+  alias lt='eza --tree'
+fi
 
 if type "zellij" > /dev/null; then
   alias new="zellij -s"

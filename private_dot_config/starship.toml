@@ -37,8 +37,13 @@ symbol = "cobol "
 [conda]
 symbol = "conda "
 
+[hostname]
+ssh_only = false
+format = "[\\[$hostname\\]]($style) "
+
 [container]
-symbol = "container "
+style = 'red'
+format = '[$symbol]($style) '
 
 [crystal]
 symbol = "cr "
@@ -62,7 +67,7 @@ symbol = ".NET "
 read_only = " ro"
 
 [docker_context]
-symbol = "docker "
+disabled = true
 
 [elixir]
 symbol = "exs "

@@ -28,8 +28,7 @@
         "terraform",
         "uv",
         "vhs",
-        "zellij",
-        "zplug"
+        "zellij"
       ],
       "resolved_packages": [
         {
