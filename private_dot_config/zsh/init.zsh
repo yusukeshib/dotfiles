@@ -12,7 +12,7 @@ export LC_ALL=en_US.UTF-8
 export FZF_DEFAULT_COMMAND='fd --type f -i'
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 export PATH=$HOME/.opencode/bin:$PATH
-export REALM_DOCKERFILE=$HOME/Dockerfile
+export REALM_DEFAULT_IMAGE=mydev:auth
 
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"

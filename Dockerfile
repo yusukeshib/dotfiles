@@ -49,12 +49,17 @@ RUN nix profile install nixpkgs#kubernetes-helm
 RUN nix profile install nixpkgs#cargo
 RUN nix profile install nixpkgs#clippy
 RUN nix profile install nixpkgs#rustfmt
+RUN nix profile install nixpkgs#gcc
 
 # Install chezmoi
 RUN nix profile install nixpkgs#chezmoi
 
 # Init and apply dotfiles (targets /home/yusuke)
+RUN echo "redeploy=1"
 RUN chezmoi init yusukeshib && chezmoi apply
+
+# Trust all directories for git safe.directory (needed for mounted workspaces in container)
+RUN git config --global --add safe.directory '*'
 
 # Install Claude Code
 RUN curl -fsSL https://claude.ai/install.sh | bash
