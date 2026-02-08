@@ -22,7 +22,7 @@ RUN nix profile install github:yusukeshib/nixy
 RUN nix profile install nixpkgs#zsh
 
 # Init and apply dotfiles (targets /home/yusuke)
-RUN chezmoi init yusukeshib --branch f101714a0cf5112cf250758a0717f432bf4668f4 && chezmoi apply
+RUN chezmoi init yusukeshib --branch main && chezmoi apply
 
 # Install all packages defined in nixy.json (targets /home/yusuke)
 RUN nixy sync
