@@ -12,8 +12,9 @@ export LC_ALL=en_US.UTF-8
 export FZF_DEFAULT_COMMAND='fd --type f -i'
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 export PATH=$HOME/.opencode/bin:$PATH
+export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 export REALM_DEFAULT_IMAGE=mydev:auth
-export REALM_DOCKER_ARGS="-v $HOME/.claude:/root/.claude -v '$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock:/ssh-agent' -e SSH_AUTH_SOCK=/ssh-agent"
+export REALM_DOCKER_ARGS="-v $HOME/.claude:/root/.claude"
 
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"

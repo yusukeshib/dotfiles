@@ -69,4 +69,3 @@ ENV PATH=/home/yusuke/.local/bin:/home/yusuke/.claude/bin:$PATH
 # Set zsh as default shell and working directory
 ENV SHELL=/home/yusuke/.nix-profile/bin/zsh
 WORKDIR /home/yusuke
-CMD ["zsh"]
