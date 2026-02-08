@@ -2,8 +2,11 @@ FROM debian:bookworm-slim
 
 # Install dependencies needed for Nix and Claude Code
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl xz-utils ca-certificates sudo git \
+    curl xz-utils ca-certificates sudo git locales \
+    && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
+    && locale-gen \
     && rm -rf /var/lib/apt/lists/*
+ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 
 # Create user
 RUN useradd -m -s /bin/sh -u 1000 yusuke
@@ -19,25 +22,41 @@ ENV PATH=/home/yusuke/.nix-profile/bin:$PATH
 RUN mkdir -p ~/.config/nix && \
     echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
 
-# Install chezmoi and nixy via nix (into yusuke's nix profile)
-RUN nix profile install nixpkgs#chezmoi
-RUN nix profile install github:yusukeshib/nixy
-
-# Install zsh (git and curl are already provided by nixy)
+# base
 RUN nix profile install nixpkgs#zsh
-RUN nix profile install nixpkgs#gnused
+RUN nix profile install nixpkgs#awscli
+RUN nix profile install nixpkgs#bat
+RUN nix profile install nixpkgs#delta
+RUN nix profile install nixpkgs#direnv
+RUN nix profile install nixpkgs#entr
+RUN nix profile install nixpkgs#eza
+RUN nix profile install nixpkgs#fd
+RUN nix profile install nixpkgs#fzf
+RUN nix profile install nixpkgs#gh
+RUN nix profile install nixpkgs#ripgrep
+RUN nix profile install nixpkgs#starship
+
+# work
+RUN nix profile install nixpkgs#uv
+RUN nix profile install nixpkgs#kubectx
+RUN nix profile install nixpkgs#kubernetes-helm
+# graphite-cli
+# terraform
+
+# rust
+RUN nix profile install nixpkgs#cargo
+RUN nix profile install nixpkgs#clippy
+RUN nix profile install nixpkgs#rustfmt
+
+# Install chezmoi
+RUN nix profile install nixpkgs#chezmoi
 
 # Init and apply dotfiles (targets /home/yusuke)
 RUN chezmoi init yusukeshib --branch main && chezmoi apply
 
-# Install all packages defined in nixy.json (targets /home/yusuke)
-RUN nixy sync
-
 # Install Claude Code
 RUN curl -fsSL https://claude.ai/install.sh | bash
-
-# Initialize zplug and install plugins
-RUN zsh -c 'source ~/.config/zsh/zplug.zsh'
+ENV PATH=/home/yusuke/.local/bin:/home/yusuke/.claude/bin:$PATH
 
 # Set zsh as default shell and working directory
 ENV SHELL=/home/yusuke/.nix-profile/bin/zsh
