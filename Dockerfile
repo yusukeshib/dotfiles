@@ -20,6 +20,7 @@ RUN nix profile install github:yusukeshib/nixy
 
 # Install zsh (git and curl are already provided by nixy)
 RUN nix profile install nixpkgs#zsh
+RUN nix profile install nixpkgs#gnused
 
 # Init and apply dotfiles (targets /home/yusuke)
 RUN chezmoi init yusukeshib --branch main && chezmoi apply
@@ -27,8 +28,8 @@ RUN chezmoi init yusukeshib --branch main && chezmoi apply
 # Install all packages defined in nixy.json (targets /home/yusuke)
 RUN nixy sync
 
-# Install Claude Code via npm (native binary won't run on NixOS)
-RUN nix profile install nixpkgs#nodejs && npm install -g @anthropic-ai/claude-code
+# Install Claude Code
+RUN curl -fsSL https://claude.ai/install.sh | bash
 
 # Initialize zplug and install plugins
 RUN zsh -c 'source ~/.config/zsh/zplug.zsh'
