@@ -22,7 +22,7 @@ RUN nix profile install github:yusukeshib/nixy
 RUN nix profile install nixpkgs#zsh
 
 # Init and apply dotfiles (targets /home/yusuke)
-RUN chezmoi init yusukeshib && chezmoi apply
+RUN chezmoi init yusukeshib --branch f101714a0cf5112cf250758a0717f432bf4668f4 && chezmoi apply
 
 # Install all packages defined in nixy.json (targets /home/yusuke)
 RUN nixy sync
@@ -31,8 +31,7 @@ RUN nixy sync
 RUN nix profile install nixpkgs#nodejs && npm install -g @anthropic-ai/claude-code
 
 # Initialize zplug and install plugins
-COPY .config/zsh/zplug.zsh /tmp/zplug.zsh
-RUN zsh -c 'source /tmp/zplug.zsh'
+RUN zsh -c 'source ~/.config/zsh/zplug.zsh'
 
 # Set zsh as default shell and working directory
 ENV SHELL=/home/yusuke/.nix-profile/bin/zsh
