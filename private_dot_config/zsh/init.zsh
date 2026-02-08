@@ -13,6 +13,7 @@ export FZF_DEFAULT_COMMAND='fd --type f -i'
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 export PATH=$HOME/.opencode/bin:$PATH
 export ZPLUG_HOME=$HOME/.zplug
+export REALM_DOCKERFILE=$HOME/Dockerfile
 
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"
@@ -117,4 +118,3 @@ fi
 if type "wt" > /dev/null; then
   eval "$(wt config shell init zsh)";
 fi
-
