@@ -34,6 +34,7 @@ RUN nix profile install nixpkgs#fd
 RUN nix profile install nixpkgs#fzf
 RUN nix profile install nixpkgs#gh
 RUN nix profile install nixpkgs#ripgrep
+RUN nix profile install nixpkgs#nodejs
 RUN nix profile install nixpkgs#starship
 RUN nix profile install github:nix-community/neovim-nightly-overlay#neovim
 

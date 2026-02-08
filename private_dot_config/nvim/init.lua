@@ -14,6 +14,21 @@ vim.opt.mouse = "a"
 -- Use system clipboard for yank/paste operations
 vim.opt.clipboard = "unnamedplus"
 
+-- Use OSC 52 for clipboard in remote/container environments (e.g. Docker, SSH)
+if os.getenv("SSH_TTY") or os.getenv("container") or vim.fn.has("gui_running") == 0 and vim.fn.executable("pbcopy") == 0 and vim.fn.executable("xclip") == 0 then
+  vim.g.clipboard = {
+    name = "OSC 52",
+    copy = {
+      ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+      ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+    },
+    paste = {
+      ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+      ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+    },
+  }
+end
+
 -- Preserve indentation when wrapping lines
 vim.opt.breakindent = true
 
