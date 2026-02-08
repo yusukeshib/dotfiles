@@ -50,6 +50,7 @@ RUN nix profile install nixpkgs#cargo
 RUN nix profile install nixpkgs#clippy
 RUN nix profile install nixpkgs#rustfmt
 RUN nix profile install nixpkgs#gcc
+RUN nix profile install nixpkgs#openssh
 
 # Install chezmoi
 RUN nix profile install nixpkgs#chezmoi
