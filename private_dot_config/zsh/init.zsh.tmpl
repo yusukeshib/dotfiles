@@ -31,7 +31,7 @@ source ${0:A:h}/plugins.zsh
 # Native tool integrations
 #
 
-if type "starship" > /dev/null; then
+if ! [ "$STARSHIP_DISABLED" = "true" ] && type "starship" > /dev/null; then
   eval "$(starship init zsh)"
 fi
 
