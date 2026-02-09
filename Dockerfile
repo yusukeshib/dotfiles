@@ -16,7 +16,7 @@ RUN mkdir -m 0755 /nix && chown yusuke /nix
 USER yusuke
 ENV HOME=/home/yusuke
 RUN curl -L https://nixos.org/nix/install | sh -s -- --no-daemon
-ENV PATH=/home/yusuke/.nix-profile/bin:$PATH
+ENV PATH=$HOME/.local/bin:$HOME/.claude/bin:$HOME/.nix-profile/bin:$PATH
 
 # Enable flakes and nix-command
 RUN mkdir -p ~/.config/nix && \
@@ -24,35 +24,36 @@ RUN mkdir -p ~/.config/nix && \
 
 # base
 RUN nix profile install nixpkgs#zsh
-RUN nix profile install nixpkgs#awscli
 RUN nix profile install nixpkgs#bat
 RUN nix profile install nixpkgs#delta
 RUN nix profile install nixpkgs#direnv
-RUN nix profile install nixpkgs#entr
 RUN nix profile install nixpkgs#eza
 RUN nix profile install nixpkgs#fd
 RUN nix profile install nixpkgs#fzf
 RUN nix profile install nixpkgs#gh
 RUN nix profile install nixpkgs#ripgrep
-RUN nix profile install nixpkgs#nodejs
 RUN nix profile install nixpkgs#starship
+RUN nix profile install nixpkgs#openssh
+
+# editor
 RUN nix profile install github:nix-community/neovim-nightly-overlay#neovim
 
-# work
+# lang
+RUN nix profile install nixpkgs#nodejs
 RUN nix profile install nixpkgs#uv
+RUN nix profile install nixpkgs#cargo
+RUN nix profile install nixpkgs#clippy
+RUN nix profile install nixpkgs#rustfmt
+RUN nix profile install nixpkgs#gcc
+
+# infra
+# RUN nix profile install nixpkgs#awscli
 RUN nix profile install nixpkgs#kubectx
 RUN nix profile install nixpkgs#kubernetes-helm
 # graphite-cli
 # terraform
 
-# rust
-RUN nix profile install nixpkgs#cargo
-RUN nix profile install nixpkgs#clippy
-RUN nix profile install nixpkgs#rustfmt
-RUN nix profile install nixpkgs#gcc
-RUN nix profile install nixpkgs#openssh
-
-# Install chezmoi
+# dotfiles
 RUN nix profile install nixpkgs#chezmoi
 
 # Init and apply dotfiles (targets /home/yusuke)
@@ -65,7 +66,6 @@ RUN git config --global --add safe.directory '*'
 
 # Install Claude Code
 RUN curl -fsSL https://claude.ai/install.sh | bash
-ENV PATH=/home/yusuke/.local/bin:/home/yusuke/.claude/bin:$PATH
 
 # Set zsh as default shell and working directory
 ENV SHELL=/home/yusuke/.nix-profile/bin/zsh
