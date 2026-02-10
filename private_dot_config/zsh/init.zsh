@@ -31,7 +31,7 @@ source ${0:A:h}/plugins.zsh
 # Native tool integrations
 #
 
-if ! [ "$STARSHIP_DISABLED" = "true" ] && type "starship" > /dev/null; then
+if type "starship" > /dev/null; then
   eval "$(starship init zsh)"
 fi
 
@@ -108,8 +108,4 @@ fi
 
 if type "wt" > /dev/null; then
   eval "$(wt config shell init zsh)";
-fi
-
-if type "docker" > /dev/null; then
-  alias mydev_update="docker commit $(docker ps -q -f ancestor=mydev:auth) mydev:auth"
 fi
