@@ -39,9 +39,6 @@ symbol = "conda "
 
 [hostname]
 ssh_only = false
-{{- if ne .chezmoi.os "darwin" }}
-style = 'fg:white bg:red'
-{{ end }}
 format = "[\\[$hostname\\]]($style) "
 
 [crystal]

@@ -40,9 +40,10 @@
   format = ssh
 
 [gpg "ssh"]
-{{- if eq .chezmoi.os "darwin" }}
-  program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
-{{ end }}
+
+[include]
+  path = ~/.config/git/gitconfig_darwin
+
 [rerere]
   enabled = true
 

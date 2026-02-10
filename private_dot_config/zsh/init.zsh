@@ -12,11 +12,11 @@ export LC_ALL=en_US.UTF-8
 export FZF_DEFAULT_COMMAND='fd --type f -i'
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 export PATH=$HOME/.opencode/bin:$PATH
-{{ if eq .chezmoi.os "darwin" -}}
-export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-export REALM_DEFAULT_IMAGE=mydev:auth
-export REALM_DOCKER_ARGS="-v $HOME/.claude/settings.json:/home/yusuke/.claude/settings.json -e ANTHROPIC_API_KEY -e GH_TOKEN"
-{{ end }}
+if [[ "$(uname)" == "Darwin" ]]; then
+  export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+  export REALM_DEFAULT_IMAGE=mydev:auth
+  export REALM_DOCKER_ARGS="-v $HOME/.claude/settings.json:/home/yusuke/.claude/settings.json -e ANTHROPIC_API_KEY -e GH_TOKEN"
+fi
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"
 fi
