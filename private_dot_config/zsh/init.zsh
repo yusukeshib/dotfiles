@@ -14,8 +14,17 @@ export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 export PATH=$HOME/.opencode/bin:$PATH
 if [[ "$(uname)" == "Darwin" ]]; then
   export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-  export REALM_DEFAULT_IMAGE=mydev:auth
+  export REALM_DEFAULT_IMAGE=mydev:latest
+  export REALM_DEFAULT_CMD="claude --allow-dangerously-skip-permissions"
   export REALM_DOCKER_ARGS="-v $HOME/.claude/settings.json:/home/yusuke/.claude/settings.json -v $HOME/.claude/plans:/home/yusuke/.claude/plans -e ANTHROPIC_API_KEY -e GH_TOKEN"
+  # GH_TOKEN is not define export that
+  if [ -z "$GH_TOKEN" ]; then
+    export GH_TOKEN="$(op read op://5w26x7bzgusltdsya6jwo4leam/gh/credential)"
+  fi
+  # ANTHROPIC_API_KEY is not define export that
+  # if [ -z "$ANTHROPIC_API_KEY" ]; then
+  #   export ANTHROPIC_API_KEY="$(op read op://5w26x7bzgusltdsya6jwo4leam/anthropic/credential)"
+  # fi
 fi
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"
