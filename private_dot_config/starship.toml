@@ -119,7 +119,7 @@ symbol = "kt "
 
 [kubernetes]
 format = '[$context\($namespace\)](green) '
-disabled = false
+disabled = true
 
 [lua]
 symbol = "lua "
