@@ -8,8 +8,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 
-# Create user
-RUN useradd -m -s /bin/sh -u 1000 yusuke
+# Create user with passwordless sudo
+RUN useradd -m -s /bin/sh -u 1000 yusuke \
+    && echo 'yusuke ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/yusuke \
+    && chmod 0440 /etc/sudoers.d/yusuke
 
 # Install Nix (single-user mode, owned by yusuke)
 RUN mkdir -m 0755 /nix && chown yusuke /nix
@@ -17,52 +19,39 @@ USER yusuke
 ENV HOME=/home/yusuke
 RUN curl -L https://nixos.org/nix/install | sh -s -- --no-daemon
 ENV PATH=$HOME/.local/bin:$HOME/.claude/bin:$HOME/.nix-profile/bin:$PATH
+ENV PKG_CONFIG_PATH=$HOME/.nix-profile/lib/pkgconfig:$HOME/.nix-profile/share/pkgconfig
 
 # Enable flakes and nix-command
 RUN mkdir -p ~/.config/nix && \
     echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
 
-# base
-RUN nix profile install nixpkgs#zsh
-RUN nix profile install nixpkgs#bat
-RUN nix profile install nixpkgs#delta
-RUN nix profile install nixpkgs#direnv
-RUN nix profile install nixpkgs#eza
-RUN nix profile install nixpkgs#fd
-RUN nix profile install nixpkgs#fzf
-RUN nix profile install nixpkgs#gh
-RUN nix profile install nixpkgs#ripgrep
-RUN nix profile install nixpkgs#starship
-RUN nix profile install nixpkgs#openssh
-RUN nix profile install nixpkgs#gnumake
-RUN nix profile install nixpkgs#pkg-config
-RUN nix profile install nixpkgs#ffmpeg.dev
+# Shell & CLI tools
+RUN nix profile install \
+    nixpkgs#zsh \
+    nixpkgs#bat \
+    nixpkgs#delta \
+    nixpkgs#eza \
+    nixpkgs#fd \
+    nixpkgs#fzf \
+    nixpkgs#gh \
+    nixpkgs#ripgrep \
+    nixpkgs#openssh \
+    nixpkgs#chezmoi
 
-# editor
-RUN nix profile install github:nix-community/neovim-nightly-overlay#neovim
+# Editors
+RUN nix profile install \
+    github:nix-community/neovim-nightly-overlay#neovim
 
-# lang
-RUN nix profile install nixpkgs#nodejs
-RUN nix profile install nixpkgs#uv
-RUN nix profile install nixpkgs#cargo
-RUN nix profile install nixpkgs#clippy
-RUN nix profile install nixpkgs#rustfmt
-RUN nix profile install nixpkgs#gcc
-
-# infra
-# RUN nix profile install nixpkgs#awscli
-RUN nix profile install nixpkgs#kubectx
-RUN nix profile install nixpkgs#kubernetes-helm
-# graphite-cli
-# terraform
-
-# dotfiles
-RUN nix profile install nixpkgs#chezmoi
+# Languages & runtimes
+RUN nix profile install \
+    nixpkgs#nodejs \
+    nixpkgs#uv \
+    nixpkgs#cargo \
+    nixpkgs#clippy \
+    nixpkgs#rustfmt
 
 # Init and apply dotfiles (targets /home/yusuke)
-RUN echo "redeploy=1"
 RUN chezmoi init yusukeshib && chezmoi apply
-RUN echo "alias claude='claude --allow-dangerously-skip-permissions'" >> ~/.zshrc
 
 # Trust all directories for git safe.directory (needed for mounted workspaces in container)
 RUN git config --global --add safe.directory '*'
