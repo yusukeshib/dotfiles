@@ -67,6 +67,13 @@
           "commit_hash": "ae67888ff7ef9dff69b3cf0cc0fbfbcd3a722abe"
         },
         {
+          "name": "hyperfine",
+          "version_spec": null,
+          "resolved_version": "1.20.0",
+          "attribute_path": "hyperfine",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
           "name": "lld",
           "version_spec": null,
           "resolved_version": "21.1.8",
@@ -79,6 +86,13 @@
           "resolved_version": "24.9.0",
           "attribute_path": "nodejs_24",
           "commit_hash": "bce5fe2bb998488d8e7e7856315f90496723793c"
+        },
+        {
+          "name": "pkg-config",
+          "version_spec": null,
+          "resolved_version": "0.29.2",
+          "attribute_path": "pkg-config",
+          "commit_hash": "ee09932cedcef15aaf476f9343d1dea2cb77e261"
         },
         {
           "name": "python",
