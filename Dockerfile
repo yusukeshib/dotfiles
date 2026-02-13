@@ -48,7 +48,8 @@ RUN nix profile install \
     nixpkgs#uv \
     nixpkgs#cargo \
     nixpkgs#clippy \
-    nixpkgs#rustfmt
+    nixpkgs#rustfmt \
+    nixpkgs#gcc
 
 # Init and apply dotfiles (targets /home/yusuke)
 RUN chezmoi init yusukeshib && chezmoi apply
