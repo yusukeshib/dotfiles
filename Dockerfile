@@ -60,6 +60,13 @@ RUN git config --global --add safe.directory '*'
 # Install Claude Code
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
+# Install Codex CLI (standalone binary, no Node.js needed)
+RUN mkdir -p ~/.local/bin \
+    && curl -fsSL https://github.com/openai/codex/releases/latest/download/codex-x86_64-unknown-linux-musl.tar.gz \
+    | tar xz -C /tmp \
+    && mv /tmp/codex-x86_64-unknown-linux-musl ~/.local/bin/codex \
+    && chmod +x ~/.local/bin/codex
+
 # Set zsh as default shell and working directory
 ENV SHELL=/home/yusuke/.nix-profile/bin/zsh
 WORKDIR /home/yusuke
