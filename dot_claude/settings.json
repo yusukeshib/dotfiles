@@ -59,7 +59,7 @@
       "Bash(sudo:*)",
       "Bash(chmod 777:*)"
     ],
-    "defaultMode": "plan"
+    "defaultMode": "bypassPermissions"
   },
   "model": "opus",
   "hooks": {
@@ -92,7 +92,7 @@
     "typescript-lsp@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true
   },
+  "spinnerTipsEnabled": false,
   "alwaysThinkingEnabled": true,
-  "skipDangerousModePermissionPrompt": true,
-  "spinnerTipsEnabled": false
+  "skipDangerousModePermissionPrompt": true
 }
