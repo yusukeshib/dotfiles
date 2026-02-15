@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && locale-gen \
     && rm -rf /var/lib/apt/lists/*
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+ENV TERM=xterm-256color
 
 # Create user with passwordless sudo
 RUN useradd -m -s /bin/sh -u 1000 yusuke \
