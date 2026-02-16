@@ -4,6 +4,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl xz-utils ca-certificates sudo git locales \
     jq zsh bat fd-find fzf ripgrep openssh-client gcc libc6-dev \
+    libvulkan1 mesa-vulkan-drivers \
     && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
     && locale-gen \
     && ln -s /usr/bin/batcat /usr/local/bin/bat \
