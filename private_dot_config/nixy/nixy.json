@@ -67,11 +67,25 @@
           "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
         },
         {
+          "name": "cmake",
+          "version_spec": null,
+          "resolved_version": "4.1.2",
+          "attribute_path": "cmake",
+          "commit_hash": "ee09932cedcef15aaf476f9343d1dea2cb77e261"
+        },
+        {
           "name": "ffmpeg",
           "version_spec": null,
           "resolved_version": "8.0.1",
           "attribute_path": "ffmpeg",
           "commit_hash": "ae67888ff7ef9dff69b3cf0cc0fbfbcd3a722abe"
+        },
+        {
+          "name": "gcc",
+          "version_spec": null,
+          "resolved_version": "15.2.0",
+          "attribute_path": "gcc",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
         },
         {
           "name": "git-lfs",
@@ -93,6 +107,13 @@
           "resolved_version": "21.1.8",
           "attribute_path": "lld",
           "commit_hash": "41965737c1797c1d83cfb0b644ed0840a6220bd1"
+        },
+        {
+          "name": "ninja",
+          "version_spec": null,
+          "resolved_version": "1.13.1",
+          "attribute_path": "ninja",
+          "commit_hash": "ee09932cedcef15aaf476f9343d1dea2cb77e261"
         },
         {
           "name": "nodejs",
