@@ -28,6 +28,7 @@ RUN mkdir -p ~/.config/nix && \
 
 # Shell & CLI tools
 RUN nix profile install \
+    nixpkgs#jq \
     nixpkgs#zsh \
     nixpkgs#bat \
     nixpkgs#delta \
@@ -50,6 +51,7 @@ RUN nix profile install \
     nixpkgs#cargo \
     nixpkgs#clippy \
     nixpkgs#rustfmt \
+    nixpkgs#cargo-insta \
     nixpkgs#gcc
 
 # Init and apply dotfiles (targets /home/yusuke)

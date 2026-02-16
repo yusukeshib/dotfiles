@@ -53,6 +53,13 @@
           "commit_hash": "4533d9293756b63904b7238acb84ac8fe4c8c2c4"
         },
         {
+          "name": "caffeine",
+          "version_spec": null,
+          "resolved_version": "1.1.4",
+          "attribute_path": "caffeine",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
           "name": "chezmoi",
           "version_spec": null,
           "resolved_version": "2.69.3",
