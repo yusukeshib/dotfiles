@@ -1,8 +1,18 @@
 source $HOME/.config/zsh/init.zsh
 
 roaming () {
-	rule="$1" 
-	rule=${rule:-"$USER-allow-ssh"} 
-	ipv4_address=$(curl -4 ifconfig.me 2>/dev/null) 
+	rule="$1"
+	rule=${rule:-"$USER-allow-ssh"}
+	ipv4_address=$(curl -4 ifconfig.me 2>/dev/null)
 	gcloud compute firewall-rules update $rule --source-ranges $ipv4_address/32
+}
+
+update-mydev-image () {
+	local cid
+	cid=$(docker ps -q | xargs -r docker inspect --format '{{.ID}} {{index .Config.Entrypoint 0}}' | awk '/bash$/{print $1; exit}')
+	if [[ -z "$cid" ]]; then
+		echo "No running container with entrypoint=bash found" >&2
+		return 1
+	fi
+	docker commit "$cid" mydev:latest
 }
