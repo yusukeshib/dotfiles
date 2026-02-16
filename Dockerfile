@@ -3,7 +3,7 @@ FROM debian:bookworm-slim
 # Install system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl xz-utils ca-certificates sudo git locales \
-    jq zsh bat fd-find fzf ripgrep openssh-client gcc \
+    jq zsh bat fd-find fzf ripgrep openssh-client gcc libc6-dev \
     && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
     && locale-gen \
     && ln -s /usr/bin/batcat /usr/local/bin/bat \
