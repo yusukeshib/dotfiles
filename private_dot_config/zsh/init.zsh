@@ -16,7 +16,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
   export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
   export BOX_DEFAULT_IMAGE=mydev:latest
   export BOX_DEFAULT_CMD="claude --allow-dangerously-skip-permissions"
-  export BOX_DOCKER_ARGS="-v $HOME/.claude/settings.json:/home/yusuke/.claude/settings.json -v $HOME/.claude/sessions:/home/yusuke/.claude/sessions -v $HOME/.claude/plans:/home/yusuke/.claude/plans -e ANTHROPIC_API_KEY -e GH_TOKEN -e LINEAR_API_KEY -e FIGMA_API_KEY"
+  export BOX_DOCKER_ARGS="-v $HOME/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock:/ssh-agent -e SSH_AUTH_SOCK=/ssh-agent -v $HOME/.claude/settings.json:/home/yusuke/.claude/settings.json -v $HOME/.claude/sessions:/home/yusuke/.claude/sessions -v $HOME/.claude/plans:/home/yusuke/.claude/plans -e ANTHROPIC_API_KEY -e GH_TOKEN -e LINEAR_API_KEY -e FIGMA_API_KEY"
 fi
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"
