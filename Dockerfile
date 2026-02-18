@@ -15,7 +15,7 @@ ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 ENV TERM=xterm-256color
 
 # Create user with passwordless sudo
-RUN useradd -m -s /usr/bin/zsh -u 1000 yusuke \
+RUN useradd -m -s /usr/bin/zsh -u 501 yusuke \
     && echo 'yusuke ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/yusuke \
     && chmod 0440 /etc/sudoers.d/yusuke
 
