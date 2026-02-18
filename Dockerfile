@@ -3,7 +3,7 @@ FROM debian:bookworm-slim
 # Install system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl xz-utils ca-certificates sudo git locales \
-    jq zsh bat fd-find fzf ripgrep openssh-client \
+    jq zsh bat fd-find ripgrep openssh-client \
     libvulkan1 mesa-vulkan-drivers \
     libc6-dev build-essential pkg-config cmake nasm libfontconfig1-dev libssl-dev libvulkan-dev \
     && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
@@ -24,10 +24,14 @@ ENV HOME=/home/yusuke
 ENV PATH=$HOME/.local/bin:$HOME/.claude/bin:$HOME/.cargo/bin:$PATH
 
 # Install CLI tools from GitHub releases
+ARG FZF_VERSION=0.61.1
 ARG GH_VERSION=2.67.0
 ARG DELTA_VERSION=0.18.2
 ARG EZA_VERSION=0.20.14
 RUN mkdir -p ~/.local/bin \
+    # fzf
+    && curl -fsSL "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
+       | tar xz -C ~/.local/bin \
     # gh
     && curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" \
        | tar xz -C /tmp \
