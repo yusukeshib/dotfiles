@@ -81,13 +81,6 @@
           "commit_hash": "ae67888ff7ef9dff69b3cf0cc0fbfbcd3a722abe"
         },
         {
-          "name": "gcc",
-          "version_spec": null,
-          "resolved_version": "15.2.0",
-          "attribute_path": "gcc",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
-        },
-        {
           "name": "git-lfs",
           "version_spec": null,
           "resolved_version": "3.7.1",
