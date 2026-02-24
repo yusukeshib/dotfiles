@@ -95,6 +95,20 @@
           "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
         },
         {
+          "name": "just",
+          "version_spec": null,
+          "resolved_version": "1.46.0",
+          "attribute_path": "just",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
+          "name": "kubectl",
+          "version_spec": null,
+          "resolved_version": "1.35.0",
+          "attribute_path": "kubectl",
+          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+        },
+        {
           "name": "lld",
           "version_spec": null,
           "resolved_version": "21.1.8",
