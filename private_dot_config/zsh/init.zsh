@@ -11,21 +11,8 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export FZF_DEFAULT_COMMAND='fd --type f -i'
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
-export PATH=$HOME/.opencode/bin:$PATH
-if [[ "$(uname)" == "Darwin" ]]; then
-  export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-  export BOX_MODE=local
-  export BOX_STRATEGY=clone
-  export BOX_DEFAULT_IMAGE=mydev:latest
-  export BOX_DEFAULT_CMD="claude"
-  export BOX_DOCKER_ARGS="-v /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock -e SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock -v $HOME/.claude/settings.json:/home/yusuke/.claude/settings.json -v $HOME/.claude/sessions:/home/yusuke/.claude/sessions -v $HOME/.claude/plans:/home/yusuke/.claude/plans -e ANTHROPIC_API_KEY -e GH_TOKEN -e LINEAR_API_KEY -e FIGMA_API_KEY"
-else
-  # In containers, use Docker Desktop's SSH agent forwarding which
-  # proxies the host's SSH_AUTH_SOCK (1Password) automatically.
-  if [[ -S /run/host-services/ssh-auth.sock ]]; then
-    export SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
-  fi
-fi
+export BOX_DEFAULT_CMD="claude"
+
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"
 fi
