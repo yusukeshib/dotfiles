@@ -54,6 +54,7 @@ fi
 
 if type "kubectl" > /dev/null; then
   source <(kubectl completion zsh)
+  alias k="kubectl"
 fi
 
 #
