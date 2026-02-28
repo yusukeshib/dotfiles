@@ -8,9 +8,9 @@
         {
           "name": "atuin",
           "version_spec": null,
-          "resolved_version": "18.11.0",
+          "resolved_version": "18.12.1",
           "attribute_path": "atuin",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "awscli",
@@ -38,28 +38,28 @@
           "version_spec": null,
           "resolved_version": "1.64.0",
           "attribute_path": "buf",
-          "commit_hash": "fef9403a3e4d31b0a23f0bacebbec52c248fbb51"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "bun",
           "version_spec": null,
           "resolved_version": "1.3.9",
           "attribute_path": "bun",
-          "commit_hash": "c05d2232d2feaa4c7a07f1168606917402868195"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "caffeine",
           "version_spec": null,
           "resolved_version": "1.1.4",
           "attribute_path": "caffeine",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "chezmoi",
           "version_spec": null,
           "resolved_version": "2.69.3",
           "attribute_path": "chezmoi",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "cmake",
@@ -108,7 +108,7 @@
           "version_spec": null,
           "resolved_version": "8.0.1",
           "attribute_path": "ffmpeg",
-          "commit_hash": "d1c15b7d5806069da59e819999d70e1cec0760bf"
+          "commit_hash": "5e4522be6bdf1600682a6f383434b057b2d77a37"
         },
         {
           "name": "fzf",
@@ -129,7 +129,7 @@
           "version_spec": null,
           "resolved_version": "3.7.1",
           "attribute_path": "git-lfs",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "glow",
@@ -150,7 +150,7 @@
           "version_spec": null,
           "resolved_version": "1.20.0",
           "attribute_path": "hyperfine",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "jujutsu",
@@ -164,7 +164,7 @@
           "version_spec": null,
           "resolved_version": "1.35.0",
           "attribute_path": "kubectl",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "kubectx",
@@ -203,10 +203,10 @@
         },
         {
           "name": "python",
-          "version_spec": "3.11",
-          "resolved_version": "3.11.14",
-          "attribute_path": "python311",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "version_spec": "3.13",
+          "resolved_version": "3.13.3",
+          "attribute_path": "python313",
+          "commit_hash": "12a55407652e04dcf2309436eb06fef0d3713ef3"
         },
         {
           "name": "ripgrep",
@@ -220,14 +220,14 @@
           "version_spec": null,
           "resolved_version": "1.28.2",
           "attribute_path": "rustup",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "sd",
           "version_spec": null,
           "resolved_version": "1.0.0",
           "attribute_path": "sd",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "starship",
@@ -241,7 +241,7 @@
           "version_spec": null,
           "resolved_version": "1.5.1",
           "attribute_path": "temporal-cli",
-          "commit_hash": "a1bab9e494f5f4939442a57a58d0449a109593fe"
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "terraform",
