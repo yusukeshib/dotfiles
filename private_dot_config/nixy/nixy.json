@@ -24,7 +24,7 @@
           "version_spec": null,
           "resolved_version": "5.3p9",
           "attribute_path": "bash",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "dc7513872406b53d2ff417a003895d6daffdff2f"
         },
         {
           "name": "bat",
@@ -43,23 +43,16 @@
         {
           "name": "bun",
           "version_spec": null,
-          "resolved_version": "1.3.9",
+          "resolved_version": "1.3.10",
           "attribute_path": "bun",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
-        },
-        {
-          "name": "caffeine",
-          "version_spec": null,
-          "resolved_version": "1.1.4",
-          "attribute_path": "caffeine",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "42bbf3e1e000963f4f3f37daa822c67c4d8856c4"
         },
         {
           "name": "chezmoi",
           "version_spec": null,
-          "resolved_version": "2.69.3",
+          "resolved_version": "2.69.4",
           "attribute_path": "chezmoi",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "c0f3d81a7ddbc2b1332be0d8481a672b4f6004d6"
         },
         {
           "name": "cmake",
@@ -87,7 +80,7 @@
           "version_spec": null,
           "resolved_version": "5.7",
           "attribute_path": "entr",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "dc7513872406b53d2ff417a003895d6daffdff2f"
         },
         {
           "name": "eza",
@@ -108,7 +101,7 @@
           "version_spec": null,
           "resolved_version": "8.0.1",
           "attribute_path": "ffmpeg",
-          "commit_hash": "5e4522be6bdf1600682a6f383434b057b2d77a37"
+          "commit_hash": "4215e62dc2cd3bc705b0a423b9719ff6be378a43"
         },
         {
           "name": "fzf",
@@ -120,9 +113,9 @@
         {
           "name": "gh",
           "version_spec": null,
-          "resolved_version": "2.87.2",
+          "resolved_version": "2.87.3",
           "attribute_path": "gh",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "26eaeac4e409d7b5a6bf6f90a2a2dc223c78d915"
         },
         {
           "name": "git-lfs",
@@ -157,7 +150,7 @@
           "version_spec": null,
           "resolved_version": "0.38.0",
           "attribute_path": "jujutsu",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "26eaeac4e409d7b5a6bf6f90a2a2dc223c78d915"
         },
         {
           "name": "kubectl",
@@ -225,9 +218,9 @@
         {
           "name": "sd",
           "version_spec": null,
-          "resolved_version": "1.0.0",
+          "resolved_version": "1.1.0",
           "attribute_path": "sd",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "c0f3d81a7ddbc2b1332be0d8481a672b4f6004d6"
         },
         {
           "name": "starship",
@@ -246,16 +239,16 @@
         {
           "name": "terraform",
           "version_spec": null,
-          "resolved_version": "1.14.5",
+          "resolved_version": "1.14.6",
           "attribute_path": "terraform",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "26eaeac4e409d7b5a6bf6f90a2a2dc223c78d915"
         },
         {
           "name": "uv",
           "version_spec": null,
-          "resolved_version": "0.10.4",
+          "resolved_version": "0.10.6",
           "attribute_path": "uv",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "c0f3d81a7ddbc2b1332be0d8481a672b4f6004d6"
         },
         {
           "name": "vhs",
