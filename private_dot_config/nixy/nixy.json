@@ -203,10 +203,10 @@
         },
         {
           "name": "python",
-          "version_spec": "3.13",
-          "resolved_version": "3.13.3",
-          "attribute_path": "python313",
-          "commit_hash": "12a55407652e04dcf2309436eb06fef0d3713ef3"
+          "version_spec": "3.11.11",
+          "resolved_version": "3.11.11",
+          "attribute_path": "python311",
+          "commit_hash": "ebe4301cbd8f81c4f8d3244b3632338bbeb6d49c"
         },
         {
           "name": "ripgrep",
