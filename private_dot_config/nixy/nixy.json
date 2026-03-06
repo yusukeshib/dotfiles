@@ -104,6 +104,13 @@
           "commit_hash": "4215e62dc2cd3bc705b0a423b9719ff6be378a43"
         },
         {
+          "name": "firebase-tools",
+          "version_spec": "14.27.0",
+          "resolved_version": "14.27.0",
+          "attribute_path": "firebase-tools",
+          "commit_hash": "677fbe97984e7af3175b6c121f3c39ee5c8d62c9"
+        },
+        {
           "name": "fzf",
           "version_spec": null,
           "resolved_version": "0.68.0",
@@ -182,10 +189,10 @@
         },
         {
           "name": "nodejs",
-          "version_spec": "24.9",
-          "resolved_version": "24.9.0",
-          "attribute_path": "nodejs_24",
-          "commit_hash": "bce5fe2bb998488d8e7e7856315f90496723793c"
+          "version_spec": "22",
+          "resolved_version": "22.22.0",
+          "attribute_path": "nodejs_22",
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
           "name": "pkg-config",
