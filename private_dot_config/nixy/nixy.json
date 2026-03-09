@@ -24,7 +24,7 @@
           "version_spec": null,
           "resolved_version": "5.3p9",
           "attribute_path": "bash",
-          "commit_hash": "dc7513872406b53d2ff417a003895d6daffdff2f"
+          "commit_hash": "0c39f3b5a9a234421d4ad43ab9c7cf64840172d0"
         },
         {
           "name": "bat",
@@ -78,9 +78,9 @@
         {
           "name": "entr",
           "version_spec": null,
-          "resolved_version": "5.7",
+          "resolved_version": "5.8",
           "attribute_path": "entr",
-          "commit_hash": "dc7513872406b53d2ff417a003895d6daffdff2f"
+          "commit_hash": "0fd2db475afdde93c9e4b1625aafb8eb41b99807"
         },
         {
           "name": "eza",
@@ -101,7 +101,7 @@
           "version_spec": null,
           "resolved_version": "8.0.1",
           "attribute_path": "ffmpeg",
-          "commit_hash": "4215e62dc2cd3bc705b0a423b9719ff6be378a43"
+          "commit_hash": "289c8a834fbf87af1f01cb78f479537ef5219a0b"
         },
         {
           "name": "firebase-tools",
@@ -113,9 +113,9 @@
         {
           "name": "fzf",
           "version_spec": null,
-          "resolved_version": "0.68.0",
+          "resolved_version": "0.70.0",
           "attribute_path": "fzf",
-          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+          "commit_hash": "72b1d820cb0149b40a35aa077b4b6d60cd1b23c3"
         },
         {
           "name": "gh",
@@ -155,9 +155,9 @@
         {
           "name": "jujutsu",
           "version_spec": null,
-          "resolved_version": "0.38.0",
+          "resolved_version": "0.39.0",
           "attribute_path": "jujutsu",
-          "commit_hash": "26eaeac4e409d7b5a6bf6f90a2a2dc223c78d915"
+          "commit_hash": "66d9241e3dc2296726dc522e62dbfe89c7b449f3"
         },
         {
           "name": "kubectl",
@@ -220,6 +220,13 @@
           "version_spec": null,
           "resolved_version": "1.28.2",
           "attribute_path": "rustup",
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+        },
+        {
+          "name": "sccache",
+          "version_spec": null,
+          "resolved_version": "0.14.0",
+          "attribute_path": "sccache",
           "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
