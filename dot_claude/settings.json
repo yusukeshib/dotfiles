@@ -13,5 +13,18 @@
   "spinnerTipsEnabled": false,
   "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.message' | xargs -I {} terminal-notifier -title 'Claude Code: '\"$(basename \"$PWD\")\" -message '{}' -sound default -activate com.mitchellh.ghostty -appIcon '/Applications/Ghostty.app/Contents/Resources/Ghostty.icns'"
+          }
+        ]
+      }
+    ]
+  }
 }

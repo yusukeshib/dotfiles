@@ -251,6 +251,17 @@
           "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
         },
         {
+          "name": "terminal-notifier",
+          "version_spec": null,
+          "resolved_version": "2.0.0",
+          "attribute_path": "terminal-notifier",
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97",
+          "platforms": [
+            "aarch64-darwin",
+            "x86_64-darwin"
+          ]
+        },
+        {
           "name": "terraform",
           "version_spec": null,
           "resolved_version": "1.14.6",
