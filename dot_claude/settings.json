@@ -21,7 +21,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.message' | xargs -I {} terminal-notifier -title 'Claude Code: '\"$(basename \"$PWD\")\" -message '{}' -sound default -activate com.mitchellh.ghostty -appIcon '/Applications/Ghostty.app/Contents/Resources/Ghostty.icns'"
+            "command": "TAB_NAME=$(zellij action dump-layout 2>/dev/null | grep 'tab name=.*focus=true' | sed 's/.*name=\"\\([^\"]*\\)\".*/\\1/') && jq -r '.message' | xargs -I {} terminal-notifier -title 'Claude Code: '\"$(basename \"$PWD\")\" -message '{}' -sound default -execute \"open -a Ghostty; zellij --session $ZELLIJ_SESSION_NAME action go-to-tab-name '$TAB_NAME'\" -appIcon '/Applications/Ghostty.app/Contents/Resources/Ghostty.icns'"
           }
         ]
       }
