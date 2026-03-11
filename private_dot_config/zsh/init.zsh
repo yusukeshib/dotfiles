@@ -6,7 +6,6 @@ if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
   . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
 fi
 
-export TERM=xterm-256color
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export FZF_DEFAULT_COMMAND='fd --type f -i'
@@ -56,7 +55,53 @@ if type "eza" > /dev/null; then
   alias lt='eza --tree'
 fi
 
-if type "zellij" > /dev/null; then
+if type "tmux" > /dev/null; then
+  new() {
+    if (( $# == 0 )); then
+      print -u2 "usage: new <session-name>"
+      return 1
+    fi
+
+    if [[ -n "${TMUX:-}" ]]; then
+      tmux has-session -t "$1" 2>/dev/null || tmux new-session -d -s "$1"
+      tmux switch-client -t "$1"
+    else
+      tmux new-session -A -s "$1"
+    fi
+  }
+
+  a() {
+    if (( $# == 0 )); then
+      if [[ -n "${TMUX:-}" ]]; then
+        tmux choose-tree -Zs
+      else
+        tmux attach-session
+      fi
+      return
+    fi
+
+    if [[ -n "${TMUX:-}" ]]; then
+      tmux switch-client -t "$1"
+    else
+      tmux attach-session -t "$1"
+    fi
+  }
+
+  _tmux_attach_sessions() {
+    local -a sessions
+    sessions=("${(@f)$(tmux list-sessions -F '#S' 2>/dev/null)}")
+    if (( ! $#sessions )); then
+      _message 'no sessions'
+      return 1
+    fi
+    compadd -S '' -Q -a sessions
+  }
+
+  compdef _tmux_attach_sessions a
+
+  zstyle ':fzf-tab:complete:a:*' fzf-preview \
+    'echo "tmux session: $word"; echo; tmux list-sessions -F "#S" | grep --color=always -E "^${word//\*/.*}$" || true'
+elif type "zellij" > /dev/null; then
   alias new="zellij -s"
 
   # Note: defining 'a' as a function is more stable
