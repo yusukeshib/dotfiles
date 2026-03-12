@@ -61,6 +61,8 @@ symbol = ".NET "
 
 [directory]
 read_only = " ro"
+truncation_length = 2
+truncation_symbol = ".../"
 
 [container]
 disabled = true
