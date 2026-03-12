@@ -63,6 +63,7 @@ symbol = ".NET "
 read_only = " ro"
 truncation_length = 2
 truncation_symbol = ".../"
+truncate_to_repo = false
 
 [container]
 disabled = true
