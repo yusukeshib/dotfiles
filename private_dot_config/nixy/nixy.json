@@ -160,6 +160,13 @@
           "commit_hash": "66d9241e3dc2296726dc522e62dbfe89c7b449f3"
         },
         {
+          "name": "k6",
+          "version_spec": null,
+          "resolved_version": "1.6.1",
+          "attribute_path": "k6",
+          "commit_hash": "80d901ec0377e19ac3f7bb8c035201e2e098cc97"
+        },
+        {
           "name": "kubectl",
           "version_spec": null,
           "resolved_version": "1.35.0",
