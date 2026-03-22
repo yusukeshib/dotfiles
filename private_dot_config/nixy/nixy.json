@@ -276,13 +276,6 @@
           "commit_hash": "26eaeac4e409d7b5a6bf6f90a2a2dc223c78d915"
         },
         {
-          "name": "tmux",
-          "version_spec": null,
-          "resolved_version": "3.6",
-          "attribute_path": "tmux",
-          "commit_hash": "5c46f3bd98147c8d82366df95bbef2cab3a967ea"
-        },
-        {
           "name": "uv",
           "version_spec": null,
           "resolved_version": "0.10.10",
