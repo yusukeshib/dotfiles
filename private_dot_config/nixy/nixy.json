@@ -101,7 +101,7 @@
           "version_spec": null,
           "resolved_version": "8.0.1",
           "attribute_path": "ffmpeg",
-          "commit_hash": "f8573b9c935cfaa162dd62cc9e75ae2db86f85df"
+          "commit_hash": "fdc7b8f7b30fdbedec91b71ed82f36e1637483ed"
         },
         {
           "name": "firebase-tools",

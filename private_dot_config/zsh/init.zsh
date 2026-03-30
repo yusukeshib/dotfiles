@@ -11,7 +11,6 @@ export LC_ALL=en_US.UTF-8
 export FZF_DEFAULT_COMMAND='fd --type f -i'
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 export BOX_DEFAULT_CMD="claude"
-export BOX_STRATEGY="worktree"
 
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"
