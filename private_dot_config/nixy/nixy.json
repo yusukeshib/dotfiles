@@ -300,9 +300,9 @@
       "custom_packages": [
         {
           "name": "neovim",
-          "input_name": "github-nix-community-neovim-nightly-overlay",
-          "input_url": "github:nix-community/neovim-nightly-overlay",
-          "package_output": "packages",
+          "input_name": "nixpkgs-nixpkgs-unstable",
+          "input_url": "github:NixOS/nixpkgs/nixpkgs-unstable",
+          "package_output": "legacyPackages",
           "source_name": null
         }
       ]
