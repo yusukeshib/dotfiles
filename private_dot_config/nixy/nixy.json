@@ -276,6 +276,13 @@
           "commit_hash": "c397ef6af68c018462d786e1b65384abc472a907"
         },
         {
+          "name": "tmux",
+          "version_spec": null,
+          "resolved_version": "3.6",
+          "attribute_path": "tmux",
+          "commit_hash": "5c46f3bd98147c8d82366df95bbef2cab3a967ea"
+        },
+        {
           "name": "uv",
           "version_spec": null,
           "resolved_version": "0.11.6",
@@ -288,13 +295,6 @@
           "resolved_version": "0.11.0",
           "attribute_path": "vhs",
           "commit_hash": "b0188973b4b2a5b6bdba8b65381d6cd09a533da0"
-        },
-        {
-          "name": "zellij",
-          "version_spec": null,
-          "resolved_version": "0.44.1",
-          "attribute_path": "zellij",
-          "commit_hash": "dfd9566f82a6e1d55c30f861879186440614696e"
         }
       ],
       "custom_packages": [
