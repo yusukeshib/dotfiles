@@ -1,5 +1,5 @@
 ---
-name: create-pr
+name: my-create-pr
 description: Format & lint, thoroughly review all code changes, then create a PR
 user-invocable: true
 allowed-tools:

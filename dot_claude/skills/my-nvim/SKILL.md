@@ -1,6 +1,6 @@
 ---
-name: nvim
-description: Open a file in nvim in a vertical tmux split. Only invoke via the /nvim slash command.
+name: my-nvim
+description: Open a file in nvim in a vertical tmux split. Only invoke via the /my-nvim slash command.
 ---
 
 # Open in nvim

@@ -1,5 +1,5 @@
 ---
-name: code-review
+name: my-pr-review
 description: Perform a comprehensive codebase review, fix ALL found issues, and create a PR with the full report
 user-invocable: true
 allowed-tools:
