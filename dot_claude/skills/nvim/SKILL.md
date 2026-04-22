@@ -1,6 +1,6 @@
 ---
-name: my-nvim
-description: Open a file in nvim in a vertical tmux split. Only invoke via the /my-nvim slash command.
+name: nvim
+description: Open a file in nvim in a vertical tmux split. Only invoke via the /nvim slash command.
 ---
 
 # Open in nvim
@@ -23,7 +23,7 @@ When no specification is given, or when the specification needs to be resolved t
 
 1. Resolve the target file per the rules above.
 2. If the specification refers to a symbol (function, type, variable, etc.) or a specific responsibility within the file, find the relevant line number using Grep or Read.
-3. Open nvim at that line: `tmux split-window -v "nvim +<line> <target>"`. If no specific line is known, omit the `+<line>` flag.
+3. Open nvim at that line: `tmux split-window -h "nvim +<line> <target>"` (`-h` creates a left/right split in tmux). If no specific line is known, omit the `+<line>` flag.
 4. No output needed on success.
 
 (Thanks! rob)
