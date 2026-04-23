@@ -3,3 +3,6 @@ model = "gpt-5.4"
 model_reasoning_effort = "high"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
+
+[projects."/Users/yusuke/.box/repos"]
+trust_level = "trusted"

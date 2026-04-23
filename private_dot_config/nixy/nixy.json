@@ -17,14 +17,14 @@
           "version_spec": null,
           "resolved_version": "1.44.21",
           "attribute_path": "awscli",
-          "commit_hash": "09061f748ee21f68a089cd5d91ec1859cd93d0be"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "bash",
           "version_spec": null,
           "resolved_version": "5.3p9",
           "attribute_path": "bash",
-          "commit_hash": "9d29d5f667d7467f98efc31881e824fa586c927e"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "bat",
@@ -38,21 +38,21 @@
           "version_spec": null,
           "resolved_version": "1.67.0",
           "attribute_path": "buf",
-          "commit_hash": "8d8c1fa5b412c223ffa47410867813290cdedfef"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "bun",
           "version_spec": null,
           "resolved_version": "1.3.11",
           "attribute_path": "bun",
-          "commit_hash": "dc72a9d2282085d97d5a2cc8e7103a68ed4de188"
+          "commit_hash": "975dad1a84d727dce241bb41b27191948fa5a956"
         },
         {
           "name": "chezmoi",
           "version_spec": null,
           "resolved_version": "2.69.4",
           "attribute_path": "chezmoi",
-          "commit_hash": "13043924aaa7375ce482ebe2494338e058282925"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "cmake",
@@ -73,14 +73,14 @@
           "version_spec": null,
           "resolved_version": "2.37.1",
           "attribute_path": "direnv",
-          "commit_hash": "c397ef6af68c018462d786e1b65384abc472a907"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "entr",
           "version_spec": null,
           "resolved_version": "5.8",
           "attribute_path": "entr",
-          "commit_hash": "09061f748ee21f68a089cd5d91ec1859cd93d0be"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "eza",
@@ -101,7 +101,7 @@
           "version_spec": null,
           "resolved_version": "8.0.1",
           "attribute_path": "ffmpeg",
-          "commit_hash": "13043924aaa7375ce482ebe2494338e058282925"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "firebase-tools",
@@ -115,35 +115,35 @@
           "version_spec": null,
           "resolved_version": "0.71.0",
           "attribute_path": "fzf",
-          "commit_hash": "bd48fcede9287ff448ecc84c4e94a4fca4bd0d72"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "gh",
           "version_spec": null,
           "resolved_version": "2.89.0",
           "attribute_path": "gh",
-          "commit_hash": "832efc09b4caf6b4569fbf9dc01bec3082a00611"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "git-lfs",
           "version_spec": null,
           "resolved_version": "3.7.1",
           "attribute_path": "git-lfs",
-          "commit_hash": "09061f748ee21f68a089cd5d91ec1859cd93d0be"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "glow",
           "version_spec": null,
-          "resolved_version": "2.1.1",
+          "resolved_version": "2.1.2",
           "attribute_path": "glow",
-          "commit_hash": "09061f748ee21f68a089cd5d91ec1859cd93d0be"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "graphite-cli",
           "version_spec": null,
           "resolved_version": "1.7.20",
           "attribute_path": "graphite-cli",
-          "commit_hash": "dfd9566f82a6e1d55c30f861879186440614696e"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "hyperfine",
@@ -157,49 +157,49 @@
           "version_spec": null,
           "resolved_version": "0.40.0",
           "attribute_path": "jujutsu",
-          "commit_hash": "8d8c1fa5b412c223ffa47410867813290cdedfef"
+          "commit_hash": "566acc07c54dc807f91625bb286cb9b321b5f42a"
         },
         {
           "name": "k6",
           "version_spec": null,
           "resolved_version": "1.7.1",
           "attribute_path": "k6",
-          "commit_hash": "5e11f7acce6c3469bef9df154d78534fa7ae8b6c"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "kubectl",
           "version_spec": null,
           "resolved_version": "1.35.3",
           "attribute_path": "kubectl",
-          "commit_hash": "fdc7b8f7b30fdbedec91b71ed82f36e1637483ed"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "kubectx",
           "version_spec": null,
           "resolved_version": "0.11.0",
           "attribute_path": "kubectx",
-          "commit_hash": "15c6719d8c604779cf59e03c245ea61d3d7ab69b"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "kubernetes-helm",
           "version_spec": null,
-          "resolved_version": "3.19.1",
+          "resolved_version": "3.20.1",
           "attribute_path": "kubernetes-helm",
-          "commit_hash": "09061f748ee21f68a089cd5d91ec1859cd93d0be"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "nix-direnv",
           "version_spec": null,
           "resolved_version": "3.1.1",
           "attribute_path": "nix-direnv",
-          "commit_hash": "9a01fad67a57e44e1b3e1d905c6881bcfb209e8a"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "nodejs",
           "version_spec": "22",
           "resolved_version": "22.22.2",
           "attribute_path": "nodejs_22",
-          "commit_hash": "832efc09b4caf6b4569fbf9dc01bec3082a00611"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "pkg-config",
@@ -255,7 +255,7 @@
           "version_spec": null,
           "resolved_version": "1.6.2",
           "attribute_path": "temporal-cli",
-          "commit_hash": "8d8c1fa5b412c223ffa47410867813290cdedfef"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "terminal-notifier",
@@ -273,7 +273,7 @@
           "version_spec": null,
           "resolved_version": "1.14.8",
           "attribute_path": "terraform",
-          "commit_hash": "c397ef6af68c018462d786e1b65384abc472a907"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         },
         {
           "name": "tmux",
@@ -294,7 +294,7 @@
           "version_spec": null,
           "resolved_version": "0.11.0",
           "attribute_path": "vhs",
-          "commit_hash": "b0188973b4b2a5b6bdba8b65381d6cd09a533da0"
+          "commit_hash": "b86751bc4085f48661017fa226dee99fab6c651b"
         }
       ],
       "custom_packages": [
