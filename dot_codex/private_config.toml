@@ -1,8 +1,14 @@
 personality = "pragmatic"
-model = "gpt-5.4"
-model_reasoning_effort = "high"
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 
 [projects."/Users/yusuke/.box/repos"]
 trust_level = "trusted"
+
+[projects."/Users/yusuke"]
+trust_level = "trusted"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
