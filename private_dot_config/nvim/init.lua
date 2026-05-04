@@ -166,7 +166,8 @@ vim.pack.add({
   -- Code completion and AI
   --
 
-  -- Completion engine
+  -- Completion engine (v2 requires blink.lib)
+  { src = "https://github.com/Saghen/blink.lib" },
   { src = "https://github.com/Saghen/blink.cmp" },
   -- GitHub Copilot integration
   { src = "https://github.com/zbirenbaum/copilot.lua" },
