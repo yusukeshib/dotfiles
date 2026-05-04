@@ -4,7 +4,7 @@ model_reasoning_effort = "xhigh"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 
-[projects."/Users/yusuke/.box/repos"]
+[projects."/Users/yusuke"]
 trust_level = "trusted"
 
 [projects."/Users/yusuke"]

@@ -16,6 +16,10 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "sh ~/.claude/statusline-command.sh"
+  },
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
@@ -26,9 +30,5 @@
   "spinnerTipsEnabled": false,
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
-  "skipDangerousModePermissionPrompt": true,
-  "statusLine": {
-    "type": "command",
-    "command": "sh ~/.claude/statusline-command.sh"
-  }
+  "skipDangerousModePermissionPrompt": true
 }
