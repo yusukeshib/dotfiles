@@ -1,6 +1,5 @@
 font-family = Hack
 theme = deep
-# theme = Monokai Pro Light
 font-feature = -dlig
 font-size = 13
 confirm-close-surface = false

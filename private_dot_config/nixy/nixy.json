@@ -24,7 +24,7 @@
           "version_spec": null,
           "resolved_version": "5.3p9",
           "attribute_path": "bash",
-          "commit_hash": "73c703c22422b8951895a960959dbbaca7296492"
+          "commit_hash": "07800bee2b362f6c73fe17cb1593a260c5e183c6"
         },
         {
           "name": "bat",
@@ -73,7 +73,7 @@
           "version_spec": null,
           "resolved_version": "2.37.1",
           "attribute_path": "direnv",
-          "commit_hash": "e75f25705c2934955ee5075e62530d74aca973c6"
+          "commit_hash": "68a8af93ff4297686cb68880845e61e5e2e41d92"
         },
         {
           "name": "entr",
@@ -101,7 +101,7 @@
           "version_spec": null,
           "resolved_version": "8.0.1",
           "attribute_path": "ffmpeg",
-          "commit_hash": "90c100cb48d61a0316b9479bb03f1be36d34b92a"
+          "commit_hash": "ed67bc86e84e51d4a88e73c7fd36006dc876476f"
         },
         {
           "name": "firebase-tools",
@@ -192,7 +192,7 @@
           "version_spec": null,
           "resolved_version": "3.1.1",
           "attribute_path": "nix-direnv",
-          "commit_hash": "c6d65881c5624c9cae5ea6cedef24699b0c0a4c0"
+          "commit_hash": "bc57abace07689cfd34203aa5fb4027514895987"
         },
         {
           "name": "nodejs",
@@ -292,9 +292,9 @@
         {
           "name": "uv",
           "version_spec": null,
-          "resolved_version": "0.11.8",
+          "resolved_version": "0.11.10",
           "attribute_path": "uv",
-          "commit_hash": "e75f25705c2934955ee5075e62530d74aca973c6"
+          "commit_hash": "ed67bc86e84e51d4a88e73c7fd36006dc876476f"
         },
         {
           "name": "vhs",
