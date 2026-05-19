@@ -53,3 +53,6 @@
 
 [pull]
   autoSetupRemote = true
+
+[alias]
+  dft = "-c diff.external=difft diff"

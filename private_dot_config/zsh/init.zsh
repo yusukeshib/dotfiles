@@ -27,6 +27,10 @@ if type "fzf" > /dev/null; then
   source <(fzf --zsh)
 fi
 
+if type "zoxide" > /dev/null; then
+  eval "$(zoxide init zsh)"
+fi
+
 if type "kubectl" > /dev/null; then
   source <(kubectl completion zsh)
   alias k="kubectl"

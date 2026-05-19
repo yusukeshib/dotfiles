@@ -6,6 +6,13 @@
       "packages": [],
       "resolved_packages": [
         {
+          "name": "ast-grep",
+          "version_spec": null,
+          "resolved_version": "0.42.1",
+          "attribute_path": "ast-grep",
+          "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+        },
+        {
           "name": "atuin",
           "version_spec": null,
           "resolved_version": "18.15.2",
@@ -31,6 +38,13 @@
           "version_spec": null,
           "resolved_version": "0.26.1",
           "attribute_path": "bat",
+          "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+        },
+        {
+          "name": "bottom",
+          "version_spec": null,
+          "resolved_version": "0.12.3",
+          "attribute_path": "bottom",
           "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
         },
         {
@@ -67,6 +81,13 @@
           "resolved_version": "0.19.2",
           "attribute_path": "delta",
           "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+        },
+        {
+          "name": "difftastic",
+          "version_spec": null,
+          "resolved_version": "0.69.0",
+          "attribute_path": "difftastic",
+          "commit_hash": "90c100cb48d61a0316b9479bb03f1be36d34b92a"
         },
         {
           "name": "direnv",
@@ -125,6 +146,13 @@
           "commit_hash": "c6d65881c5624c9cae5ea6cedef24699b0c0a4c0"
         },
         {
+          "name": "gh-dash",
+          "version_spec": null,
+          "resolved_version": "4.24.0",
+          "attribute_path": "gh-dash",
+          "commit_hash": "eef00dfd8a712b34af845f9350bac681b1228bd1"
+        },
+        {
           "name": "git-lfs",
           "version_spec": null,
           "resolved_version": "3.7.1",
@@ -164,6 +192,13 @@
           "version_spec": null,
           "resolved_version": "1.7.1",
           "attribute_path": "k6",
+          "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+        },
+        {
+          "name": "k9s",
+          "version_spec": null,
+          "resolved_version": "0.50.18",
+          "attribute_path": "k9s",
           "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
         },
         {
@@ -295,6 +330,13 @@
           "resolved_version": "0.11.0",
           "attribute_path": "vhs",
           "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+        },
+        {
+          "name": "zoxide",
+          "version_spec": null,
+          "resolved_version": "0.9.9",
+          "attribute_path": "zoxide",
+          "commit_hash": "6368eda62c9775c38ef7f714b2555a741c20c72d"
         }
       ],
       "custom_packages": [
