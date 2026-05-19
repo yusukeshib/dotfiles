@@ -237,13 +237,6 @@
           "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
         },
         {
-          "name": "sccache",
-          "version_spec": null,
-          "resolved_version": "0.15.0",
-          "attribute_path": "sccache",
-          "commit_hash": "7aaa00e7cc9be6c316cb5f6617bd740dd435c59d"
-        },
-        {
           "name": "sd",
           "version_spec": null,
           "resolved_version": "1.1.0",

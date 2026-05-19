@@ -9,3 +9,4 @@ window-width = 210
 window-height = 72
 auto-update-channel = tip
 macos-option-as-alt = true
+macos-titlebar-style = tabs

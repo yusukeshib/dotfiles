@@ -23,35 +23,44 @@ USER yusuke
 ENV HOME=/home/yusuke
 ENV PATH=$HOME/.local/bin:$HOME/.claude/bin:$HOME/.cargo/bin:$PATH
 
-# Install CLI tools from GitHub releases
+# Install CLI tools from GitHub releases (multi-arch via TARGETARCH)
+ARG TARGETARCH
 ARG FZF_VERSION=0.61.1
 ARG GH_VERSION=2.67.0
 ARG DELTA_VERSION=0.18.2
 ARG EZA_VERSION=0.20.14
-RUN mkdir -p ~/.local/bin \
-    # fzf
-    && curl -fsSL "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz" \
-       | tar xz -C ~/.local/bin \
-    # gh
-    && curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" \
-       | tar xz -C /tmp \
-    && mv /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh ~/.local/bin/ \
-    && rm -rf /tmp/gh_* \
-    # delta (musl static binary)
-    && curl -fsSL "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-       | tar xz -C /tmp \
-    && mv /tmp/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl/delta ~/.local/bin/ \
-    && rm -rf /tmp/delta-* \
-    # eza (musl static binary, single file in tarball)
-    && curl -fsSL "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_x86_64-unknown-linux-musl.tar.gz" \
-       | tar xz -C ~/.local/bin
+RUN set -eux; \
+    case "${TARGETARCH:-amd64}" in \
+      amd64) GO_A=amd64; RUST_A=x86_64; DELTA_V=musl ;; \
+      arm64) GO_A=arm64; RUST_A=aarch64; DELTA_V=gnu  ;; \
+      *) echo "unsupported arch: $TARGETARCH"; exit 1 ;; \
+    esac; \
+    mkdir -p ~/.local/bin; \
+    curl -fsSL "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_${GO_A}.tar.gz" \
+      | tar xz -C ~/.local/bin; \
+    curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_${GO_A}.tar.gz" \
+      | tar xz -C /tmp; \
+    mv /tmp/gh_${GH_VERSION}_linux_${GO_A}/bin/gh ~/.local/bin/; \
+    rm -rf /tmp/gh_*; \
+    curl -fsSL "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-${RUST_A}-unknown-linux-${DELTA_V}.tar.gz" \
+      | tar xz -C /tmp; \
+    mv /tmp/delta-${DELTA_VERSION}-${RUST_A}-unknown-linux-${DELTA_V}/delta ~/.local/bin/; \
+    rm -rf /tmp/delta-*; \
+    curl -fsSL "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_${RUST_A}-unknown-linux-musl.tar.gz" \
+      | tar xz -C ~/.local/bin
 
 # Install chezmoi
 RUN sh -c "$(curl -fsSL https://get.chezmoi.io)" -- -b ~/.local/bin
 
 # Install Neovim nightly
-RUN curl -fsSL "https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.tar.gz" \
-    | tar xz --strip-components=1 -C ~/.local
+RUN set -eux; \
+    case "${TARGETARCH:-amd64}" in \
+      amd64) A=x86_64 ;; \
+      arm64) A=arm64 ;; \
+      *) echo "unsupported arch: $TARGETARCH"; exit 1 ;; \
+    esac; \
+    curl -fsSL "https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-${A}.tar.gz" \
+      | tar xz --strip-components=1 -C ~/.local
 
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -63,8 +72,14 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
 
 # Install Node.js
 ARG NODE_VERSION=22.13.1
-RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" \
-    | tar xJ --strip-components=1 -C ~/.local
+RUN set -eux; \
+    case "${TARGETARCH:-amd64}" in \
+      amd64) A=x64 ;; \
+      arm64) A=arm64 ;; \
+      *) echo "unsupported arch: $TARGETARCH"; exit 1 ;; \
+    esac; \
+    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${A}.tar.xz" \
+      | tar xJ --strip-components=1 -C ~/.local
 
 # Init and apply dotfiles (targets /home/yusuke)
 RUN chezmoi init yusukeshib && chezmoi apply
@@ -76,11 +91,17 @@ RUN git config --global --add safe.directory '*'
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
 # Install Codex CLI (standalone binary, no Node.js needed)
-RUN mkdir -p ~/.local/bin \
-    && curl -fsSL https://github.com/openai/codex/releases/latest/download/codex-x86_64-unknown-linux-musl.tar.gz \
-    | tar xz -C /tmp \
-    && mv /tmp/codex-x86_64-unknown-linux-musl ~/.local/bin/codex \
-    && chmod +x ~/.local/bin/codex
+RUN set -eux; \
+    case "${TARGETARCH:-amd64}" in \
+      amd64) A=x86_64 ;; \
+      arm64) A=aarch64 ;; \
+      *) echo "unsupported arch: $TARGETARCH"; exit 1 ;; \
+    esac; \
+    mkdir -p ~/.local/bin; \
+    curl -fsSL "https://github.com/openai/codex/releases/latest/download/codex-${A}-unknown-linux-musl.tar.gz" \
+      | tar xz -C /tmp; \
+    mv /tmp/codex-${A}-unknown-linux-musl ~/.local/bin/codex; \
+    chmod +x ~/.local/bin/codex
 
 # Set zsh as default shell and working directory
 ENV SHELL=/usr/bin/zsh

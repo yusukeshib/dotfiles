@@ -22,13 +22,17 @@
 [delta]
   navigate = true  # use n and N to move between diff sections
   line-numbers = true
-  side-by-side = false
+  side-by-side = true
 
 [merge]
   conflictstyle = diff3
 
 [diff]
   colorMoved = default
+  algorithm = histogram
+
+[column]
+  ui = auto
 
 [init]
   defaultBranch = main

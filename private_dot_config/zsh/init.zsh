@@ -1,16 +1,6 @@
 bindkey -e
 unsetopt BEEP
 
-# Nix
-if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-fi
-
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export FZF_DEFAULT_COMMAND='fd --type f -i'
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
-
 if type "nixy" > /dev/null; then
   eval "$(nixy config zsh)"
 fi
@@ -100,29 +90,6 @@ if type "tmux" > /dev/null; then
 
   zstyle ':fzf-tab:complete:a:*' fzf-preview \
     'echo "tmux session: $word"; echo; tmux list-sessions -F "#S" | grep --color=always -E "^${word//\*/.*}$" || true'
-elif type "zellij" > /dev/null; then
-  alias new="zellij -s"
-
-  # Note: defining 'a' as a function is more stable
-  a() { zellij attach "$@"; }
-
-  _zellij_attach_sessions() {
-    local -a sessions
-    # Important: use `list-sessions` (not `ls`)
-    sessions=("${(@f)$(zellij list-sessions --short 2>/dev/null)}")
-    if (( ! $#sessions )); then
-      _message 'no sessions'
-      return 1
-    fi
-    compadd -S '' -Q -a sessions
-  }
-
-  # Bind completion function to 'a' (required)
-  compdef _zellij_attach_sessions a
-
-  # fzf-tab preview (optional)
-  zstyle ':fzf-tab:complete:a:*' fzf-preview \
-    'echo "Zellij session: $word"; echo; zellij list-sessions --short | grep --color=always -E "^${word//\*/.*}$" || true'
 fi
 
 if type "nvim" > /dev/null; then

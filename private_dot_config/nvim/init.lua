@@ -355,10 +355,14 @@ require("conform").setup({
   formatters_by_ft = {
     lua = { "stylua" },
     python = { "ruff" },
-    javascript = { "eslint_d" },
-    typescript = { "eslint_d" },
-    javascriptreact = { "eslint_d" },
-    typescriptreact = { "eslint_d" },
+    javascript = { "prettierd", "prettier", stop_after_first = true },
+    typescript = { "prettierd", "prettier", stop_after_first = true },
+    javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+    typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+    json = { "prettierd", "prettier", stop_after_first = true },
+    css = { "prettierd", "prettier", stop_after_first = true },
+    html = { "prettierd", "prettier", stop_after_first = true },
+    markdown = { "prettierd", "prettier", stop_after_first = true },
   },
   -- Automatically format on save
   format_on_save = {
@@ -502,7 +506,7 @@ wk.add({
   { "<leader>rc", reload_configuration,                 desc = "Reload configuration",           mode = "n", },
 
   -- Git
-  { "<C-h>",      telescope_git_history,                desc = "Git history",                    mode = "n", },
+  { "<leader>gh", telescope_git_history,                desc = "Git history",                    mode = "n", },
 
   -- LSP
   { "gd",         vim.lsp.buf.definition,               desc = "Go to definition",               mode = "n", },

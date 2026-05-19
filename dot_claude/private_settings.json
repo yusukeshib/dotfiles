@@ -10,7 +10,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "TAB_NAME=$(zellij action dump-layout 2>/dev/null | grep 'tab name=.*focus=true' | sed 's/.*name=\"\\([^\"]*\\)\".*/\\1/') && jq -r '.message' | xargs -I {} terminal-notifier -title 'Claude Code: '\"$(basename \"$PWD\")\" -message '{}' -sound default -execute \"open -a Ghostty; zellij --session $ZELLIJ_SESSION_NAME action go-to-tab-name '$TAB_NAME'\" -appIcon '/Applications/Ghostty.app/Contents/Resources/Ghostty.icns'"
+            "command": "SW=$(tmux display-message -p '#S:#I' 2>/dev/null); jq -r '.message' | xargs -I {} terminal-notifier -title 'Claude Code: '\"$(basename \"$PWD\")\" -message '{}' -sound default -execute \"open -a Ghostty; tmux select-window -t '$SW'\" -appIcon '/Applications/Ghostty.app/Contents/Resources/Ghostty.icns'"
           }
         ]
       }
