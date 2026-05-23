@@ -1,0 +1,30 @@
+# Cyberdream theme for Ghostty
+# Matches scottmckendry/cyberdream.nvim and ~/.pi/agent/themes/cyberdream.json
+
+background = 16181a
+foreground = ffffff
+
+cursor-color       = 5ef1ff
+cursor-text        = 16181a
+selection-background = 2a2d31
+selection-foreground = ffffff
+
+# Normal
+palette = 0=#16181a
+palette = 1=#ff6e5e
+palette = 2=#5eff6c
+palette = 3=#f1ff5e
+palette = 4=#5ea1ff
+palette = 5=#bd5eff
+palette = 6=#5ef1ff
+palette = 7=#ffffff
+
+# Bright
+palette = 8=#3c4048
+palette = 9=#ff8080
+palette = 10=#80ff90
+palette = 11=#ffff80
+palette = 12=#80b0ff
+palette = 13=#d580ff
+palette = 14=#80f5ff
+palette = 15=#ffffff
