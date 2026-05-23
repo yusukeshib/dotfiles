@@ -1,0 +1,29 @@
+# websafe16 — high-contrast VGA-era theme using only web-safe colors (#RGB ∈ {00,33,66,99,CC,FF})
+
+background = 000000
+foreground = ffffff
+
+cursor-color       = 00ff00
+cursor-text        = 000000
+selection-background = 0000cc
+selection-foreground = ffffff
+
+# Normal
+palette = 0=#000000
+palette = 1=#cc0000
+palette = 2=#00cc00
+palette = 3=#cc9900
+palette = 4=#0000cc
+palette = 5=#cc00cc
+palette = 6=#00cccc
+palette = 7=#cccccc
+
+# Bright
+palette = 8=#666666
+palette = 9=#ff0000
+palette = 10=#00ff00
+palette = 11=#ffff00
+palette = 12=#3366ff
+palette = 13=#ff00ff
+palette = 14=#00ffff
+palette = 15=#ffffff

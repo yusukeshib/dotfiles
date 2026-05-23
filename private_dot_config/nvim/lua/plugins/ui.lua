@@ -1,5 +1,5 @@
 -- Theme
-vim.cmd("colorscheme cyberdream")
+vim.cmd("colorscheme websafe16")
 
 -- Bufferline: Tab-like buffer list at top of window
 require("bufferline").setup({})
