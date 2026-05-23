@@ -15,6 +15,7 @@
 // Write operations always go through ctx.ui.confirm() first.
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { Box, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 
 // ───────────────────────── helpers ─────────────────────────
@@ -147,6 +148,23 @@ function formatThreads(threads: ReviewThread[]): string {
 // ───────────────────────── extension ─────────────────────────
 
 export default function (pi: ExtensionAPI) {
+	// ── Renderer for pr-helper messages ────────────────────
+	pi.registerMessageRenderer("pr-helper", (message, { expanded }, theme) => {
+		const MAX_COLLAPSED = 40;
+		const content = String(message.content ?? "");
+		const lines = content.split("\n");
+		const clipped = !expanded && lines.length > MAX_COLLAPSED;
+		const shown = clipped ? lines.slice(0, MAX_COLLAPSED).join("\n") : content;
+		const footer = clipped
+			? `\n${theme.fg("dim", `… ${lines.length - MAX_COLLAPSED} more lines (Ctrl+O to expand)`)}`
+			: "";
+		// No background, no padding: keep delta's ANSI styling clean and preserve
+		// column alignment from `delta --width=<cols>`.
+		const box = new Box(0, 0);
+		box.addChild(new Text(shown + footer, 0, 0));
+		return box;
+	});
+
 	// ── Tool: list comments ────────────────────────────────
 	pi.registerTool({
 		name: "pr_comments_list",
@@ -286,28 +304,41 @@ export default function (pi: ExtensionAPI) {
 				ctx.ui.notify("No PR found", "error");
 				return;
 			}
-			const diff = await sh(pi, "gh", ["pr", "diff", String(pr)], { cwd: ctx.cwd, timeout: 60_000 });
-			if (!diff.ok) {
-				ctx.ui.notify(`gh pr diff failed: ${diff.stderr}`, "error");
+			// Run gh | delta as a single shell pipeline so delta gets a real pipe stdin
+			// and we can force color output via CLICOLOR_FORCE/FORCE_COLOR (delta and bat
+			// honor these; otherwise they auto-disable color on non-TTY stdout).
+			// Use a width slightly narrower than the TUI so wrapping never breaks
+			// delta's per-line layout. Unified (non side-by-side) renders far better
+			// inside the pi message area than --side-by-side.
+			const raw = process.stdout.columns || Number.parseInt(process.env.COLUMNS ?? "160", 10) || 160;
+			const cols = Math.max(80, raw - 4);
+			const script = [
+				`export CLICOLOR_FORCE=1 FORCE_COLOR=1 COLORTERM=truecolor TERM="\${TERM:-xterm-256color}"`,
+				`if command -v delta >/dev/null 2>&1; then`,
+				`  gh pr diff ${pr} | delta \\
+    --no-gitconfig \\
+    --paging=never \\
+    --width=${cols} \\
+    --true-color=always \\
+    --line-numbers \\
+    --hunk-header-decoration-style="omit" \\
+    --file-decoration-style="blue ol ul" \\
+    --file-style="bold blue"`,
+				`else`,
+				`  gh pr diff ${pr}`,
+				`fi`,
+			].join("\n");
+			const rendered = await sh(pi, "sh", ["-c", script], { cwd: ctx.cwd, timeout: 60_000 });
+			if (!rendered.ok) {
+				ctx.ui.notify(`pr diff failed: ${rendered.stderr || rendered.stdout}`, "error");
 				return;
 			}
-			// Try delta for color, fallback to raw
-			const rendered = await sh(
-				pi,
-				"sh",
-				["-c", "command -v delta >/dev/null && delta --paging=never --side-by-side || cat"],
-				{ cwd: ctx.cwd, input: diff.stdout, timeout: 30_000 },
-			);
-			const text = rendered.ok && rendered.stdout ? rendered.stdout : diff.stdout;
-			pi.sendMessage(
-				{
-					customType: "pr-helper",
-					content: `PR #${pr} diff:\n\n${text}`,
-					display: true,
-				},
-				{ deliverAs: "nextTurn" },
-			);
-			ctx.ui.notify(`Loaded diff for PR #${pr}`, "info");
+			const text = rendered.stdout;
+			pi.sendMessage({
+				customType: "pr-helper",
+				content: `PR #${pr} diff:\n\n${text}`,
+				display: true,
+			});
 		},
 	});
 
@@ -327,11 +358,7 @@ export default function (pi: ExtensionAPI) {
 			}
 			const threads = await fetchThreads(pi, ctx.cwd, pr, nwo.owner, nwo.name, false);
 			const text = `PR #${pr} (${nwo.owner}/${nwo.name})\n\n${formatThreads(threads)}`;
-			pi.sendMessage(
-				{ customType: "pr-helper", content: text, display: true },
-				{ deliverAs: "nextTurn" },
-			);
-			ctx.ui.notify(`Loaded ${threads.length} threads for PR #${pr}`, "info");
+			pi.sendMessage({ customType: "pr-helper", content: text, display: true });
 		},
 	});
 
