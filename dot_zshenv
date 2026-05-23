@@ -1,9 +1,15 @@
-# Nix
-if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-fi
+# Keep zshenv minimal: only env vars that must apply to non-interactive shells.
+# Heavy initializations (Nix daemon profile, completions, etc.) belong in zshrc.
 
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export FZF_DEFAULT_COMMAND='fd --type f -i'
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+
+# PATH: prefer user-local binaries
+typeset -U path
+path=(
+  "$HOME/.local/bin"
+  "$HOME/.cargo/bin"
+  $path
+)
+export PATH

@@ -1,8 +1,27 @@
 bindkey -e
 unsetopt BEEP
 
+# Nix daemon profile (moved from zshenv to avoid side effects in non-interactive shells)
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
+
+# Cache directory for generated completion scripts
+export ZSH_CACHE_DIR="${ZSH_CACHE_DIR:-$HOME/.cache/zsh}"
+[[ -d $ZSH_CACHE_DIR ]] || mkdir -p "$ZSH_CACHE_DIR"
+
+# Helper: source `$1 <cmd...>` output via cached file, regenerating once per day.
+_cached_eval() {
+  local name=$1; shift
+  local cache="$ZSH_CACHE_DIR/$name.zsh"
+  if [[ ! -s $cache || -n $cache(#qN.mh+24) ]]; then
+    "$@" > "$cache" 2>/dev/null || { rm -f "$cache"; return 1 }
+  fi
+  source "$cache"
+}
+
 if type "nixy" > /dev/null; then
-  eval "$(nixy config zsh)"
+  _cached_eval nixy nixy config zsh
 fi
 
 #
@@ -32,7 +51,7 @@ if type "zoxide" > /dev/null; then
 fi
 
 if type "kubectl" > /dev/null; then
-  source <(kubectl completion zsh)
+  _cached_eval kubectl kubectl completion zsh
   alias k="kubectl"
 fi
 
@@ -102,10 +121,11 @@ if type "nvim" > /dev/null; then
   export EDITOR="nvim"
 fi
 
+# Use `bcat` (not `cat`) to avoid breaking scripts that pipe through cat.
 if type "batcat" > /dev/null; then
-  alias cat="batcat"
+  alias bcat="batcat"
 elif type "bat" > /dev/null; then
-  alias cat="bat"
+  alias bcat="bat"
 fi
 
 if type "rg" > /dev/null; then
@@ -119,5 +139,5 @@ if type "atuin" > /dev/null; then
 fi
 
 if type "box" > /dev/null; then
-  eval "$(box config zsh)";
+  _cached_eval box box config zsh
 fi

@@ -43,10 +43,11 @@
 [gpg]
   format = ssh
 
-[gpg "ssh"]
+{{- if eq .chezmoi.os "darwin" }}
 
 [include]
   path = ~/.config/git/gitconfig_darwin
+{{- end }}
 
 [rerere]
   enabled = true

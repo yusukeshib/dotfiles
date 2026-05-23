@@ -1,12 +1,27 @@
 PLUGIN_DIR="$HOME/.zsh/plugins"
 
+# Per-plugin commit pins (optional). Empty -> latest from --depth=1 clone.
+# Bump these intentionally; reproducibility > convenience.
+typeset -gA ZSH_PLUGIN_REV=(
+  # [zsh-users/zsh-completions]=""
+  # [zsh-users/zsh-autosuggestions]=""
+  # [zsh-users/zsh-history-substring-search]=""
+  # [Aloxaf/fzf-tab]=""
+  # [zsh-users/zsh-syntax-highlighting]=""
+)
+
 _load_plugin() {
-  local repo=$1 name=${1##*/}
-  if [[ ! -d "$PLUGIN_DIR/$name" ]]; then
-    git clone --depth=1 "https://github.com/$repo" "$PLUGIN_DIR/$name"
+  local repo=$1 name=${1##*/} rev=${ZSH_PLUGIN_REV[$1]:-}
+  local dir="$PLUGIN_DIR/$name"
+  if [[ ! -d $dir ]]; then
+    if [[ -n $rev ]]; then
+      git clone "https://github.com/$repo" "$dir" && git -C "$dir" checkout --quiet "$rev"
+    else
+      git clone --depth=1 "https://github.com/$repo" "$dir"
+    fi
   fi
-  source "$PLUGIN_DIR/$name/$name.plugin.zsh" 2>/dev/null \
-    || source "$PLUGIN_DIR/$name/$name.zsh" 2>/dev/null
+  source "$dir/$name.plugin.zsh" 2>/dev/null \
+    || source "$dir/$name.zsh" 2>/dev/null
 }
 
 OMZ_DIR="$PLUGIN_DIR/ohmyzsh"
@@ -23,7 +38,17 @@ _load_omz_plugin() {
 _load_omz_plugin git
 
 _load_plugin zsh-users/zsh-completions
-autoload -Uz compinit && compinit
+
+# compinit: regenerate dump at most once per 24h for fast startup.
+autoload -Uz compinit
+_zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+if [[ -n $_zcompdump(#qN.mh+24) || ! -s $_zcompdump ]]; then
+  compinit -d "$_zcompdump"
+else
+  compinit -C -d "$_zcompdump"
+fi
+unset _zcompdump
+
 _load_plugin zsh-users/zsh-autosuggestions
 _load_plugin zsh-users/zsh-history-substring-search
 _load_plugin Aloxaf/fzf-tab

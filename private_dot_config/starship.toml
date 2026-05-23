@@ -39,12 +39,11 @@ disabled = true
 disabled = true
 
 [gcloud]
-disabled = true
 symbol = "gcp "
 
 [kubernetes]
 format = '[$context\($namespace\)](green) '
-disabled = true
+disabled = false
 
 [package]
 disabled = true

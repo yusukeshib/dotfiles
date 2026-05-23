@@ -1,3 +1,6 @@
+README.md
+Dockerfile
+.github
 {{- if ne .chezmoi.os "darwin" }}
 .config/git/gitconfig_darwin
 {{- end }}
