@@ -132,11 +132,6 @@ if type "rg" > /dev/null; then
   alias rg="rg --hidden -g '!.git/'"
 fi
 
-if type "difft" > /dev/null; then
-  # Override oh-my-zsh git plugin's `gd` to use difftastic
-  alias gd='git -c diff.external=difft diff'
-fi
-
 
 if type "atuin" > /dev/null; then
   eval "$(atuin init zsh --disable-up-arrow)"
