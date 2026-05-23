@@ -130,19 +130,47 @@ async function fetchThreads(
 		);
 }
 
+// ANSI color helpers (pi-tui's Text preserves ANSI escape codes).
+const RESET = "\x1b[0m";
+const BOLD = "\x1b[1m";
+const DIM = "\x1b[2m";
+const CYAN = "\x1b[36m";
+const YELLOW = "\x1b[33m";
+const GREEN = "\x1b[32m";
+const RED = "\x1b[31m";
+const MAGENTA = "\x1b[35m";
+const BLUE = "\x1b[34m";
+const c = (color: string, s: string) => `${color}${s}${RESET}`;
+
 function formatThreads(threads: ReviewThread[]): string {
-	if (threads.length === 0) return "(no review threads)";
+	if (threads.length === 0) return c(DIM, "(no review threads)");
 	return threads
 		.map((t, i) => {
-			const head = `[${i + 1}] ${t.path}:${t.line ?? "?"}  thread=${t.id}${
-				t.isOutdated ? "  (outdated)" : ""
-			}${t.isResolved ? "  (resolved)" : ""}`;
+			const idx = c(BOLD + YELLOW, `[${i + 1}]`);
+			const loc = c(BOLD + CYAN, `${t.path}:${t.line ?? "?"}`);
+			const tid = c(DIM, `thread=${t.id}`);
+			const flags = [
+				t.isOutdated ? c(MAGENTA, "(outdated)") : "",
+				t.isResolved ? c(GREEN, "(resolved)") : c(RED, "(unresolved)"),
+			]
+				.filter(Boolean)
+				.join(" ");
+			const head = `${idx} ${loc}  ${tid}  ${flags}`;
 			const body = t.comments
-				.map((c) => `    @${c.author} (${c.createdAt})\n      ${c.body.replace(/\n/g, "\n      ")}`)
+				.map((cm) => {
+					const who = c(BOLD + GREEN, `@${cm.author}`);
+					const when = c(DIM, cm.createdAt);
+					const text = cm.body.replace(/\n/g, "\n      ");
+					return `    ${who} ${when}\n      ${text}`;
+				})
 				.join("\n");
 			return `${head}\n${body}`;
 		})
 		.join("\n\n");
+}
+
+function formatHeader(pr: number, owner: string, name: string): string {
+	return c(BOLD + BLUE, `PR #${pr}`) + "  " + c(DIM, `${owner}/${name}`);
 }
 
 // ───────────────────────── extension ─────────────────────────
@@ -190,7 +218,7 @@ export default function (pi: ExtensionAPI) {
 				content: [
 					{
 						type: "text",
-						text: `PR #${pr} (${nwo.owner}/${nwo.name})\n\n${formatThreads(threads)}`,
+						text: `PR #${pr} (${nwo.owner}/${nwo.name})\n\n${formatThreads(threads).replace(/\x1b\[[0-9;]*m/g, "")}`,
 					},
 				],
 				details: { pr, threads },
@@ -357,7 +385,7 @@ export default function (pi: ExtensionAPI) {
 				return;
 			}
 			const threads = await fetchThreads(pi, ctx.cwd, pr, nwo.owner, nwo.name, false);
-			const text = `PR #${pr} (${nwo.owner}/${nwo.name})\n\n${formatThreads(threads)}`;
+			const text = `${formatHeader(pr, nwo.owner, nwo.name)}\n\n${formatThreads(threads)}`;
 			pi.sendMessage({ customType: "pr-helper", content: text, display: true });
 		},
 	});
