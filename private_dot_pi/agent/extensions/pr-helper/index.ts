@@ -1,0 +1,404 @@
+// pr-helper: GitHub PR comment & review helper for pi.
+//
+// Provides:
+//   Tools (LLM-callable):
+//     - pr_comments_list      List unresolved review threads + PR comments
+//     - pr_comment_reply      Reply to a specific review thread
+//     - pr_thread_resolve     Resolve a review thread
+//     - pr_post_comment       Post a new top-level PR (issue) comment
+//   Commands (user-typed):
+//     - /pr-diff [num]        Show diff with `delta` syntax highlighting
+//     - /pr-comments [num]    Print formatted comments
+//     - /pr-reply             Interactive: pick thread, reply
+//
+// Requires: gh (authenticated), optionally delta.
+// Write operations always go through ctx.ui.confirm() first.
+
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { Type } from "typebox";
+
+// ───────────────────────── helpers ─────────────────────────
+
+async function sh(
+	pi: ExtensionAPI,
+	cmd: string,
+	args: string[],
+	opts: { cwd?: string; input?: string; timeout?: number } = {},
+): Promise<{ ok: boolean; stdout: string; stderr: string; code: number }> {
+	const res = await pi.exec(cmd, args, {
+		cwd: opts.cwd,
+		input: opts.input,
+		timeout: opts.timeout ?? 30_000,
+	});
+	return { ok: res.code === 0, stdout: res.stdout, stderr: res.stderr, code: res.code };
+}
+
+async function resolvePr(pi: ExtensionAPI, cwd: string, explicit?: number): Promise<number | null> {
+	if (explicit && Number.isFinite(explicit) && explicit > 0) return explicit;
+	const r = await sh(pi, "gh", ["pr", "view", "--json", "number", "-q", ".number"], { cwd });
+	if (!r.ok) return null;
+	const n = Number.parseInt(r.stdout.trim(), 10);
+	return Number.isFinite(n) ? n : null;
+}
+
+async function repoNwo(pi: ExtensionAPI, cwd: string): Promise<{ owner: string; name: string } | null> {
+	const r = await sh(pi, "gh", ["repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"], { cwd });
+	if (!r.ok) return null;
+	const [owner, name] = r.stdout.trim().split("/");
+	if (!owner || !name) return null;
+	return { owner, name };
+}
+
+type ReviewThread = {
+	id: string;
+	isResolved: boolean;
+	isOutdated: boolean;
+	path: string;
+	line: number | null;
+	comments: { author: string; body: string; createdAt: string; url: string }[];
+};
+
+async function fetchThreads(
+	pi: ExtensionAPI,
+	cwd: string,
+	pr: number,
+	owner: string,
+	name: string,
+	onlyUnresolved = true,
+): Promise<ReviewThread[]> {
+	const query = `
+    query($owner:String!,$name:String!,$pr:Int!){
+      repository(owner:$owner,name:$name){
+        pullRequest(number:$pr){
+          reviewThreads(first:100){
+            nodes{
+              id isResolved isOutdated path line
+              comments(first:50){
+                nodes{ author{login} bodyText createdAt url }
+              }
+            }
+          }
+        }
+      }
+    }`;
+	const r = await sh(
+		pi,
+		"gh",
+		[
+			"api",
+			"graphql",
+			"-f",
+			`query=${query}`,
+			"-F",
+			`owner=${owner}`,
+			"-F",
+			`name=${name}`,
+			"-F",
+			`pr=${pr}`,
+		],
+		{ cwd },
+	);
+	if (!r.ok) throw new Error(`gh api graphql failed: ${r.stderr || r.stdout}`);
+	const data = JSON.parse(r.stdout);
+	const nodes = data?.data?.repository?.pullRequest?.reviewThreads?.nodes ?? [];
+	return nodes
+		.filter((n: { isResolved: boolean }) => (onlyUnresolved ? !n.isResolved : true))
+		.map(
+			(n: {
+				id: string;
+				isResolved: boolean;
+				isOutdated: boolean;
+				path: string;
+				line: number | null;
+				comments: {
+					nodes: { author: { login: string }; bodyText: string; createdAt: string; url: string }[];
+				};
+			}): ReviewThread => ({
+				id: n.id,
+				isResolved: n.isResolved,
+				isOutdated: n.isOutdated,
+				path: n.path,
+				line: n.line,
+				comments: n.comments.nodes.map((c) => ({
+					author: c.author?.login ?? "unknown",
+					body: c.bodyText,
+					createdAt: c.createdAt,
+					url: c.url,
+				})),
+			}),
+		);
+}
+
+function formatThreads(threads: ReviewThread[]): string {
+	if (threads.length === 0) return "(no review threads)";
+	return threads
+		.map((t, i) => {
+			const head = `[${i + 1}] ${t.path}:${t.line ?? "?"}  thread=${t.id}${
+				t.isOutdated ? "  (outdated)" : ""
+			}${t.isResolved ? "  (resolved)" : ""}`;
+			const body = t.comments
+				.map((c) => `    @${c.author} (${c.createdAt})\n      ${c.body.replace(/\n/g, "\n      ")}`)
+				.join("\n");
+			return `${head}\n${body}`;
+		})
+		.join("\n\n");
+}
+
+// ───────────────────────── extension ─────────────────────────
+
+export default function (pi: ExtensionAPI) {
+	// ── Tool: list comments ────────────────────────────────
+	pi.registerTool({
+		name: "pr_comments_list",
+		label: "PR Comments",
+		description:
+			"List review threads and comments on a GitHub Pull Request. Returns thread IDs needed for pr_comment_reply / pr_thread_resolve.",
+		promptSnippet: "List GitHub PR review threads and comments (pr_comments_list)",
+		parameters: Type.Object({
+			pr: Type.Optional(
+				Type.Number({ description: "PR number. Omit to use current branch's PR." }),
+			),
+			onlyUnresolved: Type.Optional(
+				Type.Boolean({ description: "Only unresolved threads (default true)" }),
+			),
+		}),
+		async execute(_id, params, _signal, _onUpdate, ctx) {
+			const pr = await resolvePr(pi, ctx.cwd, params.pr);
+			if (!pr) return { content: [{ type: "text", text: "Could not determine PR number." }], isError: true };
+			const nwo = await repoNwo(pi, ctx.cwd);
+			if (!nwo) return { content: [{ type: "text", text: "Not a GitHub repo." }], isError: true };
+			const threads = await fetchThreads(pi, ctx.cwd, pr, nwo.owner, nwo.name, params.onlyUnresolved ?? true);
+			return {
+				content: [
+					{
+						type: "text",
+						text: `PR #${pr} (${nwo.owner}/${nwo.name})\n\n${formatThreads(threads)}`,
+					},
+				],
+				details: { pr, threads },
+			};
+		},
+	});
+
+	// ── Tool: reply to a review thread ─────────────────────
+	pi.registerTool({
+		name: "pr_comment_reply",
+		label: "Reply to PR Thread",
+		description:
+			"Reply to a review thread on a GitHub PR. The threadId must come from pr_comments_list. Prompts the user to confirm before posting.",
+		promptSnippet: "Reply to a GitHub PR review thread (pr_comment_reply)",
+		promptGuidelines: [
+			"Before calling pr_comment_reply, always call pr_comments_list to obtain valid thread IDs.",
+			"Show the user the draft body before calling pr_comment_reply; the tool itself also asks for confirmation.",
+		],
+		parameters: Type.Object({
+			threadId: Type.String({ description: "Review thread node ID (from pr_comments_list)" }),
+			body: Type.String({ description: "Markdown body of the reply" }),
+		}),
+		async execute(_id, params, _signal, _onUpdate, ctx) {
+			const preview = `Reply to ${params.threadId}:\n\n${params.body}`;
+			const ok = await ctx.ui.confirm("Post PR reply?", preview);
+			if (!ok) return { content: [{ type: "text", text: "Cancelled by user." }], isError: true };
+
+			const mutation = `
+        mutation($threadId:ID!,$body:String!){
+          addPullRequestReviewThreadReply(input:{pullRequestReviewThreadId:$threadId,body:$body}){
+            comment{ url }
+          }
+        }`;
+			const r = await sh(
+				pi,
+				"gh",
+				[
+					"api",
+					"graphql",
+					"-f",
+					`query=${mutation}`,
+					"-F",
+					`threadId=${params.threadId}`,
+					"-F",
+					`body=${params.body}`,
+				],
+				{ cwd: ctx.cwd },
+			);
+			if (!r.ok) return { content: [{ type: "text", text: `Failed: ${r.stderr}` }], isError: true };
+			const data = JSON.parse(r.stdout);
+			const url = data?.data?.addPullRequestReviewThreadReply?.comment?.url ?? "(no url)";
+			ctx.ui.notify("Reply posted", "info");
+			return { content: [{ type: "text", text: `Posted: ${url}` }], details: { url } };
+		},
+	});
+
+	// ── Tool: resolve thread ───────────────────────────────
+	pi.registerTool({
+		name: "pr_thread_resolve",
+		label: "Resolve PR Thread",
+		description: "Mark a PR review thread as resolved. Asks the user to confirm.",
+		parameters: Type.Object({
+			threadId: Type.String(),
+		}),
+		async execute(_id, params, _signal, _onUpdate, ctx) {
+			const ok = await ctx.ui.confirm("Resolve thread?", params.threadId);
+			if (!ok) return { content: [{ type: "text", text: "Cancelled by user." }], isError: true };
+			const mutation = `
+        mutation($id:ID!){ resolveReviewThread(input:{threadId:$id}){ thread{ id isResolved } } }`;
+			const r = await sh(
+				pi,
+				"gh",
+				["api", "graphql", "-f", `query=${mutation}`, "-F", `id=${params.threadId}`],
+				{ cwd: ctx.cwd },
+			);
+			if (!r.ok) return { content: [{ type: "text", text: `Failed: ${r.stderr}` }], isError: true };
+			ctx.ui.notify("Thread resolved", "info");
+			return { content: [{ type: "text", text: "Resolved." }] };
+		},
+	});
+
+	// ── Tool: post top-level (issue) comment ───────────────
+	pi.registerTool({
+		name: "pr_post_comment",
+		label: "Post PR Comment",
+		description: "Post a new top-level comment to a GitHub PR's conversation tab. Asks for confirmation.",
+		parameters: Type.Object({
+			pr: Type.Optional(Type.Number()),
+			body: Type.String(),
+		}),
+		async execute(_id, params, _signal, _onUpdate, ctx) {
+			const pr = await resolvePr(pi, ctx.cwd, params.pr);
+			if (!pr) return { content: [{ type: "text", text: "Could not determine PR number." }], isError: true };
+			const ok = await ctx.ui.confirm(`Post comment to PR #${pr}?`, params.body);
+			if (!ok) return { content: [{ type: "text", text: "Cancelled." }], isError: true };
+			const r = await sh(pi, "gh", ["pr", "comment", String(pr), "--body", params.body], {
+				cwd: ctx.cwd,
+			});
+			if (!r.ok) return { content: [{ type: "text", text: `Failed: ${r.stderr}` }], isError: true };
+			ctx.ui.notify("Comment posted", "info");
+			return { content: [{ type: "text", text: r.stdout.trim() || "Posted." }] };
+		},
+	});
+
+	// ── Command: /pr-diff [num] ────────────────────────────
+	pi.registerCommand("pr-diff", {
+		description: "Show a GitHub PR diff with syntax highlighting",
+		handler: async (args, ctx) => {
+			const pr = await resolvePr(pi, ctx.cwd, args ? Number.parseInt(args.trim(), 10) : undefined);
+			if (!pr) {
+				ctx.ui.notify("No PR found", "error");
+				return;
+			}
+			const diff = await sh(pi, "gh", ["pr", "diff", String(pr)], { cwd: ctx.cwd, timeout: 60_000 });
+			if (!diff.ok) {
+				ctx.ui.notify(`gh pr diff failed: ${diff.stderr}`, "error");
+				return;
+			}
+			// Try delta for color, fallback to raw
+			const rendered = await sh(
+				pi,
+				"sh",
+				["-c", "command -v delta >/dev/null && delta --paging=never --side-by-side || cat"],
+				{ cwd: ctx.cwd, input: diff.stdout, timeout: 30_000 },
+			);
+			const text = rendered.ok && rendered.stdout ? rendered.stdout : diff.stdout;
+			pi.sendMessage(
+				{
+					customType: "pr-helper",
+					content: `PR #${pr} diff:\n\n${text}`,
+					display: true,
+				},
+				{ deliverAs: "nextTurn" },
+			);
+			ctx.ui.notify(`Loaded diff for PR #${pr}`, "info");
+		},
+	});
+
+	// ── Command: /pr-comments [num] ────────────────────────
+	pi.registerCommand("pr-comments", {
+		description: "Show review threads and comments on a GitHub PR",
+		handler: async (args, ctx) => {
+			const pr = await resolvePr(pi, ctx.cwd, args ? Number.parseInt(args.trim(), 10) : undefined);
+			if (!pr) {
+				ctx.ui.notify("No PR found", "error");
+				return;
+			}
+			const nwo = await repoNwo(pi, ctx.cwd);
+			if (!nwo) {
+				ctx.ui.notify("Not a GitHub repo", "error");
+				return;
+			}
+			const threads = await fetchThreads(pi, ctx.cwd, pr, nwo.owner, nwo.name, false);
+			const text = `PR #${pr} (${nwo.owner}/${nwo.name})\n\n${formatThreads(threads)}`;
+			pi.sendMessage(
+				{ customType: "pr-helper", content: text, display: true },
+				{ deliverAs: "nextTurn" },
+			);
+			ctx.ui.notify(`Loaded ${threads.length} threads for PR #${pr}`, "info");
+		},
+	});
+
+	// ── Command: /pr-reply ─────────────────────────────────
+	// Interactive: choose unresolved thread, type reply, confirm, post.
+	pi.registerCommand("pr-reply", {
+		description: "Interactively reply to an unresolved PR review thread",
+		handler: async (args, ctx: ExtensionContext) => {
+			const pr = await resolvePr(pi, ctx.cwd, args ? Number.parseInt(args.trim(), 10) : undefined);
+			if (!pr) {
+				ctx.ui.notify("No PR found", "error");
+				return;
+			}
+			const nwo = await repoNwo(pi, ctx.cwd);
+			if (!nwo) {
+				ctx.ui.notify("Not a GitHub repo", "error");
+				return;
+			}
+			const threads = await fetchThreads(pi, ctx.cwd, pr, nwo.owner, nwo.name, true);
+			if (threads.length === 0) {
+				ctx.ui.notify("No unresolved threads", "info");
+				return;
+			}
+			const items = threads.map((t, i) => {
+				const last = t.comments[t.comments.length - 1];
+				const snippet = (last?.body ?? "").slice(0, 60).replace(/\n/g, " ");
+				return `[${i}] ${t.path}:${t.line ?? "?"}  @${last?.author ?? "?"}: ${snippet}`;
+			});
+			const selected = await ctx.ui.select(`Unresolved threads on PR #${pr}`, items);
+			if (!selected) return;
+			const idxMatch = selected.match(/^\[(\d+)\]/);
+			if (!idxMatch) return;
+			const thread = threads[Number.parseInt(idxMatch[1], 10)];
+			if (!thread) return;
+			const body = await ctx.ui.editor("Reply body (markdown)", "");
+			if (!body || !body.trim()) {
+				ctx.ui.notify("Empty reply, cancelled", "info");
+				return;
+			}
+			const ok = await ctx.ui.confirm(`Post reply to ${thread.path}:${thread.line ?? "?"}?`, body);
+			if (!ok) return;
+			const mutation = `
+        mutation($threadId:ID!,$body:String!){
+          addPullRequestReviewThreadReply(input:{pullRequestReviewThreadId:$threadId,body:$body}){
+            comment{ url }
+          }
+        }`;
+			const r = await sh(
+				pi,
+				"gh",
+				[
+					"api",
+					"graphql",
+					"-f",
+					`query=${mutation}`,
+					"-F",
+					`threadId=${thread.id}`,
+					"-F",
+					`body=${body}`,
+				],
+				{ cwd: ctx.cwd },
+			);
+			if (!r.ok) {
+				ctx.ui.notify(`Failed: ${r.stderr}`, "error");
+				return;
+			}
+			ctx.ui.notify("Reply posted", "info");
+		},
+	});
+}

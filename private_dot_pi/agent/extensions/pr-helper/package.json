@@ -1,0 +1,6 @@
+{
+  "name": "pr-helper",
+  "private": true,
+  "type": "module",
+  "pi": { "extensions": ["./index.ts"] }
+}
