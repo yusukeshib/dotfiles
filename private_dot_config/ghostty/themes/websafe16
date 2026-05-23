@@ -13,7 +13,7 @@ palette = 0=#000000
 palette = 1=#cc0000
 palette = 2=#00cc00
 palette = 3=#cc9900
-palette = 4=#0000cc
+palette = 4=#3366ff
 palette = 5=#cc00cc
 palette = 6=#00cccc
 palette = 7=#cccccc
@@ -23,7 +23,7 @@ palette = 8=#666666
 palette = 9=#ff0000
 palette = 10=#00ff00
 palette = 11=#ffff00
-palette = 12=#3366ff
+palette = 12=#6699ff
 palette = 13=#ff00ff
 palette = 14=#00ffff
 palette = 15=#ffffff
