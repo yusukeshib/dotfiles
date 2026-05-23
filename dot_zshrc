@@ -1,5 +1,2 @@
 source $HOME/.config/zsh/init.zsh
 source $HOME/.config/zsh/utils.zsh
-
-# Use difftastic for `gd` (override oh-my-zsh git plugin alias)
-alias gd='git -c diff.external=difft diff'
