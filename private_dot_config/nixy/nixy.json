@@ -31,14 +31,14 @@
           "version_spec": null,
           "resolved_version": "5.3p9",
           "attribute_path": "bash",
-          "commit_hash": "07800bee2b362f6c73fe17cb1593a260c5e183c6"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "bat",
           "version_spec": null,
           "resolved_version": "0.26.1",
           "attribute_path": "bat",
-          "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "bottom",
@@ -50,9 +50,9 @@
         {
           "name": "buf",
           "version_spec": null,
-          "resolved_version": "1.68.4",
+          "resolved_version": "1.69.0",
           "attribute_path": "buf",
-          "commit_hash": "6368eda62c9775c38ef7f714b2555a741c20c72d"
+          "commit_hash": "b3da656039dc7a6240f27b2ef8cc6a3ef3bccae7"
         },
         {
           "name": "bun",
@@ -64,9 +64,9 @@
         {
           "name": "chezmoi",
           "version_spec": null,
-          "resolved_version": "2.70.2",
+          "resolved_version": "2.70.3",
           "attribute_path": "chezmoi",
-          "commit_hash": "c6d65881c5624c9cae5ea6cedef24699b0c0a4c0"
+          "commit_hash": "b3da656039dc7a6240f27b2ef8cc6a3ef3bccae7"
         },
         {
           "name": "claude-code",
@@ -108,7 +108,7 @@
           "version_spec": null,
           "resolved_version": "2.37.1",
           "attribute_path": "direnv",
-          "commit_hash": "68a8af93ff4297686cb68880845e61e5e2e41d92"
+          "commit_hash": "b3da656039dc7a6240f27b2ef8cc6a3ef3bccae7"
         },
         {
           "name": "entr",
@@ -122,7 +122,7 @@
           "version_spec": null,
           "resolved_version": "0.23.4",
           "attribute_path": "eza",
-          "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "fd",
@@ -136,7 +136,7 @@
           "version_spec": null,
           "resolved_version": "8.0.1",
           "attribute_path": "ffmpeg",
-          "commit_hash": "ed67bc86e84e51d4a88e73c7fd36006dc876476f"
+          "commit_hash": "d233902339c02a9c334e7e593de68855ad26c4cb"
         },
         {
           "name": "firebase-tools",
@@ -150,14 +150,14 @@
           "version_spec": null,
           "resolved_version": "0.72.0",
           "attribute_path": "fzf",
-          "commit_hash": "6368eda62c9775c38ef7f714b2555a741c20c72d"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "gh",
           "version_spec": null,
           "resolved_version": "2.92.0",
           "attribute_path": "gh",
-          "commit_hash": "c6d65881c5624c9cae5ea6cedef24699b0c0a4c0"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "gh-dash",
@@ -197,16 +197,16 @@
         {
           "name": "jujutsu",
           "version_spec": null,
-          "resolved_version": "0.40.0",
+          "resolved_version": "0.41.0",
           "attribute_path": "jujutsu",
-          "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+          "commit_hash": "b3da656039dc7a6240f27b2ef8cc6a3ef3bccae7"
         },
         {
           "name": "k6",
           "version_spec": null,
-          "resolved_version": "1.7.1",
+          "resolved_version": "2.0.0",
           "attribute_path": "k6",
-          "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+          "commit_hash": "48d91f2c0ce7b9e589f967d4f685153dd765dcdd"
         },
         {
           "name": "k9s",
@@ -218,9 +218,9 @@
         {
           "name": "kubectl",
           "version_spec": null,
-          "resolved_version": "1.36.0",
+          "resolved_version": "1.36.1",
           "attribute_path": "kubectl",
-          "commit_hash": "c6d65881c5624c9cae5ea6cedef24699b0c0a4c0"
+          "commit_hash": "8a1b0127302ea51e05bf4ea5a291743fac442406"
         },
         {
           "name": "kubectx",
@@ -239,16 +239,16 @@
         {
           "name": "nix-direnv",
           "version_spec": null,
-          "resolved_version": "3.1.1",
+          "resolved_version": "3.1.2",
           "attribute_path": "nix-direnv",
-          "commit_hash": "bc57abace07689cfd34203aa5fb4027514895987"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "nodejs",
           "version_spec": "22",
-          "resolved_version": "22.22.2",
+          "resolved_version": "22.22.3",
           "attribute_path": "nodejs_22",
-          "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+          "commit_hash": "27198194e52129ccd8e845e7d5911911e7fea7d7"
         },
         {
           "name": "pi-coding-agent",
@@ -281,9 +281,9 @@
         {
           "name": "rtk",
           "version_spec": null,
-          "resolved_version": "0.38.0",
+          "resolved_version": "0.40.0",
           "attribute_path": "rtk",
-          "commit_hash": "68a8af93ff4297686cb68880845e61e5e2e41d92"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "rustup",
@@ -309,9 +309,9 @@
         {
           "name": "temporal-cli",
           "version_spec": null,
-          "resolved_version": "1.6.2",
+          "resolved_version": "1.7.0",
           "attribute_path": "temporal-cli",
-          "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "terminal-notifier",
@@ -327,9 +327,9 @@
         {
           "name": "terraform",
           "version_spec": null,
-          "resolved_version": "1.15.0",
+          "resolved_version": "1.15.3",
           "attribute_path": "terraform",
-          "commit_hash": "7aaa00e7cc9be6c316cb5f6617bd740dd435c59d"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "tmux",
@@ -341,9 +341,9 @@
         {
           "name": "uv",
           "version_spec": null,
-          "resolved_version": "0.11.10",
+          "resolved_version": "0.11.14",
           "attribute_path": "uv",
-          "commit_hash": "ed67bc86e84e51d4a88e73c7fd36006dc876476f"
+          "commit_hash": "d233902339c02a9c334e7e593de68855ad26c4cb"
         },
         {
           "name": "vhs",
@@ -357,7 +357,7 @@
           "version_spec": null,
           "resolved_version": "0.9.9",
           "attribute_path": "zoxide",
-          "commit_hash": "6368eda62c9775c38ef7f714b2555a741c20c72d"
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         }
       ],
       "custom_packages": [
