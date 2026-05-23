@@ -69,11 +69,25 @@
           "commit_hash": "c6d65881c5624c9cae5ea6cedef24699b0c0a4c0"
         },
         {
+          "name": "claude-code",
+          "version_spec": null,
+          "resolved_version": "2.1.143",
+          "attribute_path": "claude-code",
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
+        },
+        {
           "name": "cmake",
           "version_spec": null,
           "resolved_version": "4.1.2",
           "attribute_path": "cmake",
           "commit_hash": "ee09932cedcef15aaf476f9343d1dea2cb77e261"
+        },
+        {
+          "name": "codex",
+          "version_spec": null,
+          "resolved_version": "0.131.0",
+          "attribute_path": "codex",
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "delta",
@@ -235,6 +249,13 @@
           "resolved_version": "22.22.2",
           "attribute_path": "nodejs_22",
           "commit_hash": "01fbdeef22b76df85ea168fbfe1bfd9e63681b30"
+        },
+        {
+          "name": "pi-coding-agent",
+          "version_spec": null,
+          "resolved_version": "0.75.3",
+          "attribute_path": "pi-coding-agent",
+          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
         },
         {
           "name": "pkg-config",
