@@ -1,3 +1,6 @@
 {
-  "skills": ["~/.claude/skills"]
+  "skills": ["~/.claude/skills"],
+  "warnings": {
+    "anthropicExtraUsage": false
+  }
 }
