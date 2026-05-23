@@ -9,12 +9,11 @@
 //   Commands (user-typed):
 //     - /pr-diff [num]        Show diff with `delta` syntax highlighting
 //     - /pr-comments [num]    Print formatted comments
-//     - /pr-reply             Interactive: pick thread, reply
 //
 // Requires: gh (authenticated), optionally delta.
 // Write operations always go through ctx.ui.confirm() first.
 
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Box, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 
@@ -387,73 +386,6 @@ export default function (pi: ExtensionAPI) {
 			const threads = await fetchThreads(pi, ctx.cwd, pr, nwo.owner, nwo.name, false);
 			const text = `${formatHeader(pr, nwo.owner, nwo.name)}\n\n${formatThreads(threads)}`;
 			pi.sendMessage({ customType: "pr-helper", content: text, display: true });
-		},
-	});
-
-	// ── Command: /pr-reply ─────────────────────────────────
-	// Interactive: choose unresolved thread, type reply, confirm, post.
-	pi.registerCommand("pr-reply", {
-		description: "Interactively reply to an unresolved PR review thread",
-		handler: async (args, ctx: ExtensionContext) => {
-			const pr = await resolvePr(pi, ctx.cwd, args ? Number.parseInt(args.trim(), 10) : undefined);
-			if (!pr) {
-				ctx.ui.notify("No PR found", "error");
-				return;
-			}
-			const nwo = await repoNwo(pi, ctx.cwd);
-			if (!nwo) {
-				ctx.ui.notify("Not a GitHub repo", "error");
-				return;
-			}
-			const threads = await fetchThreads(pi, ctx.cwd, pr, nwo.owner, nwo.name, true);
-			if (threads.length === 0) {
-				ctx.ui.notify("No unresolved threads", "info");
-				return;
-			}
-			const items = threads.map((t, i) => {
-				const last = t.comments[t.comments.length - 1];
-				const snippet = (last?.body ?? "").slice(0, 60).replace(/\n/g, " ");
-				return `[${i}] ${t.path}:${t.line ?? "?"}  @${last?.author ?? "?"}: ${snippet}`;
-			});
-			const selected = await ctx.ui.select(`Unresolved threads on PR #${pr}`, items);
-			if (!selected) return;
-			const idxMatch = selected.match(/^\[(\d+)\]/);
-			if (!idxMatch) return;
-			const thread = threads[Number.parseInt(idxMatch[1], 10)];
-			if (!thread) return;
-			const body = await ctx.ui.editor("Reply body (markdown)", "");
-			if (!body || !body.trim()) {
-				ctx.ui.notify("Empty reply, cancelled", "info");
-				return;
-			}
-			const ok = await ctx.ui.confirm(`Post reply to ${thread.path}:${thread.line ?? "?"}?`, body);
-			if (!ok) return;
-			const mutation = `
-        mutation($threadId:ID!,$body:String!){
-          addPullRequestReviewThreadReply(input:{pullRequestReviewThreadId:$threadId,body:$body}){
-            comment{ url }
-          }
-        }`;
-			const r = await sh(
-				pi,
-				"gh",
-				[
-					"api",
-					"graphql",
-					"-f",
-					`query=${mutation}`,
-					"-F",
-					`threadId=${thread.id}`,
-					"-F",
-					`body=${body}`,
-				],
-				{ cwd: ctx.cwd },
-			);
-			if (!r.ok) {
-				ctx.ui.notify(`Failed: ${r.stderr}`, "error");
-				return;
-			}
-			ctx.ui.notify("Reply posted", "info");
 		},
 	});
 }
