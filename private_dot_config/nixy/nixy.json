@@ -362,6 +362,13 @@
       ],
       "custom_packages": [
         {
+          "name": "box",
+          "input_name": "github-yusukeshib-box",
+          "input_url": "github:yusukeshib/box",
+          "package_output": "packages",
+          "source_name": "default"
+        },
+        {
           "name": "neovim",
           "input_name": "nixpkgs-nixpkgs-unstable",
           "input_url": "github:NixOS/nixpkgs/nixpkgs-unstable",
