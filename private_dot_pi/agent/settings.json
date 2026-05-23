@@ -3,5 +3,5 @@
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-4-7",
   "defaultThinkingLevel": "medium",
-  "theme": "websafe16"
+  "theme": "dark-websafe-code"
 }

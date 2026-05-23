@@ -23,7 +23,7 @@
   "colors": {
     "accent":              "cyan",
     "border":              "dimGrey",
-    "borderAccent":        "cyan",
+    "borderAccent":        "dimGrey",
     "borderMuted":         "dimGrey",
     "success":             "green",
     "error":               "red",
@@ -40,7 +40,7 @@
     "customMessageText":   "",
     "customMessageLabel":  "magenta",
     "toolPendingBg":       "bgAlt",
-    "toolSuccessBg":       "bgOk",
+    "toolSuccessBg":       "bgAlt",
     "toolErrorBg":         "bgErr",
     "toolTitle":           "cyan",
     "toolOutput":          "",
