@@ -2,15 +2,15 @@
   "$schema": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
   "name": "dracula",
   "vars": {
-    "bg":        "#16171f",
-    "bgAlt":     "#0e0f15",
-    "bgSel":     "#4d5174",
-    "bgUser":    "#262a3d",
-    "bgOk":      "#1e3a24",
-    "bgErr":     "#421d1d",
-    "fg":        "#ffffff",
-    "grey":      "#d0d0d0",
-    "dimGrey":   "#7d8ac0",
+    "bg":        "#1e2030",
+    "bgAlt":     "#181a26",
+    "bgSel":     "#464a66",
+    "bgUser":    "#2a2e42",
+    "bgOk":      "#23402a",
+    "bgErr":     "#4a2424",
+    "fg":        "#f5f5f0",
+    "grey":      "#c8c8c8",
+    "dimGrey":   "#7282b8",
     "cyan":      "#8be9fd",
     "blue":      "#bd93f9",
     "green":     "#50fa7b",
@@ -80,8 +80,8 @@
     "bashMode":            "orange"
   },
   "export": {
-    "pageBg": "#16171f",
-    "cardBg": "#0e0f15",
-    "infoBg": "#4d5174"
+    "pageBg": "#1e2030",
+    "cardBg": "#181a26",
+    "infoBg": "#464a66"
   }
 }

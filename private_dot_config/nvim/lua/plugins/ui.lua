@@ -1,11 +1,11 @@
--- Theme (high-contrast Dracula)
+-- Theme (Dracula, slightly higher contrast than stock)
 require("dracula").setup({
   colors = {
-    bg = "#16171f",
-    menu = "#0e0f15",
-    fg = "#ffffff",
-    comment = "#7d8ac0",
-    selection = "#4d5174",
+    bg = "#1e2030",
+    menu = "#181a26",
+    fg = "#f5f5f0",
+    comment = "#7282b8",
+    selection = "#464a66",
   },
   italic_comment = true,
 })
