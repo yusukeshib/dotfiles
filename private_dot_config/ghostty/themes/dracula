@@ -1,15 +1,15 @@
 # Dracula — https://draculatheme.com/
 
-background = 282a36
-foreground = f8f8f2
+background = 16171f
+foreground = ffffff
 
-cursor-color       = f8f8f2
-cursor-text        = 282a36
-selection-background = 44475a
-selection-foreground = f8f8f2
+cursor-color       = ffffff
+cursor-text        = 16171f
+selection-background = 4d5174
+selection-foreground = ffffff
 
 # Normal
-palette = 0=#21222c
+palette = 0=#0e0f15
 palette = 1=#ff5555
 palette = 2=#50fa7b
 palette = 3=#f1fa8c
@@ -19,7 +19,7 @@ palette = 6=#8be9fd
 palette = 7=#f8f8f2
 
 # Bright
-palette = 8=#6272a4
+palette = 8=#7d8ac0
 palette = 9=#ff6e6e
 palette = 10=#69ff94
 palette = 11=#ffffa5
