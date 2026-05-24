@@ -3,6 +3,6 @@
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-4-7",
   "defaultThinkingLevel": "high",
-  "theme": "dark-websafe-code",
+  "theme": "dracula",
   "hideThinkingBlock": false
 }

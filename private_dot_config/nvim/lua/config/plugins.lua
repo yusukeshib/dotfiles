@@ -23,6 +23,7 @@ vim.pack.add({
   --
 
   { src = "https://github.com/scottmckendry/cyberdream.nvim" },
+  { src = "https://github.com/Mofiqul/dracula.nvim" },
   { src = "https://github.com/akinsho/bufferline.nvim" },
   { src = "https://github.com/nvim-lualine/lualine.nvim" },
   { src = "https://github.com/folke/which-key.nvim" },
