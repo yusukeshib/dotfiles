@@ -251,13 +251,6 @@
           "commit_hash": "27198194e52129ccd8e845e7d5911911e7fea7d7"
         },
         {
-          "name": "pi-coding-agent",
-          "version_spec": null,
-          "resolved_version": "0.75.3",
-          "attribute_path": "pi-coding-agent",
-          "commit_hash": "d99b013d5d1931ad77fe3912ed218170dec5d9a4"
-        },
-        {
           "name": "pkg-config",
           "version_spec": null,
           "resolved_version": "0.29.2",
@@ -374,6 +367,13 @@
           "input_url": "github:NixOS/nixpkgs/nixpkgs-unstable",
           "package_output": "legacyPackages",
           "source_name": null
+        },
+        {
+          "name": "pi-nix",
+          "input_name": "github-lukasl-dev-pi-nix",
+          "input_url": "github:lukasl-dev/pi.nix",
+          "package_output": "packages",
+          "source_name": "default"
         }
       ]
     },
