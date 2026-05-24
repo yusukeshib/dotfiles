@@ -140,4 +140,5 @@ fi
 
 if type "box" > /dev/null; then
   _cached_eval box box config zsh
+   export BOX_POST_SWITCH_HOOK='tmux rename-window "$BOX_SESSION_NAME"'
 fi
