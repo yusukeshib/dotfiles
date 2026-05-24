@@ -4,5 +4,9 @@
   "defaultModel": "claude-opus-4-7",
   "defaultThinkingLevel": "high",
   "theme": "dracula",
-  "hideThinkingBlock": false
+  "hideThinkingBlock": false,
+  "skills": ["~/.claude/skills"],
+  "warnings": {
+    "anthropicExtraUsage": false
+  }
 }

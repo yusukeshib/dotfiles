@@ -1,6 +1,0 @@
-{
-  "skills": ["~/.claude/skills"],
-  "warnings": {
-    "anthropicExtraUsage": false
-  }
-}
