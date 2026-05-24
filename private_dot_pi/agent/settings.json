@@ -1,12 +1,19 @@
 {
   "lastChangelogVersion": "0.75.5",
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-7",
-  "defaultThinkingLevel": "high",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "low",
   "theme": "dracula",
   "hideThinkingBlock": false,
-  "skills": ["~/.claude/skills"],
+  "skills": [
+    "~/.claude/skills"
+  ],
   "warnings": {
     "anthropicExtraUsage": false
-  }
+  },
+  "packages": [
+    "npm:context-mode",
+    "npm:pi-web-access",
+    "npm:pi-mcp-adapter"
+  ]
 }
