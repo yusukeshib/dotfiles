@@ -2,6 +2,7 @@
   "lastChangelogVersion": "0.75.3",
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-4-7",
-  "defaultThinkingLevel": "medium",
-  "theme": "dark-websafe-code"
+  "defaultThinkingLevel": "high",
+  "theme": "dark-websafe-code",
+  "hideThinkingBlock": false
 }
