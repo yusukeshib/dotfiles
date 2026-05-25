@@ -4,10 +4,12 @@
   "vars": {
     "bg": "#000000",
     "bgAlt": "#000033",
+    "bgPanel": "#1a1a1a",
     "bgSel": "#003399",
-    "bgUser": "#d0d0d0",
+    "bgUser": "#001a33",
     "bgOk": "#1a1a1a",
-    "bgErr": "#ff0000",
+    "bgWarn": "#1a1a1a",
+    "bgErr": "#1a1a1a",
     "fg": "#e5e5e5",
     "white": "#ffffff",
     "grey": "#808080",
@@ -32,7 +34,7 @@
     "border": "blue",
     "borderAccent": "brCyan",
     "borderMuted": "dimGrey",
-    "success": "green",
+    "success": "brGreen",
     "error": "brRed",
     "warning": "brYellow",
     "muted": "grey",
@@ -42,35 +44,35 @@
 
     "selectedBg": "bgSel",
     "userMessageBg": "bgUser",
-    "userMessageText": "#000000",
+    "userMessageText": "white",
     "customMessageBg": "bgAlt",
     "customMessageText": "",
     "customMessageLabel": "brBlue",
-    "toolPendingBg": "bgAlt",
+    "toolPendingBg": "bgPanel",
     "toolSuccessBg": "bgOk",
     "toolErrorBg": "bgErr",
     "toolTitle": "brCyan",
-    "toolOutput": "",
+    "toolOutput": "fg",
 
     "mdHeading": "brYellow",
     "mdLink": "brCyan",
     "mdLinkUrl": "grey",
     "mdCode": "orange",
-    "mdCodeBlock": "",
+    "mdCodeBlock": "fg",
     "mdCodeBlockBorder": "dimGrey",
     "mdQuote": "grey",
     "mdQuoteBorder": "magenta",
     "mdHr": "dimGrey",
     "mdListBullet": "pink",
 
-    "toolDiffAdded": "grey",
+    "toolDiffAdded": "brGreen",
     "toolDiffRemoved": "brRed",
     "toolDiffContext": "grey",
 
     "syntaxComment": "dimGrey",
     "syntaxKeyword": "brMagenta",
     "syntaxFunction": "brBlue",
-    "syntaxVariable": "",
+    "syntaxVariable": "fg",
     "syntaxString": "brGreen",
     "syntaxNumber": "orange",
     "syntaxType": "brCyan",
@@ -89,6 +91,6 @@
   "export": {
     "pageBg": "#000000",
     "cardBg": "#000033",
-    "infoBg": "#003399"
+    "infoBg": "#001a33"
   }
 }
