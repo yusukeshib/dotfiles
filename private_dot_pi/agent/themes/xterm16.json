@@ -6,7 +6,7 @@
     "bgAlt": "#000033",
     "bgPanel": "#1a1a1a",
     "bgSel": "#003399",
-    "bgUser": "#001a33",
+    "bgUser": "#d0d0d0",
     "bgOk": "#1a1a1a",
     "bgWarn": "#1a1a1a",
     "bgErr": "#1a1a1a",
@@ -44,7 +44,7 @@
 
     "selectedBg": "bgSel",
     "userMessageBg": "bgUser",
-    "userMessageText": "white",
+    "userMessageText": "#000000",
     "customMessageBg": "bgAlt",
     "customMessageText": "",
     "customMessageLabel": "brBlue",
