@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.75.5",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
-  "defaultThinkingLevel": "low",
+  "defaultThinkingLevel": "medium",
   "theme": "xterm16",
   "hideThinkingBlock": false,
   "skills": [
