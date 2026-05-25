@@ -1,29 +1,29 @@
--- websafe16: high-contrast 16-color theme using only web-safe RGB (#RGB ∈ {00,33,66,99,CC,FF})
+-- xterm16-balanced-vivid: xterm-inspired vivid palette with perceptual hue balancing
 vim.cmd("hi clear")
 if vim.fn.exists("syntax_on") == 1 then vim.cmd("syntax reset") end
 vim.o.background = "dark"
-vim.g.colors_name = "websafe16"
+vim.g.colors_name = "xterm16"
 
 local c = {
   bg       = "#000000",
   bgAlt    = "#000033",
-  bgSel    = "#0000cc",
+  bgSel    = "#003399",
   bgErr    = "#330000",
   bgOk     = "#003300",
-  fg       = "#ffffff",
-  grey     = "#cccccc",
+  fg       = "#e5e5e5",
+  grey     = "#808080",
   dimGrey  = "#666666",
   black    = "#000000",
-  red      = "#cc0000",
-  green    = "#00cc00",
-  yellow   = "#cc9900",
-  blue     = "#3366ff",
-  magenta  = "#cc00cc",
+  red      = "#ff3333",
+  green    = "#00dd66",
+  yellow   = "#ffcc00",
+  blue     = "#3399ff",
+  magenta  = "#cc33ff",
   cyan     = "#00cccc",
   brRed    = "#ff0000",
-  brGreen  = "#00ff00",
+  brGreen  = "#00ff66",
   brYellow = "#ffff00",
-  brBlue   = "#6699ff",
+  brBlue   = "#66ccff",
   brMag    = "#ff00ff",
   brCyan   = "#00ffff",
   white    = "#ffffff",
@@ -38,8 +38,8 @@ hi("Normal",        { fg = c.fg, bg = c.bg })
 hi("NormalFloat",   { fg = c.fg, bg = c.bgAlt })
 hi("FloatBorder",   { fg = c.brCyan, bg = c.bgAlt })
 hi("ColorColumn",   { bg = c.bgAlt })
-hi("Cursor",        { fg = c.bg, bg = c.brGreen })
-hi("CursorLine",    { bg = "#000033" })
+hi("Cursor",        { fg = c.bg, bg = c.white })
+hi("CursorLine",    { bg = c.bgAlt })
 hi("CursorLineNr",  { fg = c.brYellow, bold = true })
 hi("LineNr",        { fg = c.dimGrey })
 hi("SignColumn",    { bg = c.bg })
@@ -48,7 +48,7 @@ hi("WinSeparator",  { fg = c.dimGrey })
 hi("StatusLine",    { fg = c.fg, bg = c.bgAlt })
 hi("StatusLineNC",  { fg = c.grey, bg = c.bg })
 hi("TabLine",       { fg = c.grey, bg = c.bgAlt })
-hi("TabLineSel",    { fg = c.brYellow, bg = c.bg, bold = true })
+hi("TabLineSel",    { fg = c.brBlue, bg = c.bg, bold = true })
 hi("TabLineFill",   { bg = c.bg })
 hi("Pmenu",         { fg = c.fg, bg = c.bgAlt })
 hi("PmenuSel",      { fg = c.white, bg = c.bgSel, bold = true })
@@ -82,7 +82,7 @@ hi("Character",     { fg = c.brGreen })
 hi("Number",        { fg = c.orange })
 hi("Boolean",       { fg = c.orange, bold = true })
 hi("Float",         { fg = c.orange })
-hi("Identifier",    { fg = c.white })
+hi("Identifier",    { fg = c.fg })
 hi("Function",      { fg = c.brBlue, bold = true })
 hi("Statement",     { fg = c.brMag, bold = true })
 hi("Conditional",   { fg = c.brMag, bold = true })
@@ -131,9 +131,9 @@ hi("GitSignsChange", { fg = c.brYellow })
 hi("GitSignsDelete", { fg = c.brRed })
 
 -- Treesitter
-hi("@variable",         { fg = c.white })
+hi("@variable",         { fg = c.fg })
 hi("@variable.builtin", { fg = c.orange, italic = true })
-hi("@parameter",        { fg = c.white })
+hi("@parameter",        { fg = c.fg })
 hi("@property",         { fg = c.brCyan })
 hi("@field",            { fg = c.brCyan })
 hi("@constructor",      { fg = c.brCyan, bold = true })
@@ -156,10 +156,10 @@ hi("@punctuation.bracket", { fg = c.grey })
 hi("@comment",          { link = "Comment" })
 
 -- LSP semantic tokens
-hi("@lsp.type.variable",  { fg = c.white })
+hi("@lsp.type.variable",  { fg = c.fg })
 hi("@lsp.type.function",  { link = "Function" })
 hi("@lsp.type.method",    { fg = c.brBlue })
-hi("@lsp.type.parameter", { fg = c.white })
+hi("@lsp.type.parameter", { fg = c.fg })
 hi("@lsp.type.property",  { fg = c.brCyan })
 hi("@lsp.type.type",      { link = "Type" })
 hi("@lsp.type.keyword",   { link = "Keyword" })
@@ -188,8 +188,8 @@ vim.g.terminal_color_3  = c.yellow
 vim.g.terminal_color_4  = c.blue
 vim.g.terminal_color_5  = c.magenta
 vim.g.terminal_color_6  = c.cyan
-vim.g.terminal_color_7  = c.grey
-vim.g.terminal_color_8  = c.dimGrey
+vim.g.terminal_color_7  = c.fg
+vim.g.terminal_color_8  = c.grey
 vim.g.terminal_color_9  = c.brRed
 vim.g.terminal_color_10 = c.brGreen
 vim.g.terminal_color_11 = c.brYellow

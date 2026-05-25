@@ -1,5 +1,5 @@
 font-family = Hack
-theme = dracula
+theme = xterm16
 font-feature = -dlig
 font-size = 13
 confirm-close-surface = false

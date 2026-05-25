@@ -1,15 +1,5 @@
--- Theme (Dracula, slightly higher contrast than stock)
-require("dracula").setup({
-  colors = {
-    bg = "#1e2030",
-    menu = "#181a26",
-    fg = "#f5f5f0",
-    comment = "#7282b8",
-    selection = "#464a66",
-  },
-  italic_comment = true,
-})
-vim.cmd("colorscheme dracula")
+-- Theme
+vim.cmd("colorscheme xterm16")
 
 -- Bufferline: Tab-like buffer list at top of window
 require("bufferline").setup({})

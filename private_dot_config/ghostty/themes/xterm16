@@ -1,0 +1,30 @@
+# xterm16-balanced-vivid — xterm-inspired vivid palette with perceptual hue balancing
+# Low-luminance hues (red/blue/magenta) are lifted; high-luminance hues (green/yellow/cyan) are kept vivid but less blinding.
+
+background = 000000
+foreground = e5e5e5
+
+cursor-color = ffffff
+cursor-text = 000000
+selection-background = 003399
+selection-foreground = ffffff
+
+# Normal ANSI 0-7: readable, saturated, not neon
+palette = 0=#000000
+palette = 1=#ff3333
+palette = 2=#00dd66
+palette = 3=#ffcc00
+palette = 4=#3399ff
+palette = 5=#cc33ff
+palette = 6=#00cccc
+palette = 7=#e5e5e5
+
+# Bright ANSI 8-15: vivid accents / emphasis
+palette = 8=#808080
+palette = 9=#ff0000
+palette = 10=#00ff66
+palette = 11=#ffff00
+palette = 12=#66ccff
+palette = 13=#ff00ff
+palette = 14=#00ffff
+palette = 15=#ffffff
