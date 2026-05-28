@@ -9,7 +9,26 @@
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        # Workaround: crates.io currently 403s requests with the
+        # default `curl/X Nixpkgs/Y` User-Agent that fetchurl sends.
+        # Override fetchurl to send a generic UA so per-crate fetches
+        # (used by rustPlatform.cargoLock) succeed. See:
+        #   https://github.com/rust-lang/crates.io/issues/13482
+        cratesUaOverlay = final: prev: {
+          fetchurl = args:
+            let
+              inject = a: a // {
+                curlOptsList = (a.curlOptsList or [])
+                  ++ [ "--user-agent" "Nixpkgs-fetchurl" ];
+              };
+            in
+              if builtins.isAttrs args then prev.fetchurl (inject args)
+              else prev.fetchurl args;
+        };
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ cratesUaOverlay ];
+        };
         rtk = pkgs.rustPlatform.buildRustPackage rec {
           pname = "rtk";
           version = "0.39.0";
