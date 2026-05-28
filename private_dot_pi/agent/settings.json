@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.75.5",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.5",
+  "lastChangelogVersion": "0.76.0",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-4-7",
   "defaultThinkingLevel": "medium",
   "theme": "xterm16",
   "hideThinkingBlock": false,
@@ -14,6 +14,11 @@
   "packages": [
     "npm:context-mode",
     "npm:pi-web-access",
-    "npm:pi-mcp-adapter"
+    "npm:pi-mcp-adapter",
+    "npm:pi-subagents"
+  ],
+  "enabledModels": [
+    "openai-codex/gpt-5.5",
+    "anthropic/claude-opus-4-7"
   ]
 }
