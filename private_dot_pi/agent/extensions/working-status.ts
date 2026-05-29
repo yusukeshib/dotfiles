@@ -17,7 +17,8 @@
  * Activity segment (most specific wins):
  *   ⚙ <tool>: <args>            single tool executing (bash command / file path / pattern)
  *   ⚙ running <tools>           multiple tools executing (deduped names, max 3)
- *   requesting <host>…          request sent, no response content yet
+ *   sending request to <host>…  request being sent (first ~0.4s)
+ *   waiting for response… <n>s  request sent, awaiting any response (with wait clock)
  *   receiving reasoning stream… provider streaming a reasoning block (+ tok / tok·s / bytes)
  *   receiving text stream…      provider streaming assistant text (+ tok / tok·s / bytes)
  *   receiving tool call…        provider streaming a tool call (+ tok / tok·s / bytes)
@@ -40,6 +41,9 @@ import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-a
 
 const TICK_MS = 1000; // how often the elapsed clock refreshes
 const INTERRUPT_HINT = "esc to stop";
+// There is no "request fully sent" event, so treat the first moment after
+// before_provider_request as "sending", then switch to "waiting for response".
+const SEND_GRACE_MS = 400;
 
 type StreamKind = "thinking" | "text" | "toolcall" | undefined;
 
@@ -118,7 +122,12 @@ export default function (pi: ExtensionAPI) {
 			const extra = names.length > 3 ? ` +${names.length - 3}` : "";
 			return `⚙ running ${shown}${extra}`;
 		}
-		if (requesting) return `requesting ${requestTarget(ctx)}…`;
+		if (requesting) {
+			const host = requestTarget(ctx);
+			const waited = reqStartAt ? Date.now() - reqStartAt : 0;
+			if (waited < SEND_GRACE_MS) return `sending request to ${host}…`;
+			return `waiting for response from ${host}… ${Math.round(waited / 1000)}s`;
+		}
 		if (lastBadStatus) return `HTTP ${lastBadStatus}`;
 
 		// Stream progress: tokens (if reported), tok/s, then decoded bytes.
