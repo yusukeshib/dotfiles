@@ -4,24 +4,29 @@
  *
  * Examples (the activity segment changes as the turn progresses):
  *
- *   ⏱ 0:02 · turn 1 · requesting api.anthropic.com…      (HTTP request in flight)
- *   ⏱ 0:04 · turn 1 · receiving reasoning stream… 1.2 KB  (thinking stream)
- *   ⏱ 0:07 · turn 1 · receiving text stream… 4.8 KB       (assistant text)
- *   ⏱ 0:08 · turn 1 · receiving tool call… 320 B          (tool call args)
- *   ⏱ 0:09 · turn 2 · ⚙ running bash, read · esc to stop
+ *   ⏱ 0:02 · turn 1 · requesting api.anthropic.com…                 (request in flight)
+ *   ⏱ 0:04 · turn 1 · receiving reasoning stream… 240 tok · 1.2 KB   (thinking stream)
+ *   ⏱ 0:07 · turn 1 · receiving text stream… 1.1k tok · 180 tok/s · 4.8 KB
+ *   ⏱ 0:08 · turn 1 · ⚙ bash: npm test -- --watch=false             (single tool: args)
+ *   ⏱ 0:09 · turn 2 · ⚙ running bash, read · esc to stop            (multiple tools)
  *
  * Fixed segments (shown when known): elapsed clock, turn number, and an
  * "esc to stop" hint. Model id and context-window usage are intentionally
  * omitted here because pi's footer already shows them.
  *
  * Activity segment (most specific wins):
- *   ⚙ running <tools>           one or more tools executing (deduped, max 3)
- *   requesting <host>…          HTTP request sent, awaiting response headers
- *   receiving reasoning stream… <n> streaming a reasoning block (+ decoded bytes)
- *   receiving text stream… <n>      streaming assistant text (+ decoded bytes)
- *   receiving tool call… <n>        streaming a tool call (+ decoded bytes)
+ *   ⚙ <tool>: <args>            single tool executing (bash command / file path / pattern)
+ *   ⚙ running <tools>           multiple tools executing (deduped names, max 3)
+ *   requesting <host>…          request sent, no response content yet
+ *   receiving reasoning stream… provider streaming a reasoning block (+ tok / tok·s / bytes)
+ *   receiving text stream…      provider streaming assistant text (+ tok / tok·s / bytes)
+ *   receiving tool call…        provider streaming a tool call (+ tok / tok·s / bytes)
  *   HTTP <status>               last response returned a non-2xx status
- *   connected, waiting…         response started, nothing classified yet
+ *   connected, waiting… (ttft)  headers received, awaiting first token
+ *
+ * Token counts come from the provider's streamed usage (Anthropic, Bedrock,
+ * Mistral, Google update output tokens mid-stream); tok/s and ttft are derived
+ * locally. Byte counts are decoded payload size (not raw HTTP bytes).
  *
  * Commands:
  *   /working-status off   Restore pi's default "Working..." message
@@ -48,7 +53,10 @@ export default function (pi: ExtensionAPI) {
 	let streamKind: StreamKind; // what the model is currently streaming
 	let lastBadStatus = 0; // last non-2xx HTTP status, 0 = none
 	let recvBytes = 0; // cumulative decoded stream bytes for the current response
-	const runningTools = new Map<string, string>(); // toolCallId -> toolName
+	let outTokens = 0; // output tokens reported so far this response (major providers)
+	let reqStartAt = 0; // when the current provider request was sent
+	let firstTokenAt = 0; // when the first stream token arrived (for TTFT + tok/s)
+	const runningTools = new Map<string, { name: string; detail: string }>();
 	let ticker: ReturnType<typeof setInterval> | undefined;
 	let lastCtx: ExtensionContext | undefined;
 
@@ -69,6 +77,21 @@ export default function (pi: ExtensionAPI) {
 		return `${n} B`;
 	};
 
+	const fmtCount = (n: number): string => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${n}`);
+
+	// Extract a short, single-line summary of what a tool call is doing from its
+	// arguments. Field names match pi's built-in tool schemas.
+	const toolDetail = (name: string, args: unknown): string => {
+		const a = (args ?? {}) as Record<string, unknown>;
+		let raw: unknown;
+		if (name === "bash") raw = a.command;
+		else if (name === "grep" || name === "find") raw = a.pattern;
+		else raw = a.path; // read, write, edit, ls
+		if (typeof raw !== "string" || !raw) return "";
+		const oneLine = raw.replace(/\s+/g, " ").trim();
+		return oneLine.length > 40 ? `${oneLine.slice(0, 39)}…` : oneLine;
+	};
+
 	// "https://api.anthropic.com/v1" -> "api.anthropic.com"; fall back to provider.
 	const requestTarget = (ctx: ExtensionContext): string => {
 		const model = ctx.model;
@@ -84,14 +107,29 @@ export default function (pi: ExtensionAPI) {
 
 	const activity = (ctx: ExtensionContext): string => {
 		if (runningTools.size > 0) {
-			const names = [...new Set(runningTools.values())];
+			const entries = [...runningTools.values()];
+			// Single tool: show its argument detail (command/path/pattern).
+			if (entries.length === 1) {
+				const { name, detail } = entries[0]!;
+				return detail ? `⚙ ${name}: ${detail}` : `⚙ running ${name}`;
+			}
+			const names = [...new Set(entries.map((e) => e.name))];
 			const shown = names.slice(0, 3).join(", ");
 			const extra = names.length > 3 ? ` +${names.length - 3}` : "";
 			return `⚙ running ${shown}${extra}`;
 		}
 		if (requesting) return `requesting ${requestTarget(ctx)}…`;
 		if (lastBadStatus) return `HTTP ${lastBadStatus}`;
-		const got = recvBytes > 0 ? ` ${fmtBytes(recvBytes)}` : "";
+
+		// Stream progress: tokens (if reported), tok/s, then decoded bytes.
+		const bits: string[] = [];
+		if (outTokens > 0) bits.push(`${fmtCount(outTokens)} tok`);
+		if (outTokens > 0 && firstTokenAt > 0) {
+			const secs = (Date.now() - firstTokenAt) / 1000;
+			if (secs >= 0.5) bits.push(`${Math.round(outTokens / secs)} tok/s`);
+		}
+		if (recvBytes > 0) bits.push(fmtBytes(recvBytes));
+		const got = bits.length ? ` ${bits.join(" · ")}` : "";
 		switch (streamKind) {
 			case "thinking":
 				return `receiving reasoning stream…${got}`;
@@ -99,8 +137,10 @@ export default function (pi: ExtensionAPI) {
 				return `receiving text stream…${got}`;
 			case "toolcall":
 				return `receiving tool call…${got}`;
-			default:
-				return "connected, waiting…";
+			default: {
+				const ttft = firstTokenAt && reqStartAt ? ` (ttft ${((firstTokenAt - reqStartAt) / 1000).toFixed(1)}s)` : "";
+				return `connected, waiting…${ttft}`;
+			}
 		}
 	};
 
@@ -135,13 +175,21 @@ export default function (pi: ExtensionAPI) {
 		}
 	};
 
+	const resetResponse = () => {
+		streamKind = undefined;
+		lastBadStatus = 0;
+		recvBytes = 0;
+		outTokens = 0;
+		firstTokenAt = 0;
+		reqStartAt = 0;
+	};
+
 	pi.on("agent_start", async (_event, ctx) => {
 		if (!enabled) return;
 		startTime = Date.now();
 		turnDisplay = 0;
 		requesting = false;
-		streamKind = undefined;
-		lastBadStatus = 0;
+		resetResponse();
 		runningTools.clear();
 		startTicker(ctx);
 	});
@@ -149,8 +197,7 @@ export default function (pi: ExtensionAPI) {
 	pi.on("turn_start", async (event, ctx) => {
 		if (!enabled) return;
 		turnDisplay = (event.turnIndex ?? turnDisplay) + 1; // turnIndex is 0-based
-		streamKind = undefined;
-		lastBadStatus = 0;
+		resetResponse();
 		runningTools.clear();
 		lastCtx = ctx;
 		refresh();
@@ -159,9 +206,8 @@ export default function (pi: ExtensionAPI) {
 	pi.on("before_provider_request", async (_event, ctx) => {
 		if (!enabled) return;
 		requesting = true;
-		streamKind = undefined;
-		lastBadStatus = 0;
-		recvBytes = 0; // fresh response, fresh byte count
+		resetResponse(); // fresh response: clear bytes/tokens/ttft
+		reqStartAt = Date.now();
 		lastCtx = ctx;
 		refresh();
 	});
@@ -178,6 +224,7 @@ export default function (pi: ExtensionAPI) {
 		if (!enabled) return;
 		requesting = false;
 		lastBadStatus = 0; // real content is arriving; supersede any stale bad status
+		if (firstTokenAt === 0) firstTokenAt = Date.now();
 		const ev = event.assistantMessageEvent as { type?: string; delta?: unknown } | undefined;
 		const t = ev?.type ?? "";
 		if (t.startsWith("thinking")) streamKind = "thinking";
@@ -185,6 +232,11 @@ export default function (pi: ExtensionAPI) {
 		else if (t.startsWith("toolcall")) streamKind = "toolcall";
 		if (typeof ev?.delta === "string") {
 			recvBytes += Buffer.byteLength(ev.delta, "utf8");
+		}
+		// Live output-token count (Anthropic/Bedrock/Mistral/Google update this mid-stream).
+		const usage = (event.message as { usage?: { output?: number } } | undefined)?.usage;
+		if (typeof usage?.output === "number" && usage.output > outTokens) {
+			outTokens = usage.output;
 		}
 		lastCtx = ctx;
 		// No explicit refresh on every token: the ticker handles cadence and
@@ -194,7 +246,10 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("tool_execution_start", async (event, ctx) => {
 		if (!enabled) return;
-		runningTools.set(event.toolCallId, event.toolName);
+		runningTools.set(event.toolCallId, {
+			name: event.toolName,
+			detail: toolDetail(event.toolName, event.args),
+		});
 		lastCtx = ctx;
 		refresh();
 	});
