@@ -15,7 +15,8 @@
     "npm:context-mode",
     "npm:pi-web-access",
     "npm:pi-mcp-adapter",
-    "npm:pi-subagents"
+    "npm:pi-subagents",
+    "npm:pi-chrome"
   ],
   "enabledModels": [
     "openai-codex/gpt-5.5",
