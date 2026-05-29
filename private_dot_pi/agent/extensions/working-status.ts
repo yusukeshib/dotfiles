@@ -1,28 +1,31 @@
 /**
  * working-status — replace pi's plain "Working..." loader with a live,
- * detailed status line while the agent is streaming.
+ * detailed status line that tracks the agent through every phase of a turn.
  *
- * Instead of just "Working...", you get something like:
+ * Examples (the activity segment changes as the turn progresses):
  *
- *   ⏱ 0:12 · sonnet-4 · turn 2 · ctx 45% (92k) · ⚙ bash, read · esc to stop
+ *   ⏱ 0:02 · sonnet-4 · turn 1 · → api.anthropic.com      (HTTP request in flight)
+ *   ⏱ 0:04 · sonnet-4 · turn 1 · ctx 45% (92k) · reasoning  (thinking stream)
+ *   ⏱ 0:07 · sonnet-4 · turn 1 · ctx 45% (92k) · writing     (text stream)
+ *   ⏱ 0:08 · sonnet-4 · turn 1 · ctx 45% (92k) · preparing tool call
+ *   ⏱ 0:09 · sonnet-4 · turn 2 · ctx 46% (94k) · ⚙ bash, read · esc to stop
  *
- * Components (each shown only when known):
- *   - elapsed time since the current prompt started (mm:ss, or Ns under 60s)
- *   - active model id (provider prefix stripped)
- *   - current turn number (1-based)
- *   - context-window usage: percent + approximate token count
- *   - currently-running tools (deduped), or "thinking" while the model streams
- *     text before any tool call
- *   - an "esc to stop" hint (the custom message overrides pi's default which
- *     normally carries the interrupt hint)
+ * Fixed segments (shown when known): elapsed clock, model id, turn number,
+ * context-window usage (% + approx tokens), and an "esc to stop" hint.
  *
- * The line is refreshed on a timer so the elapsed clock ticks even when no
- * events are firing (e.g. waiting on a slow provider response).
+ * Activity segment (most specific wins):
+ *   ⚙ <tools>          one or more tools currently executing (deduped, max 3)
+ *   → <host>           HTTP request sent, awaiting response headers
+ *   reasoning          provider is streaming a thinking/reasoning block
+ *   writing            provider is streaming assistant text
+ *   preparing tool call provider is streaming a tool call
+ *   HTTP <status>      last response returned a non-2xx status (until next phase)
+ *   waiting            connected, nothing classified yet
  *
  * Commands:
- *   /working-status off     Restore pi's default "Working..." message
- *   /working-status on      Re-enable the detailed status line
- *   /working-status         Show current on/off state
+ *   /working-status off   Restore pi's default "Working..." message
+ *   /working-status on    Re-enable the detailed status line
+ *   /working-status       Show current on/off state
  *
  * Install: lives in ~/.pi/agent/extensions/ (auto-discovered). /reload after edits.
  */
@@ -32,13 +35,17 @@ import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-a
 const TICK_MS = 1000; // how often the elapsed clock refreshes
 const INTERRUPT_HINT = "esc to stop";
 
+type StreamKind = "thinking" | "text" | "toolcall" | undefined;
+
 export default function (pi: ExtensionAPI) {
 	let enabled = true;
 
-	// Per-turn state
+	// Per-turn / per-request state
 	let startTime = 0;
 	let turnDisplay = 0; // 1-based turn number, 0 = not started
-	let streaming = false; // model has produced output this turn
+	let requesting = false; // HTTP request sent, response headers not yet received
+	let streamKind: StreamKind; // what the model is currently streaming
+	let lastBadStatus = 0; // last non-2xx HTTP status, 0 = none
 	const runningTools = new Map<string, string>(); // toolCallId -> toolName
 	let ticker: ReturnType<typeof setInterval> | undefined;
 	let lastCtx: ExtensionContext | undefined;
@@ -57,15 +64,48 @@ export default function (pi: ExtensionAPI) {
 		return `${n}`;
 	};
 
-	// "anthropic/claude-sonnet-4" -> "claude-sonnet-4"; keep it short-ish.
+	// "anthropic/claude-sonnet-4" -> "sonnet-4"
 	const shortModel = (id: string): string => {
 		const tail = id.includes("/") ? id.slice(id.lastIndexOf("/") + 1) : id;
 		return tail.replace(/^claude-/, "");
 	};
 
+	// "https://api.anthropic.com/v1" -> "api.anthropic.com"; fall back to provider.
+	const requestTarget = (ctx: ExtensionContext): string => {
+		const model = ctx.model;
+		if (model?.baseUrl) {
+			try {
+				return new URL(model.baseUrl).host;
+			} catch {
+				/* not a parseable URL, fall through */
+			}
+		}
+		return model?.provider ?? "provider";
+	};
+
+	const activity = (ctx: ExtensionContext): string => {
+		if (runningTools.size > 0) {
+			const names = [...new Set(runningTools.values())];
+			const shown = names.slice(0, 3).join(", ");
+			const extra = names.length > 3 ? ` +${names.length - 3}` : "";
+			return `⚙ ${shown}${extra}`;
+		}
+		if (requesting) return `→ ${requestTarget(ctx)}`;
+		if (lastBadStatus) return `HTTP ${lastBadStatus}`;
+		switch (streamKind) {
+			case "thinking":
+				return "reasoning";
+			case "text":
+				return "writing";
+			case "toolcall":
+				return "preparing tool call";
+			default:
+				return "waiting";
+		}
+	};
+
 	const buildMessage = (ctx: ExtensionContext): string => {
 		const parts: string[] = [];
-
 		parts.push(`⏱ ${fmtElapsed(Date.now() - startTime)}`);
 
 		const model = ctx.model?.id;
@@ -79,17 +119,7 @@ export default function (pi: ExtensionAPI) {
 			parts.push(`ctx ${Math.round(usage.percent)}%${tok}`);
 		}
 
-		if (runningTools.size > 0) {
-			const names = [...new Set(runningTools.values())];
-			const shown = names.slice(0, 3).join(", ");
-			const extra = names.length > 3 ? ` +${names.length - 3}` : "";
-			parts.push(`⚙ ${shown}${extra}`);
-		} else if (streaming) {
-			parts.push("writing");
-		} else {
-			parts.push("thinking");
-		}
-
+		parts.push(activity(ctx));
 		parts.push(INTERRUPT_HINT);
 		return parts.join(" · ");
 	};
@@ -104,8 +134,7 @@ export default function (pi: ExtensionAPI) {
 		refresh();
 		if (ticker) clearInterval(ticker);
 		ticker = setInterval(refresh, TICK_MS);
-		// Don't keep the process alive just for the cosmetic clock.
-		ticker.unref?.();
+		ticker.unref?.(); // don't keep the process alive for a cosmetic clock
 	};
 
 	const stopTicker = () => {
@@ -115,35 +144,55 @@ export default function (pi: ExtensionAPI) {
 		}
 	};
 
-	const resetTurnState = () => {
-		startTime = Date.now();
-		turnDisplay = 0;
-		streaming = false;
-		runningTools.clear();
-	};
-
 	pi.on("agent_start", async (_event, ctx) => {
 		if (!enabled) return;
-		resetTurnState();
+		startTime = Date.now();
+		turnDisplay = 0;
+		requesting = false;
+		streamKind = undefined;
+		lastBadStatus = 0;
+		runningTools.clear();
 		startTicker(ctx);
 	});
 
 	pi.on("turn_start", async (event, ctx) => {
 		if (!enabled) return;
-		// turnIndex is 0-based; show 1-based. A new turn means fresh tool set.
-		turnDisplay = (event.turnIndex ?? turnDisplay) + 1;
-		streaming = false;
+		turnDisplay = (event.turnIndex ?? turnDisplay) + 1; // turnIndex is 0-based
+		streamKind = undefined;
+		lastBadStatus = 0;
 		runningTools.clear();
 		lastCtx = ctx;
 		refresh();
 	});
 
-	pi.on("message_update", async (_event, ctx) => {
+	pi.on("before_provider_request", async (_event, ctx) => {
 		if (!enabled) return;
-		streaming = true;
+		requesting = true;
+		streamKind = undefined;
+		lastBadStatus = 0;
 		lastCtx = ctx;
-		// No explicit refresh: the ticker handles cadence and avoids
-		// thrashing setWorkingMessage on every streamed token.
+		refresh();
+	});
+
+	pi.on("after_provider_response", async (event, ctx) => {
+		if (!enabled) return;
+		requesting = false;
+		if (event.status >= 400) lastBadStatus = event.status;
+		lastCtx = ctx;
+		refresh();
+	});
+
+	pi.on("message_update", async (event, ctx) => {
+		if (!enabled) return;
+		requesting = false;
+		const t = event.assistantMessageEvent?.type ?? "";
+		if (t.startsWith("thinking")) streamKind = "thinking";
+		else if (t.startsWith("text")) streamKind = "text";
+		else if (t.startsWith("toolcall")) streamKind = "toolcall";
+		lastCtx = ctx;
+		// No explicit refresh on every token: the ticker handles cadence and
+		// avoids thrashing setWorkingMessage. The phase label is sticky until
+		// the next classified event, so 1s latency on transitions is fine.
 	});
 
 	pi.on("tool_execution_start", async (event, ctx) => {
@@ -163,8 +212,7 @@ export default function (pi: ExtensionAPI) {
 	pi.on("agent_end", async (_event, _ctx) => {
 		stopTicker();
 		runningTools.clear();
-		// Restore pi's default working message for the idle/next state.
-		lastCtx?.ui.setWorkingMessage();
+		lastCtx?.ui.setWorkingMessage(); // restore default for idle/next state
 		lastCtx = undefined;
 	});
 
