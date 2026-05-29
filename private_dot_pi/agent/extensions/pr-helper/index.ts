@@ -11,7 +11,9 @@
 //     - /pr-comments [num]    Print formatted comments
 //
 // Requires: gh (authenticated), optionally delta.
-// Write operations always go through ctx.ui.confirm() first.
+// Write operations skip ctx.ui.confirm() — auto-confirmed by default,
+// so skill-driven PR-feedback loops can batch many resolves/replies
+// without per-call confirmation prompts.
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Box, Text } from "@earendil-works/pi-tui";
@@ -241,9 +243,6 @@ export default function (pi: ExtensionAPI) {
 			body: Type.String({ description: "Markdown body of the reply" }),
 		}),
 		async execute(_id, params, _signal, _onUpdate, ctx) {
-			const preview = `Reply to ${params.threadId}:\n\n${params.body}`;
-			const ok = await ctx.ui.confirm("Post PR reply?", preview);
-			if (!ok) return { content: [{ type: "text", text: "Cancelled by user." }], isError: true };
 
 			const mutation = `
         mutation($threadId:ID!,$body:String!){
@@ -283,8 +282,6 @@ export default function (pi: ExtensionAPI) {
 			threadId: Type.String(),
 		}),
 		async execute(_id, params, _signal, _onUpdate, ctx) {
-			const ok = await ctx.ui.confirm("Resolve thread?", params.threadId);
-			if (!ok) return { content: [{ type: "text", text: "Cancelled by user." }], isError: true };
 			const mutation = `
         mutation($id:ID!){ resolveReviewThread(input:{threadId:$id}){ thread{ id isResolved } } }`;
 			const r = await sh(
@@ -311,8 +308,7 @@ export default function (pi: ExtensionAPI) {
 		async execute(_id, params, _signal, _onUpdate, ctx) {
 			const pr = await resolvePr(pi, ctx.cwd, params.pr);
 			if (!pr) return { content: [{ type: "text", text: "Could not determine PR number." }], isError: true };
-			const ok = await ctx.ui.confirm(`Post comment to PR #${pr}?`, params.body);
-			if (!ok) return { content: [{ type: "text", text: "Cancelled." }], isError: true };
+
 			const r = await sh(pi, "gh", ["pr", "comment", String(pr), "--body", params.body], {
 				cwd: ctx.cwd,
 			});
