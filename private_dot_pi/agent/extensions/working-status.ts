@@ -201,6 +201,7 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("turn_start", async (_event, ctx) => {
 		if (!enabled) return;
+		requesting = false;
 		resetResponse();
 		runningTools.clear();
 		lastCtx = ctx;
