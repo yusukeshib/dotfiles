@@ -5,9 +5,9 @@
  * Examples (the activity segment changes as the turn progresses):
  *
  *   ⏱ 0:02 · turn 1 · requesting api.anthropic.com…      (HTTP request in flight)
- *   ⏱ 0:04 · turn 1 · receiving reasoning stream…         (thinking stream)
- *   ⏱ 0:07 · turn 1 · receiving text stream…              (assistant text)
- *   ⏱ 0:08 · turn 1 · receiving tool call…               (tool call args)
+ *   ⏱ 0:04 · turn 1 · receiving reasoning stream… 1.2 KB  (thinking stream)
+ *   ⏱ 0:07 · turn 1 · receiving text stream… 4.8 KB       (assistant text)
+ *   ⏱ 0:08 · turn 1 · receiving tool call… 320 B          (tool call args)
  *   ⏱ 0:09 · turn 2 · ⚙ running bash, read · esc to stop
  *
  * Fixed segments (shown when known): elapsed clock, turn number, and an
@@ -17,9 +17,9 @@
  * Activity segment (most specific wins):
  *   ⚙ running <tools>           one or more tools executing (deduped, max 3)
  *   requesting <host>…          HTTP request sent, awaiting response headers
- *   receiving reasoning stream… provider is streaming a thinking/reasoning block
- *   receiving text stream…      provider is streaming assistant text
- *   receiving tool call…        provider is streaming a tool call
+ *   receiving reasoning stream… <n> streaming a reasoning block (+ decoded bytes)
+ *   receiving text stream… <n>      streaming assistant text (+ decoded bytes)
+ *   receiving tool call… <n>        streaming a tool call (+ decoded bytes)
  *   HTTP <status>               last response returned a non-2xx status
  *   connected, waiting…         response started, nothing classified yet
  *
@@ -47,6 +47,7 @@ export default function (pi: ExtensionAPI) {
 	let requesting = false; // HTTP request sent, response headers not yet received
 	let streamKind: StreamKind; // what the model is currently streaming
 	let lastBadStatus = 0; // last non-2xx HTTP status, 0 = none
+	let recvBytes = 0; // cumulative decoded stream bytes for the current response
 	const runningTools = new Map<string, string>(); // toolCallId -> toolName
 	let ticker: ReturnType<typeof setInterval> | undefined;
 	let lastCtx: ExtensionContext | undefined;
@@ -57,6 +58,15 @@ export default function (pi: ExtensionAPI) {
 		const m = Math.floor(total / 60);
 		const s = total % 60;
 		return `${m}:${String(s).padStart(2, "0")}`;
+	};
+
+	// Decoded content bytes received so far (not raw HTTP bytes: SSE framing and
+	// any transport compression are not counted — this measures the assistant
+	// text/reasoning/tool-call payload as it streams in).
+	const fmtBytes = (n: number): string => {
+		if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} MB`;
+		if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
+		return `${n} B`;
 	};
 
 	// "https://api.anthropic.com/v1" -> "api.anthropic.com"; fall back to provider.
@@ -81,13 +91,14 @@ export default function (pi: ExtensionAPI) {
 		}
 		if (requesting) return `requesting ${requestTarget(ctx)}…`;
 		if (lastBadStatus) return `HTTP ${lastBadStatus}`;
+		const got = recvBytes > 0 ? ` ${fmtBytes(recvBytes)}` : "";
 		switch (streamKind) {
 			case "thinking":
-				return "receiving reasoning stream…";
+				return `receiving reasoning stream…${got}`;
 			case "text":
-				return "receiving text stream…";
+				return `receiving text stream…${got}`;
 			case "toolcall":
-				return "receiving tool call…";
+				return `receiving tool call…${got}`;
 			default:
 				return "connected, waiting…";
 		}
@@ -150,6 +161,7 @@ export default function (pi: ExtensionAPI) {
 		requesting = true;
 		streamKind = undefined;
 		lastBadStatus = 0;
+		recvBytes = 0; // fresh response, fresh byte count
 		lastCtx = ctx;
 		refresh();
 	});
@@ -165,10 +177,15 @@ export default function (pi: ExtensionAPI) {
 	pi.on("message_update", async (event, ctx) => {
 		if (!enabled) return;
 		requesting = false;
-		const t = event.assistantMessageEvent?.type ?? "";
+		lastBadStatus = 0; // real content is arriving; supersede any stale bad status
+		const ev = event.assistantMessageEvent as { type?: string; delta?: unknown } | undefined;
+		const t = ev?.type ?? "";
 		if (t.startsWith("thinking")) streamKind = "thinking";
 		else if (t.startsWith("text")) streamKind = "text";
 		else if (t.startsWith("toolcall")) streamKind = "toolcall";
+		if (typeof ev?.delta === "string") {
+			recvBytes += Buffer.byteLength(ev.delta, "utf8");
+		}
 		lastCtx = ctx;
 		// No explicit refresh on every token: the ticker handles cadence and
 		// avoids thrashing setWorkingMessage. The phase label is sticky until
