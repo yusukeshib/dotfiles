@@ -4,23 +4,24 @@
  *
  * Examples (the activity segment changes as the turn progresses):
  *
- *   ⏱ 0:02 · sonnet-4 · turn 1 · → api.anthropic.com      (HTTP request in flight)
- *   ⏱ 0:04 · sonnet-4 · turn 1 · ctx 45% (92k) · reasoning  (thinking stream)
- *   ⏱ 0:07 · sonnet-4 · turn 1 · ctx 45% (92k) · writing     (text stream)
- *   ⏱ 0:08 · sonnet-4 · turn 1 · ctx 45% (92k) · preparing tool call
- *   ⏱ 0:09 · sonnet-4 · turn 2 · ctx 46% (94k) · ⚙ bash, read · esc to stop
+ *   ⏱ 0:02 · turn 1 · requesting api.anthropic.com…      (HTTP request in flight)
+ *   ⏱ 0:04 · turn 1 · receiving reasoning stream…         (thinking stream)
+ *   ⏱ 0:07 · turn 1 · receiving text stream…              (assistant text)
+ *   ⏱ 0:08 · turn 1 · receiving tool call…               (tool call args)
+ *   ⏱ 0:09 · turn 2 · ⚙ running bash, read · esc to stop
  *
- * Fixed segments (shown when known): elapsed clock, model id, turn number,
- * context-window usage (% + approx tokens), and an "esc to stop" hint.
+ * Fixed segments (shown when known): elapsed clock, turn number, and an
+ * "esc to stop" hint. Model id and context-window usage are intentionally
+ * omitted here because pi's footer already shows them.
  *
  * Activity segment (most specific wins):
- *   ⚙ <tools>          one or more tools currently executing (deduped, max 3)
- *   → <host>           HTTP request sent, awaiting response headers
- *   reasoning          provider is streaming a thinking/reasoning block
- *   writing            provider is streaming assistant text
- *   preparing tool call provider is streaming a tool call
- *   HTTP <status>      last response returned a non-2xx status (until next phase)
- *   waiting            connected, nothing classified yet
+ *   ⚙ running <tools>           one or more tools executing (deduped, max 3)
+ *   requesting <host>…          HTTP request sent, awaiting response headers
+ *   receiving reasoning stream… provider is streaming a thinking/reasoning block
+ *   receiving text stream…      provider is streaming assistant text
+ *   receiving tool call…        provider is streaming a tool call
+ *   HTTP <status>               last response returned a non-2xx status
+ *   connected, waiting…         response started, nothing classified yet
  *
  * Commands:
  *   /working-status off   Restore pi's default "Working..." message
@@ -58,18 +59,6 @@ export default function (pi: ExtensionAPI) {
 		return `${m}:${String(s).padStart(2, "0")}`;
 	};
 
-	const fmtTokens = (n: number): string => {
-		if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-		if (n >= 1000) return `${Math.round(n / 1000)}k`;
-		return `${n}`;
-	};
-
-	// "anthropic/claude-sonnet-4" -> "sonnet-4"
-	const shortModel = (id: string): string => {
-		const tail = id.includes("/") ? id.slice(id.lastIndexOf("/") + 1) : id;
-		return tail.replace(/^claude-/, "");
-	};
-
 	// "https://api.anthropic.com/v1" -> "api.anthropic.com"; fall back to provider.
 	const requestTarget = (ctx: ExtensionContext): string => {
 		const model = ctx.model;
@@ -88,19 +77,19 @@ export default function (pi: ExtensionAPI) {
 			const names = [...new Set(runningTools.values())];
 			const shown = names.slice(0, 3).join(", ");
 			const extra = names.length > 3 ? ` +${names.length - 3}` : "";
-			return `⚙ ${shown}${extra}`;
+			return `⚙ running ${shown}${extra}`;
 		}
-		if (requesting) return `→ ${requestTarget(ctx)}`;
+		if (requesting) return `requesting ${requestTarget(ctx)}…`;
 		if (lastBadStatus) return `HTTP ${lastBadStatus}`;
 		switch (streamKind) {
 			case "thinking":
-				return "reasoning";
+				return "receiving reasoning stream…";
 			case "text":
-				return "writing";
+				return "receiving text stream…";
 			case "toolcall":
-				return "preparing tool call";
+				return "receiving tool call…";
 			default:
-				return "waiting";
+				return "connected, waiting…";
 		}
 	};
 
@@ -108,16 +97,7 @@ export default function (pi: ExtensionAPI) {
 		const parts: string[] = [];
 		parts.push(`⏱ ${fmtElapsed(Date.now() - startTime)}`);
 
-		const model = ctx.model?.id;
-		if (model) parts.push(shortModel(model));
-
 		if (turnDisplay > 0) parts.push(`turn ${turnDisplay}`);
-
-		const usage = ctx.getContextUsage?.();
-		if (usage && usage.percent != null) {
-			const tok = usage.tokens != null ? ` (${fmtTokens(usage.tokens)})` : "";
-			parts.push(`ctx ${Math.round(usage.percent)}%${tok}`);
-		}
 
 		parts.push(activity(ctx));
 		parts.push(INTERRUPT_HINT);
