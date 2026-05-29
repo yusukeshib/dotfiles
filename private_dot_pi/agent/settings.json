@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.76.0",
+  "lastChangelogVersion": "0.77.0",
   "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-7",
+  "defaultModel": "claude-opus-4-8",
   "defaultThinkingLevel": "medium",
   "theme": "xterm16",
   "hideThinkingBlock": false,
@@ -20,6 +20,6 @@
   ],
   "enabledModels": [
     "openai-codex/gpt-5.5",
-    "anthropic/claude-opus-4-7"
+    "anthropic/claude-opus-4-8"
   ]
 }
