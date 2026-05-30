@@ -34,7 +34,10 @@
  *   /working-status on    Re-enable the detailed status line
  *   /working-status       Show current on/off state
  *
- * Install: lives in ~/.pi/agent/extensions/ (auto-discovered). /reload after edits.
+ * Install:
+ *   pi install npm:@yusukeshib/pi-working-status
+ *   pi install git:github.com/yusukeshib/pi-working-status
+ * Or drop this file in ~/.pi/agent/extensions/ (auto-discovered); /reload after edits.
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
@@ -112,8 +115,9 @@ export default function (pi: ExtensionAPI) {
 		if (runningTools.size > 0) {
 			const entries = [...runningTools.values()];
 			// Single tool: show its argument detail (command/path/pattern).
-			if (entries.length === 1) {
-				const { name, detail } = entries[0]!;
+			const only = entries.length === 1 ? entries[0] : undefined;
+			if (only) {
+				const { name, detail } = only;
 				return detail ? `⚙ ${name}: ${detail}` : `⚙ running ${name}`;
 			}
 			const names = [...new Set(entries.map((e) => e.name))];
