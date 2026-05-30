@@ -20,10 +20,6 @@ _cached_eval() {
   source "$cache"
 }
 
-if type "nixy" > /dev/null; then
-  _cached_eval nixy nixy config zsh
-fi
-
 #
 # Plugins (must come before native integrations that use compdef)
 #
@@ -48,6 +44,10 @@ fi
 
 if type "zoxide" > /dev/null; then
   eval "$(zoxide init zsh)"
+fi
+
+if type "nixy" > /dev/null; then
+  _cached_eval nixy nixy config zsh
 fi
 
 if type "kubectl" > /dev/null; then
