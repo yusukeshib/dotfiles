@@ -16,7 +16,8 @@
     "npm:pi-web-access",
     "npm:pi-mcp-adapter",
     "npm:pi-subagents",
-    "npm:pi-chrome"
+    "npm:pi-chrome",
+    "npm:@yusukeshib/pi-working-status"
   ],
   "enabledModels": [
     "openai-codex/gpt-5.5",
