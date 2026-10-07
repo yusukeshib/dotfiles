@@ -1,0 +1,3 @@
+# SSH signers trusted for git commit/tag verification (ssh-keygen -Y verify).
+# This is the PUBLIC half of user.signingkey — safe to track.
+yusukeshib@gmail.com namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHU+tFJRax7dVnTEiFM2+kwasijxiQ/GxXm0UqOXTTE

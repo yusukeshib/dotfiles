@@ -1,0 +1,6 @@
+# backups created by `dots link` (should never land in the repo, but be safe)
+*.predots-*
+
+home/.codex/
+__pycache__/
+.DS_Store

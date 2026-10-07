@@ -1,0 +1,72 @@
+# Show shell, repository, and environment context without language/runtime modules.
+format = '$username$hostname$localip$shlvl$singularity$kubernetes$nats$directory$vcsh$fossil_branch$fossil_metrics$git_branch$git_commit$git_state$git_metrics$git_status$hg_branch$hg_state$pijul_channel$docker_context$memory_usage$aws$gcloud$openstack$azure$direnv$env_var$custom$sudo$cmd_duration$line_break$jobs$battery$time$status$container$netns$os$shell$character'
+
+[character]
+success_symbol = "[>](bold green)"
+error_symbol = "[x](bold red)"
+vimcmd_symbol = "[<](bold green)"
+
+[username]
+disabled = true
+
+[hostname]
+ssh_only = false
+style = "bold black bg:purple"
+format = "[ $hostname ]($style) "
+
+[directory]
+read_only = " ro"
+truncation_length = 2
+truncation_symbol = ".../"
+truncate_to_repo = false
+
+[git_branch]
+symbol = ""
+
+[git_commit]
+tag_symbol = " tag "
+
+[git_status]
+ahead = ">"
+behind = "<"
+diverged = "<>"
+renamed = "r"
+deleted = "x"
+
+[status]
+symbol = "[x](bold red) "
+
+[sudo]
+symbol = "sudo "
+
+[container]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[gcloud]
+disabled = true
+symbol = "gcp "
+
+[kubernetes]
+format = '[$context\($namespace\)](green) '
+disabled = true
+
+[package]
+disabled = true
+
+[python]
+format = '[${pyenv_prefix}$virtualenv ]($style)'
+
+[nodejs]
+symbol = "nodejs "
+
+[rust]
+symbol = "rs "
+
+[golang]
+symbol = "go "
+
+[nix_shell]
+symbol = "nix "

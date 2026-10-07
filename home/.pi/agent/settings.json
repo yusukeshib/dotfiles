@@ -1,0 +1,69 @@
+{
+  "lastChangelogVersion": "1.0.2",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-6.1-sol",
+  "defaultThinkingLevel": "high",
+  "defaultTools": [
+    "+tool_search"
+  ],
+  "theme": "websafe",
+  "quietStartup": false,
+  "hideThinkingBlock": false,
+  "showCacheMissNotices": true,
+  "httpIdleTimeoutMs": 120000,
+  "retry": {
+    "enabled": true,
+    "maxRetries": 2,
+    "baseDelayMs": 1000,
+    "provider": {
+      "timeoutMs": 120000,
+      "maxRetries": 0,
+      "maxRetryDelayMs": 20000
+    }
+  },
+  "skills": [
+    "~/.agents/skills"
+  ],
+  "extensions": [
+    "-builtin:codemode"
+  ],
+  "warnings": {
+    "anthropicExtraUsage": false
+  },
+  "packages": [
+    "npm:@yusukeshib/pi-advisor@0.x",
+    "npm:pi-web-access@0.x",
+    "npm:@yusukeshib/pi-skim@0.x",
+    "npm:@yusukeshib/pi-babysit@0.x",
+    "npm:@yusukeshib/pi-working-status@0.x",
+    "npm:@yusukeshib/pi-pr-link@0.x",
+    "npm:@yusukeshib/pi-stash@0.x",
+    "npm:@yusukeshib/pi-datetime@0.x",
+    "npm:@yusukeshib/pi-colored-model-status@0.x",
+    "npm:@yusukeshib/pi-image-context-cache@0.x",
+    "npm:@yusukeshib/pi-agent-controls@0.x",
+    "npm:@yusukeshib/pi-ping@0.1.0"
+  ],
+  "enabledModels": [
+    "openai-codex/gpt-6-astra",
+    "openai-codex/gpt-6.1-sol",
+    "anthropic/claude-opus-5-5"
+  ],
+  "compaction": {
+    "enabled": true
+  },
+  "terminal": {
+    "showTerminalProgress": false
+  },
+  "steeringMode": "one-at-a-time",
+  "collapseChangelog": false,
+  "treeFilterMode": "user-only",
+  "defaultProjectTrust": "always",
+  "tuiMode": "fullscreen",
+  "showHardwareCursor": true,
+  "images": {
+    "blockImages": true
+  },
+  "fullscreenWheelScrollLines": "auto",
+  "fullscreenScrollbar": "always"
+}

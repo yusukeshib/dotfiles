@@ -1,0 +1,11 @@
+font-family = Hack
+theme = websafe
+font-size = 13
+window-width = 210
+window-height = 72
+macos-option-as-alt = true
+
+# disable ligature
+font-feature = -dlig
+font-feature = -liga
+font-feature = -calt

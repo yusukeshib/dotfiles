@@ -1,0 +1,87 @@
+[user]
+  name = Yusuke Shibata
+  email = yusukeshib@gmail.com
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHU+tFJRax7dVnTEiFM2+kwasijxiQ/GxXm0UqOXTTE
+
+[core]
+  pager = cat
+  editor = true
+
+[push]
+  default = current
+  autoSetupRemote = true
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true  # use n and N to move between diff sections
+  line-numbers = true
+  side-by-side = true
+
+[merge]
+  conflictstyle = zdiff3
+
+[diff]
+  colorMoved = default
+  algorithm = histogram
+
+[column]
+  ui = auto
+
+[init]
+  defaultBranch = main
+
+[commit]
+  gpgsign = false
+  verbose = true
+
+[branch]
+  sort = -committerdate
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  # Public side of user.signingkey — lets `git log --show-signature` / `git verify-commit`
+  # validate ssh-signed commits & tags locally. The SIGNER program (1Password) is set
+  # per-platform in gitconfig_darwin; this section merges with it.
+  allowedSignersFile = ~/.config/git/allowed_signers
+
+[tag]
+  # Keep tags lightweight: no forced signing so `git tag <name>` never opens
+  # an editor (a signed/annotated tag would require a message). Commits are
+  # controlled separately by commit.gpgsign. Sign a tag explicitly with `git tag -s`.
+  gpgSign = false
+
+[rerere]
+  enabled = true
+
+[pull]
+  rebase = true
+
+[fetch]
+  prune = true
+
+[rebase]
+  autostash = true
+
+[alias]
+  dft = "-c diff.external=difft diff"
+
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+# Keep includes last so platform overrides win over the settings above.
+[include]
+  path = ~/.config/git/gitconfig_darwin

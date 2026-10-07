@@ -1,0 +1,5 @@
+[global]
+warn_timeout = "15s"
+
+[whitelist]
+prefix = ["/Users/yusuke/.box/workspaces"]

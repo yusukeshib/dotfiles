@@ -1,0 +1,276 @@
+#!/usr/bin/env bash
+# dots — symlink manager for the dotfiles repo.
+#
+# Layout:  ~/dotfiles/home/<path>  is symlinked to  $HOME/<path>
+# The repo is a NORMAL git repo (no bare/work-tree trickery).
+#
+#   dots link [--dry-run]   create/repair all symlinks (backs up conflicts)
+#   dots status             show state of every managed path
+#   dots relink [path...]   re-adopt drifted paths (tool rewrote a file in place)
+#   dots adopt <path>       move a real $HOME file into the repo and symlink it back
+#   dots unlink <path>      detach: replace a symlink with a real copy
+#
+# Policy:
+#   - File-level symlinks by default (only tracked files are linked; no runtime
+#     or secret files ever leak into the repo).
+set -euo pipefail
+
+# --- locate repo -------------------------------------------------------------
+SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$SCRIPT/.." && pwd)"
+SRC="$REPO/home"
+
+c_ok=$'\033[32m'; c_warn=$'\033[33m'; c_err=$'\033[31m'; c_dim=$'\033[2m'; c_off=$'\033[0m'
+
+die() { echo "${c_err}error:${c_off} $*" >&2; exit 1; }
+
+[ -d "$SRC" ] || die "no home/ dir at $SRC"
+
+# Eagerly read the index before changing files. An empty sentinel distinguishes
+# successful enumeration from a failed Git process substitution (whose status
+# Bash would otherwise discard).
+load_managed_paths() {
+  local path complete=0 prefix
+  prefix="$(git -C "$REPO" rev-parse --show-prefix)" || die "cannot read repository"
+  [ -z "$prefix" ] || die "$REPO is not the repository root"
+  MANAGED=()
+  while IFS= read -r -d '' path; do
+    if [ -z "$path" ]; then complete=1; break; fi
+    MANAGED+=("${path#home/}")
+  done < <(git -C "$REPO" ls-files -z -- home && printf '\0')
+  [ "$complete" -eq 1 ] || die "cannot enumerate managed files"
+}
+
+# NUL delimiters preserve spaces, Unicode, and newlines in tracked filenames.
+managed_paths() {
+  if [ "${#MANAGED[@]}" -gt 0 ]; then printf '%s\0' "${MANAGED[@]}"; fi
+}
+
+# Return a safe HOME-relative path in REPLY (not command substitution, which
+# would strip trailing newlines). Only file-level management is supported.
+relative_path() {
+  local p="$1" parent root
+  p="${p/#\~/$HOME}"
+  p="${p#./}"
+  case "$p" in
+    "$HOME"/*) p="${p#"$HOME"/}";;
+    /*) die "path must be under \$HOME";;
+  esac
+  case "$p" in
+    ''|.|..|../*|*/../*|*/..|./*|*/./*|*/.|*/|*//*) die "invalid file path: $1";;
+  esac
+  case "$HOME/$p" in "$REPO"|"$REPO"/*) die "cannot manage the repository itself";; esac
+  for root in "$HOME" "$SRC"; do
+    parent="$root/$p"
+    parent="${parent%/*}"
+    while [ "$parent" != "$root" ]; do
+      [ ! -L "$parent" ] || die "symlinked parent directory: $parent"
+      parent="${parent%/*}"
+    done
+  done
+  REPLY="$p"
+}
+
+require_managed() {
+  git -C "$REPO" --literal-pathspecs ls-files --error-unmatch -- "home/$1" >/dev/null 2>&1 || die "not managed: $1"
+}
+
+# Each backup has its own directory; repeated operations cannot overwrite it.
+# Print the recovery path to stdout and diagnostics to stderr.
+backup() {
+  local dst="$1" dir
+  dir="$(mktemp -d "${dst}.predots-XXXXXXXX")" || return 1
+  if ! mv "$dst" "$dir/original"; then
+    rmdir "$dir"
+    return 1
+  fi
+  echo "    ${c_dim}backed up existing -> ${dir}/original${c_off}" >&2
+  printf '%s\n' "$dir/original"
+}
+
+# Prepare the link before moving any live content. Explicit checks are needed:
+# Bash disables errexit inside a function invoked from an if/! condition.
+replace_with_link() {
+  local src="$1" dst="$2" state="$3" dir bak=''
+  dir="$(mktemp -d "${dst}.predots-link.XXXXXXXX")" || return 1
+  if ! ln -s "$src" "$dir/link"; then
+    rmdir "$dir"
+    return 1
+  fi
+  if [ "$state" != missing ]; then
+    if ! bak="$(backup "$dst")"; then
+      rm -f "$dir/link"; rmdir "$dir"
+      return 1
+    fi
+  fi
+  if ! mv "$dir/link" "$dst"; then
+    if [ -n "$bak" ]; then
+      mv "$bak" "$dst" || echo "restore failed; recover from $bak" >&2
+    fi
+    rm -f "$dir/link"; rmdir "$dir"
+    return 1
+  fi
+  rmdir "$dir"
+}
+
+# classify one path: ok | wronglink | drift | missing | source-missing
+classify() {
+  local rel="$1" src="$SRC/$1" dst="$HOME/$1"
+  if [ ! -f "$src" ] || [ -L "$src" ]; then
+    echo source-missing
+  elif [ -L "$dst" ]; then
+    if [ "$(readlink -n "$dst"; printf .)" = "$src." ]; then echo ok; else echo wronglink; fi
+  elif [ -e "$dst" ]; then
+    echo drift
+  else
+    echo missing
+  fi
+}
+
+cmd_link() {
+  local dry=0; [ "${1:-}" = "--dry-run" ] && dry=1
+  [ "$#" -eq 0 ] || { [ "$#" -eq 1 ] && [ "$dry" -eq 1 ]; } || die "usage: dots link [--dry-run]"
+  local rel src dst state
+  while IFS= read -r -d '' rel; do
+    relative_path "$rel"
+    src="$SRC/$rel"; dst="$HOME/$rel"; state="$(classify "$rel")"
+    case "$state" in
+      source-missing) die "repository source is not a regular file: $rel";;
+      ok) [ "$dry" = 1 ] && echo "${c_ok}ok${c_off}    $rel";;
+      *)
+        echo "${c_ok}link${c_off}  $rel"
+        [ "$dry" = 1 ] && continue
+        mkdir -p "$(dirname "$dst")"
+        # Conflicting real file/dir -> back it up; stale symlink -> replace it.
+        replace_with_link "$src" "$dst" "$state"
+        ;;
+    esac
+  done < <(managed_paths)
+  [ "$dry" = 1 ] && echo "${c_dim}(dry-run — nothing changed)${c_off}"
+  return 0
+}
+
+cmd_status() {
+  [ "$#" -eq 0 ] || die "usage: dots status"
+  local rel state ok=0 bad=0
+  while IFS= read -r -d '' rel; do
+    state="$(classify "$rel")"
+    case "$state" in
+      ok)        printf "${c_ok}✓ ok      ${c_off}%s\n" "$rel"; ok=$((ok+1));;
+      source-missing) printf "${c_err}✗ source  ${c_off}%s (repository file missing or not regular)\n" "$rel"; bad=$((bad+1));;
+      missing)   printf "${c_err}✗ missing ${c_off}%s\n" "$rel"; bad=$((bad+1));;
+      drift)     printf "${c_warn}⚠ drift   ${c_off}%s ${c_dim}(regular file — run: dots relink)${c_off}\n" "$rel"; bad=$((bad+1));;
+      wronglink) printf "${c_warn}⚠ wrong   ${c_off}%s ${c_dim}(symlink to elsewhere)${c_off}\n" "$rel"; bad=$((bad+1));;
+    esac
+  done < <(managed_paths)
+  echo "${c_dim}---${c_off} ${c_ok}$ok ok${c_off}, ${c_warn}$bad need attention${c_off}"
+  if [ "$bad" -ne 0 ]; then
+    return 1
+  fi
+}
+
+# Re-adopt drifted paths: copy the live $HOME file back into the repo, then relink.
+cmd_relink() {
+  local targets=("$@") rel src dst dir
+  if [ ${#targets[@]} -eq 0 ]; then
+    while IFS= read -r -d '' rel; do
+      if [ "$(classify "$rel")" = drift ]; then targets+=("$rel"); fi
+    done < <(managed_paths)
+  fi
+  [ ${#targets[@]} -eq 0 ] && { echo "nothing drifted."; return 0; }
+  for rel in "${targets[@]}"; do
+    relative_path "$rel"; rel="$REPLY"
+    require_managed "$rel"
+    src="$SRC/$rel"; dst="$HOME/$rel"
+    [ -f "$src" ] && [ ! -L "$src" ] || die "repository source is not a regular file: $rel"
+    [ -L "$dst" ] && { echo "${c_dim}skip (already symlink):${c_off} $rel"; continue; }
+    [ -f "$dst" ] || die "$rel is not a regular file"
+    echo "${c_ok}re-adopt${c_off} $rel"
+    dir="$(mktemp -d "${src}.predots-relink.XXXXXXXX")"
+    if ! cp -p "$dst" "$dir/new" || ! cp -p "$src" "$dir/original"; then
+      rm -f "$dir/new" "$dir/original"; rmdir "$dir"
+      die "failed to copy $rel (originals unchanged)"
+    fi
+    if ! mv "$dir/new" "$src"; then
+      rm -f "$dir/new" "$dir/original"; rmdir "$dir"
+      die "failed to update $rel (originals unchanged)"
+    fi
+    if ! replace_with_link "$src" "$dst" drift; then
+      mv "$dir/original" "$src" || die "repository restore failed; recover from $dir/original"
+      rmdir "$dir"
+      die "failed to relink $rel (repository copy restored)"
+    fi
+    rm -f "$dir/original"; rmdir "$dir"
+  done
+  echo "${c_dim}now: git -C ~/dotfiles diff  (review & commit)${c_off}"
+}
+
+# Move a real $HOME file into the repo, then symlink it back.
+cmd_adopt() {
+  [ "$#" -eq 1 ] || die "usage: dots adopt <path>"
+  local rel src dst
+  relative_path "$1"; rel="$REPLY"
+  src="$SRC/$rel"; dst="$HOME/$rel"
+  [ -f "$dst" ] && [ ! -L "$dst" ] || die "$dst is not a regular non-symlink file"
+  [ ! -e "$src" ] && [ ! -L "$src" ] || die "$rel already exists in the repository (use dots relink)"
+  if git -C "$REPO" --literal-pathspecs ls-files --error-unmatch -- "home/$rel" >/dev/null 2>&1; then
+    die "$rel is already managed; restore its missing repository source first"
+  fi
+  if git -C "$REPO" --literal-pathspecs check-ignore -q -- "home/$rel"; then
+    die "$rel is ignored by Git"
+  fi
+  mkdir -p "$(dirname "$src")"
+  mv "$dst" "$src"
+  if ! replace_with_link "$src" "$dst" missing; then
+    mv "$src" "$dst" || die "restore failed; recover from $src"
+    die "failed to link $rel (original restored)"
+  fi
+  if ! git -C "$REPO" --literal-pathspecs add -- "$src"; then
+    rm "$dst"
+    mv "$src" "$dst" || die "restore failed; recover from $src"
+    die "failed to stage $rel (original restored)"
+  fi
+  echo "${c_ok}adopted${c_off} $rel  ${c_dim}(staged; commit in ~/dotfiles)${c_off}"
+}
+
+# Detach: replace a symlink with a real independent copy.
+cmd_unlink() {
+  [ "$#" -eq 1 ] || die "usage: dots unlink <path>"
+  local rel dst dir bak
+  relative_path "$1"; rel="$REPLY"
+  require_managed "$rel"
+  dst="$HOME/$rel"
+  [ -L "$dst" ] && [ "$(classify "$rel")" = ok ] || die "$dst is not a healthy managed symlink"
+  dir="$(mktemp -d "${dst}.predots-unlink.XXXXXXXX")"
+  if ! cp -p "$SRC/$rel" "$dir/copy"; then
+    rm -f "$dir/copy"; rmdir "$dir"
+    die "failed to copy $dst (symlink left intact)"
+  fi
+  if ! bak="$(backup "$dst")"; then
+    rm -f "$dir/copy"; rmdir "$dir"
+    die "failed to back up $dst (symlink left intact)"
+  fi
+  if ! mv "$dir/copy" "$dst"; then
+    mv "$bak" "$dst" || die "restore failed; recover from $bak"
+    rm -f "$dir/copy"; rmdir "$dir"
+    die "failed to detach $dst (symlink restored)"
+  fi
+  rmdir "$dir"
+  echo "${c_ok}detached${c_off} $dst  ${c_dim}(now a real copy)${c_off}"
+}
+
+usage() { sed -n '2,14p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+
+case "${1:-}" in
+  link|status|relink|adopt|unlink) load_managed_paths;;
+esac
+
+case "${1:-}" in
+  link)   shift; cmd_link "$@";;
+  status) shift; cmd_status "$@";;
+  relink) shift; cmd_relink "$@";;
+  adopt)  shift; cmd_adopt "$@";;
+  unlink) shift; cmd_unlink "$@";;
+  ""|-h|--help|help) usage;;
+  *) die "unknown command: $1 (try: dots help)";;
+esac

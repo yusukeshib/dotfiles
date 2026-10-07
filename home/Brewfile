@@ -1,0 +1,78 @@
+# Shared Homebrew Bundle manifest for macOS and Linux.
+# Keep platform-specific entries guarded so one Brewfile converges on either OS.
+
+tap "abue-ammar/tinycast", trusted: true
+tap "hashicorp/tap", trusted: { formula: "terraform" }
+tap "withgraphite/tap", trusted: { formula: "graphite" }
+tap "yusukeshib/tap", trusted: { formula: "box" }
+
+# CLI tools and runtimes
+brew "ast-grep"
+brew "atuin"
+brew "awscli"
+brew "bash"
+brew "bat"
+brew "binaryen"
+brew "yusukeshib/tap/box"
+brew "bottom"
+brew "buf"
+brew "bun"
+brew "cloudflare-wrangler"
+brew "cmake"
+brew "colima"
+brew "coreutils"
+brew "direnv"
+brew "docker"
+brew "fd"
+brew "ffmpeg@7"
+brew "fzf"
+brew "gcalcli"
+brew "gh"
+brew "git-delta"
+brew "git-lfs"
+brew "glow"
+brew "withgraphite/tap/graphite"
+brew "helm"
+brew "hyperfine"
+brew "kubectx"
+brew "kubernetes-cli"
+brew "libimobiledevice"
+brew "mosh"
+brew "neovim"
+brew "node@22"
+brew "ollama"
+brew "pi-coding-agent"
+brew "pkgconf"
+brew "procs"
+brew "pyright"
+brew "python@3.11"
+brew "ripgrep"
+brew "ruby@3.3"
+brew "ruff"
+brew "sd"
+brew "starship"
+brew "stylua"
+brew "temporal"
+brew "tmux"
+brew "tree-sitter"
+brew "typescript-language-server"
+brew "uv"
+brew "vhs"
+brew "zoxide"
+
+# External taps
+brew "hashicorp/tap/terraform"
+
+# macOS-only formulae and casks
+brew "terminal-notifier" if OS.mac?
+cask "blackhole-2ch" if OS.mac?
+cask "abue-ammar/tinycast/tinycast" if OS.mac?
+
+# After installation, run: gcloud components install gke-gcloud-auth-plugin
+cask "gcloud-cli" if OS.mac?
+
+# Tools managed outside Homebrew:
+# - babysit: cargo install --path ~/projects/babysit --locked
+#   Clone https://github.com/yusukeshib/babysit into ~/projects/babysit first.
+#   Keep ~/.cargo/bin ahead of Homebrew in PATH; reinstall after source changes.
+# - gh-dash: gh extension install dlvhdr/gh-dash

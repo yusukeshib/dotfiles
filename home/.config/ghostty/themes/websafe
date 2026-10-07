@@ -1,0 +1,29 @@
+# websafe — pure web-safe palette, matches pi-coding-agent ~/.pi/agent/themes/websafe.json
+
+background = 000000
+foreground = ffffff
+
+cursor-color = ffffff
+cursor-text = 000000
+selection-background = 003399
+selection-foreground = ffffff
+
+# Normal ANSI 0-7
+palette = 0=#000000
+palette = 1=#ff0000
+palette = 2=#00ff00
+palette = 3=#ffff00
+palette = 4=#0066ff
+palette = 5=#ff00ff
+palette = 6=#00ffff
+palette = 7=#cccccc
+
+# Bright ANSI 8-15
+palette = 8=#666666
+palette = 9=#ff0000
+palette = 10=#00ff00
+palette = 11=#ffff00
+palette = 12=#66ccff
+palette = 13=#ff00ff
+palette = 14=#00ffff
+palette = 15=#ffffff
