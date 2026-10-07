@@ -130,8 +130,9 @@ Shared guidance for coding agents working under `$HOME`.
 
 ## Commands and processes
 
-Use the `process` tool for builds, tests, servers, watchers, or other commands
-lasting more than a few seconds; never use Bash backgrounding (`&`, `nohup`).
+Use `babysit_run` from the pi-babysit extension for builds, tests, servers,
+watchers, or other commands lasting more than a few seconds. Never use the
+legacy `process` tool or Bash backgrounding (`&`, `nohup`).
 Name processes descriptively. After starting one without `continueAfterStart`,
 wait for its automatic completion notification; never poll or sleep. Use
 `continueAfterStart=true` only for immediate, specific, non-polling work.
