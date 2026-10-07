@@ -34,7 +34,7 @@
     "npm:pi-web-access@0.x",
     "npm:@yusukeshib/pi-advisor@0.x",
     "npm:@yusukeshib/pi-skim@0.x",
-    "~/projects/pi-babysit",
+    "npm:@yusukeshib/pi-babysit@0.x",
     "npm:@yusukeshib/pi-working-status@0.x",
     "npm:@yusukeshib/pi-pr-link@0.x",
     "npm:@yusukeshib/pi-stash@0.x",
