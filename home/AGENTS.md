@@ -104,11 +104,6 @@ Shared guidance for coding agents working under `$HOME`.
   Braintrust, or another connected service, use that service's MCP tools first.
   Do not substitute local file searches, browser automation, or guessed CLI
   commands for the connected service.
-- Codemode is disabled in this setup. Discover and call direct MCP tools; do
-  not use codemode scripts or try to enable, install, or configure codemode.
-  The tools actually available in the current session are the source of truth.
-  If a session exposes only a codemode route, report the mismatch rather than
-  silently changing configuration.
 - MCP tools may be deferred rather than listed initially. When `tool_search`
   is available, search for the service and the specific operation (for example,
   `Slack search messages`, `Linear get issue`, or `Mixpanel query report`),

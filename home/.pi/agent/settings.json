@@ -1,10 +1,11 @@
 {
-  "lastChangelogVersion": "1.0.4",
+  "lastChangelogVersion": "1.1.0",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "high",
   "defaultTools": [
-    "+tool_search"
+    "+tool_search",
+    "+codemode"
   ],
   "theme": "websafe",
   "quietStartup": false,
@@ -24,9 +25,7 @@
   "skills": [
     "~/.agents/skills"
   ],
-  "extensions": [
-    "-builtin:codemode"
-  ],
+  "extensions": [],
   "warnings": {
     "anthropicExtraUsage": false
   },
