@@ -56,7 +56,6 @@ brew "tmux"
 brew "tree-sitter"
 brew "typescript-language-server"
 brew "uv"
-brew "vhs"
 brew "zoxide"
 
 # External taps

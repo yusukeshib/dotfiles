@@ -8,7 +8,7 @@
     "+codemode"
   ],
   "theme": "websafe",
-  "quietStartup": false,
+  "quietStartup": true,
   "hideThinkingBlock": false,
   "showCacheMissNotices": true,
   "httpIdleTimeoutMs": 120000,
