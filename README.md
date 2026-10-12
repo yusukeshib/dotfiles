@@ -64,6 +64,16 @@ replaces a **file** symlink with a regular file. `dots status` flags these as
 `drift`; run `dots relink` to pull the new content back into the repo, then
 commit. Only tracked files are linked; runtime state remains untracked.
 
+## Pi theme loading
+
+`websafe` lives in `~/.pi/agent/theme-resources/` and is explicitly loaded by
+`settings.json`. Keep it outside `~/.pi/agent/themes/`: Pi 1.1.0 repeatedly
+recreates that directory's hot-reload watcher during startup, and closing the
+macOS filesystem watcher can block input for seconds. The explicit resource
+keeps the same colors without that watcher; use `/reload` after editing it.
+When migrating an existing checkout, remove the old
+`~/.pi/agent/themes/websafe.json` symlink if it still points into this repository.
+
 ## Local regression checks
 
 These tests isolate HOME/Git state and mock external operations; they do not

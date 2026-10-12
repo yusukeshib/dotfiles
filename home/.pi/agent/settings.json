@@ -8,6 +8,9 @@
     "+codemode"
   ],
   "theme": "websafe",
+  "themes": [
+    "~/.pi/agent/theme-resources/websafe.json"
+  ],
   "quietStartup": true,
   "hideThinkingBlock": false,
   "showCacheMissNotices": true,
