@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.1.0",
+  "lastChangelogVersion": "1.2.0",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "high",
@@ -11,7 +11,7 @@
   "themes": [
     "~/.pi/agent/theme-resources/websafe.json"
   ],
-  "quietStartup": true,
+  "quietStartup": "header",
   "hideThinkingBlock": false,
   "showCacheMissNotices": true,
   "httpIdleTimeoutMs": 120000,
