@@ -1,0 +1,5 @@
+#!/bin/sh
+
+brew update &&
+    brew bundle --file="$HOME/Brewfile" &&
+    brew bundle cleanup --force --file="$HOME/Brewfile"
