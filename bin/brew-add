@@ -1,0 +1,27 @@
+#!/bin/sh
+
+usage() {
+    echo 'Usage: brew-add [--cask|--tap|other brew bundle add options] name [...]'
+    echo 'Adds entries to ~/Brewfile, then runs brew-sync (including cleanup --force).'
+}
+
+if [ "$#" -eq 0 ]; then
+    usage >&2
+    exit 1
+fi
+
+for arg do
+    case "$arg" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --file|--file=*|-g|--global)
+            echo 'brew-add always uses ~/Brewfile; --file and --global are not supported.' >&2
+            exit 1
+            ;;
+    esac
+done
+
+brew bundle add --file="$HOME/Brewfile" "$@" &&
+    brew-sync
