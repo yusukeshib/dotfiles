@@ -86,5 +86,12 @@ Shared guidance for coding agents working under `$HOME`.
   `process`, `&`, or `nohup`. Name sessions clearly. After a background start, wait
   for notification instead of polling; use `continueAfterStart` only for immediate,
   specific work. Collect every delegated subagent's result before finishing.
+- A Linux machine is available over SSH as `yusuke-t4`. When Linux is needed,
+  use `babysit_run` with `host: "yusuke-t4"`, for example
+  `babysit_run({"host":"yusuke-t4","command":"uname -a","foreground":true})`.
+  Do not report that Linux is unavailable merely because the local host is macOS;
+  try this remote host first and report any actual connection failure. Remote
+  `cwd` defaults to the remote login home, not the local working directory; set
+  an explicit remote path when needed. Remote subagents are not supported.
 - Prefer `rg` for content searches and `fd` for file discovery. Use alternatives
   when unavailable; keep searches scoped regardless of the tool.
