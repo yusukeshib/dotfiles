@@ -1,7 +1,7 @@
 """Read-only syntax/parse checks for tracked configs, with isolated HOME/XDG.
 
 Run: python3 tests/check_configs.py
-Requires Python 3.11+, bash, zsh, ruby, node, installed pi (jiti), and nvim.
+Requires Python 3.11+, bash, zsh, ruby, and nvim.
 These checks do not establish external plugin/API/schema compatibility.
 """
 
@@ -23,7 +23,6 @@ def main():
     files = subprocess.check_output(["git", "-C", str(ROOT), "ls-files", "-z"]).decode().split("\0")
     counts = Counter()
     lua_files = []
-    ts_files = []
     with tempfile.TemporaryDirectory(prefix="dotfiles-config-check-") as tmp:
         env = {k: v for k, v in os.environ.items() if not k.startswith(("GIT_", "NVIM_"))}
         env.update(HOME=tmp, ZDOTDIR=tmp, XDG_CONFIG_HOME=tmp + "/config",
@@ -47,20 +46,21 @@ def main():
                 plistlib.loads(path.read_bytes()); counts["plist"] += 1
             elif suffix == ".lua":
                 lua_files.append(str(path))
-            elif suffix == ".ts":
-                ts_files.append(str(path))
             elif suffix == ".zsh" or path.name in (".zshenv", ".zshrc"):
                 check(["/bin/zsh", "-n", str(path)], rel); counts["zsh syntax"] += 1
-            elif suffix == ".sh" or rel == "bin/dots":
-                interpreter = "/bin/sh" if path.read_text().startswith("#!/bin/sh\n") else "/bin/bash"
+            elif suffix == ".sh" or rel.startswith("bin/"):
+                first = path.read_text().split("\n", 1)[0]
+                if first == "#!/bin/sh":
+                    interpreter = "/bin/sh"
+                elif first in ("#!/bin/bash", "#!/usr/bin/env bash"):
+                    interpreter = "/bin/bash"
+                else:
+                    raise RuntimeError(f"unsupported shell script interpreter: {rel}")
                 check([interpreter, "-n", str(path)], rel); counts["shell syntax"] += 1
             elif path.name == "Brewfile":
                 check(["ruby", "-c", str(path)], rel); counts["Ruby syntax"] += 1
-            elif rel in ("home/.gitconfig", "home/.config/git/gitconfig_darwin"):
+            elif rel in ("home/.gitconfig", "home-darwin/.config/git/gitconfig_darwin"):
                 check(["git", "config", "--file", str(path), "--list"], rel); counts["Git config"] += 1
-        if ts_files:
-            check(["node", str(ROOT / "tests/jiti.cjs"), *ts_files], "TypeScript configs")
-            counts["TypeScript syntax"] = len(ts_files)
         if lua_files:
             nvim = shutil.which("nvim")
             if nvim is None:

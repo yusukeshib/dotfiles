@@ -1,4 +1,4 @@
-# websafe — pure web-safe palette, matches pi-coding-agent ~/.pi/agent/themes/websafe.json
+# websafe — pure web-safe palette, matches pi-coding-agent ~/.pi/agent/theme-resources/websafe.json
 
 background = 000000
 foreground = ffffff

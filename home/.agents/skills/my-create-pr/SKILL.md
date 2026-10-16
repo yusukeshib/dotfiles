@@ -2,14 +2,6 @@
 name: my-create-pr
 description: Format & lint, review all code changes, then create a PR
 user-invocable: true
-allowed-tools:
-  - Bash
-  - Read
-  - Edit
-  - Write
-  - Glob
-  - Grep
-  - Agent
 ---
 
 # Create PR Skill
@@ -82,7 +74,7 @@ Review **every changed file** compared to the base branch, then fix the issues f
    - **Tests** — Bug fixes should include regression tests. New features should have test coverage.
    - **Dead code** — Unused imports, unreachable branches, stale code, leftover debug prints?
 
-3. If the diff is large (>20 files), dispatch Agent subagents to review groups of files in parallel and consolidate their findings.
+3. If the diff is large (>20 files), dispatch review subagents for groups of files in parallel (in pi: background `babysit_run` subagents, collected with `babysit_wait`) and consolidate their findings.
 
 4. Categorize each finding by priority (High / Medium / Low) and fix all High and Medium priority issues directly in the code:
    - After fixing, re-run the formatter, linter, and tests to confirm nothing regressed.

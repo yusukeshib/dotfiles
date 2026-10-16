@@ -4,7 +4,6 @@ format = '$username$hostname$localip$shlvl$singularity$kubernetes$nats$directory
 [character]
 success_symbol = "[>](bold green)"
 error_symbol = "[x](bold red)"
-vimcmd_symbol = "[<](bold green)"
 
 [username]
 disabled = true
@@ -33,9 +32,6 @@ diverged = "<>"
 renamed = "r"
 deleted = "x"
 
-[status]
-symbol = "[x](bold red) "
-
 [sudo]
 symbol = "sudo "
 
@@ -52,21 +48,3 @@ symbol = "gcp "
 [kubernetes]
 format = '[$context\($namespace\)](green) '
 disabled = true
-
-[package]
-disabled = true
-
-[python]
-format = '[${pyenv_prefix}$virtualenv ]($style)'
-
-[nodejs]
-symbol = "nodejs "
-
-[rust]
-symbol = "rs "
-
-[golang]
-symbol = "go "
-
-[nix_shell]
-symbol = "nix "

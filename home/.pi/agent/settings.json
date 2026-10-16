@@ -33,7 +33,7 @@
     "anthropicExtraUsage": false
   },
   "packages": [
-    "npm:pi-web-access@0.x",
+    "npm:pi-web-access@0.41.0",
     "npm:@yusukeshib/pi-advisor@0.x",
     "npm:@yusukeshib/pi-skim@0.x",
     "npm:@yusukeshib/pi-babysit@0.x",
@@ -44,7 +44,7 @@
     "npm:@yusukeshib/pi-colored-model-status@0.x",
     "npm:@yusukeshib/pi-image-context-cache@0.x",
     "npm:@yusukeshib/pi-agent-controls@0.x",
-    "npm:@yusukeshib/pi-ping@0.1.0"
+    "npm:@yusukeshib/pi-ping@0.x"
   ],
   "enabledModels": [
     "openai-codex/gpt-6-astra",
