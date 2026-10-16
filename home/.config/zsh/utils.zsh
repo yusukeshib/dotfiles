@@ -13,14 +13,23 @@ zsh-plugins-update () {
 	echo "Done. Restart your shell to pick up changes."
 }
 
+# Allow SSH only from the current public IPv4 address. The address becomes a
+# firewall rule, so fetch it over HTTPS only and accept nothing but a valid
+# dotted-quad.
 roaming () {
-	local rule ipv4_address
+	local rule ipv4_address octet
 	rule="${1:-$USER-allow-ssh}"
-	ipv4_address=$(curl -4 -fsS ifconfig.me 2>/dev/null)
-	if [[ -z "$ipv4_address" ]]; then
+	ipv4_address=$(curl -4 -fsS --max-time 10 --proto '=https' --tlsv1.2 https://ifconfig.me/ip 2>/dev/null)
+	if [[ ! $ipv4_address =~ '^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$' ]]; then
 		echo "roaming: failed to determine public IPv4 address" >&2
 		return 1
 	fi
+	for octet in "${match[@]}"; do
+		if (( 10#$octet > 255 )); then
+			echo "roaming: invalid IPv4 address: $ipv4_address" >&2
+			return 1
+		fi
+	done
 	gcloud compute firewall-rules update "$rule" --source-ranges "$ipv4_address/32"
 }
 

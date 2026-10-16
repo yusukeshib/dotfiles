@@ -1,14 +1,21 @@
 bindkey -e
 unsetopt BEEP
 
-# Re-assert user-local bin priority: on macOS, /etc/zprofile's path_helper
-# runs AFTER zshenv and moves system paths to the front. typeset -U dedupes.
+# User-local binaries (cargo-installed babysit/goal, ~/.local/bin/pi, dotfiles
+# helpers) must win over Homebrew and system copies. macOS /etc/zprofile's
+# path_helper, `brew shellenv`, and the gcloud include all prepend entries
+# after zshenv, so re-assert the order after each of them. typeset -U keeps the
+# first occurrence, which moves existing entries to the front.
 typeset -U path
-path=(
-  "$HOME/.local/bin"
-  "$HOME/.cargo/bin"
-  $path
-)
+_prefer_user_paths() {
+  path=(
+    "$HOME/.local/bin"
+    "$HOME/.cargo/bin"
+    "$HOME/dotfiles/bin"(N/)
+    $path
+  )
+}
+_prefer_user_paths
 
 # Cache directory for generated completion/init scripts
 export ZSH_CACHE_DIR="${ZSH_CACHE_DIR:-$HOME/.cache/zsh}"
@@ -66,6 +73,11 @@ for _brew in /opt/homebrew/bin/brew /usr/local/bin/brew \
   fi
 done
 unset _brew
+# ffmpeg@7 is keg-only; expose it ahead of any unversioned ffmpeg.
+if [[ -n $HOMEBREW_PREFIX && -d $HOMEBREW_PREFIX/opt/ffmpeg@7/bin ]]; then
+  path=("$HOMEBREW_PREFIX/opt/ffmpeg@7/bin" $path)
+fi
+_prefer_user_paths
 
 # History: persist to file and share across sessions. atuin has its own DB,
 # but zsh-history-substring-search (and plain zsh) read from this file.
@@ -82,16 +94,6 @@ setopt HIST_REDUCE_BLANKS   # strip superfluous whitespace
 if [[ -r /proc/version ]] && grep -qi microsoft /proc/version && (( $+commands[ssh.exe] )); then
   export GIT_SSH_COMMAND=ssh.exe
 fi
-
-# pi coding agent: use Anthropic's 1h prompt-cache TTL instead of the 5min
-# default, so pauses between turns don't blow the cache and force a full
-# re-prefill (the cause of the intermittent ~400s first-token waits).
-export PI_CACHE_RETENTION=long
-
-# pi coding agent: hard wall-clock cap per turn (turn-deadline extension).
-# Aborts a turn after N seconds of no real assistant progress — unlike the
-# idle-based httpIdleTimeoutMs, this survives Anthropic's keepalive pings.
-export PI_TURN_DEADLINE_SEC=120
 
 #
 # Plugins (must come before native integrations that use compdef)
@@ -162,7 +164,7 @@ fi
 # Aliases
 #
 
-# eza
+# ls
 alias ll='ls -lg --color'
 alias la='ls -la --color'
 
@@ -245,12 +247,23 @@ function git_current_branch() {
   command git symbolic-ref --short HEAD 2>/dev/null
 }
 
+# ~/.gitconfig sets core.editor=true so agents and other non-interactive callers
+# never block on an editor. Interactive commands opt back into $EDITOR per call:
+# unlike an exported GIT_EDITOR, a shell function is not inherited by child
+# processes such as pi, which must keep the non-blocking editor.
+git() {
+  if [[ -n ${GIT_EDITOR:-$EDITOR} ]]; then
+    GIT_EDITOR=${GIT_EDITOR:-$EDITOR} command git "$@"
+  else
+    command git "$@"
+  fi
+}
+
 alias g='git'
 
-# dotfiles: normal git repo at ~/dotfiles (files under home/, symlinked to $HOME).
-# Edit files, then: cd ~/dotfiles && git add -A && git commit && git push
+# dotfiles: normal git repo at ~/dotfiles (home/ and home-<platform>/ trees are
+# symlinked into $HOME). ~/dotfiles/bin is on PATH via _prefer_user_paths.
 # Manage symlinks with `dots` (link / status / relink / adopt / unlink).
-[ -d "$HOME/dotfiles/bin" ] && export PATH="$HOME/dotfiles/bin:$PATH"
 
 # add
 alias ga='git add'
@@ -416,7 +429,8 @@ alias grevc='git revert --continue'
 alias gsh='git show'
 alias gsps='git show --pretty=short --show-signature'
 alias gbl='git blame -w'
-alias gwch='git whatchanged -p --abbrev-commit --pretty=medium'
+# `git whatchanged` is deprecated; this is its documented `git log` equivalent.
+alias gwch='git log --raw --no-merges -p --abbrev-commit --pretty=medium'
 
 # tag
 alias gtv='git tag | sort -V'
@@ -485,8 +499,10 @@ if [[ -n "$HOMEBREW_PREFIX" && -d "$HOMEBREW_PREFIX/share/google-cloud-sdk" ]]; 
   source "$HOMEBREW_PREFIX/share/google-cloud-sdk/completion.zsh.inc"
 fi
 
-# Drop duplicate PATH entries accumulated by path_helper and the *.inc files
-# above (nested shells inherit an already-populated PATH).
+# Restore user-local priority after the gcloud include, and drop duplicate
+# entries (nested shells inherit an already-populated PATH).
+_prefer_user_paths
+unfunction _prefer_user_paths
 typeset -U path PATH
 
 # Must follow every integration that installs ZLE widgets or hooks.

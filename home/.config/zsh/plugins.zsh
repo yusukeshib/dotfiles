@@ -45,7 +45,9 @@ if [[ ! -s $_zcompdump.zwc || $_zcompdump.zwc -ot $_zcompdump ]]; then
 fi
 unset _zcompdump
 
+# fzf-tab must load after compinit but before plugins that wrap ZLE widgets
+# (zsh-autosuggestions, syntax highlighting); see the fzf-tab README.
+_load_plugin Aloxaf/fzf-tab
 _load_plugin zsh-users/zsh-autosuggestions
 _load_plugin zsh-users/zsh-history-substring-search
-_load_plugin Aloxaf/fzf-tab
 # Syntax highlighting is loaded at the end of init.zsh, after native widgets.

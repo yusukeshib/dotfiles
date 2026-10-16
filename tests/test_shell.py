@@ -111,6 +111,35 @@ class ShellTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse((self.home / "commit").exists())
 
+    def roaming(self, response):
+        self.stub("curl", 'printf "%s\\n" "$@" > "$HOME/curl-args"; printf "%s" "$RESPONSE"')
+        self.stub("gcloud", 'printf "%s\\n" "$*" > "$HOME/gcloud"')
+        self.env["RESPONSE"] = response
+        return self.zsh("source " + shlex.quote(str(UTILS)) + "\nroaming rule")
+
+    def test_roaming_uses_https_and_valid_address(self):
+        result = self.roaming("203.0.113.7")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        args = (self.home / "curl-args").read_text().splitlines()
+        self.assertIn("=https", args)
+        self.assertTrue(all(not a.startswith("http") or a.startswith("https://") for a in args))
+        self.assertEqual((self.home / "gcloud").read_text().strip(),
+                         "compute firewall-rules update rule --source-ranges 203.0.113.7/32")
+
+    def test_roaming_rejects_invalid_responses(self):
+        for response in ("", "<html>", "256.1.1.1", "1.2.3.4\n5.6.7.8", "1.2.3.4/0", "0.0.0.0 1.1.1.1"):
+            with self.subTest(response=response):
+                result = self.roaming(response)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((self.home / "gcloud").exists())
+
+    def test_fzf_tab_loads_before_widget_wrappers(self):
+        plugins = (ROOT / "home/.config/zsh/plugins.zsh").read_text()
+        order = [plugins.index("_load_plugin " + name) for name in
+                 ("Aloxaf/fzf-tab", "zsh-users/zsh-autosuggestions")]
+        self.assertLess(order[0], order[1])
+        self.assertLess(plugins.index("compinit -d"), order[0])
+
     def test_highlighting_loads_after_integrations(self):
         plugins = (ROOT / "home/.config/zsh/plugins.zsh").read_text()
         self.assertNotIn("_load_plugin zsh-users/zsh-syntax-highlighting", plugins)

@@ -1,18 +1,26 @@
-Library/
-.box/
-.docker/
-.colima/
-.cache/
-.nix-defexpr/
-.local/
-.bun/
-.npm/
-.cargo/
-.rustup/
-Pictures/
-.agents/
-.codex/
-.pi/
-.pi-lens/
-.container-platform/
+# Keep fd (fzf, Telescope, agent file search) fast when run from $HOME.
+# Patterns are anchored with a leading `/` so they apply only to $HOME's direct
+# children — project-local `.pi/`, `.cargo/`, `Library/`, ... stay searchable.
+# This file is also read inside ~/dotfiles/home/, so never anchor a directory
+# that exists there (e.g. `/.pi/` would hide the tracked pi configuration).
+/Library/
+/Pictures/
+/.box/
+/.docker/
+/.colima/
+/.cache/
+/.nix-defexpr/
+/.local/
+/.bun/
+/.npm/
+/.cargo/
+/.rustup/
+/.codex/
+/.pi/agent/sessions/
+/.pi/agent/npm/
+/.pi/agent/git/
+/.pi/agent/install/
+/.pi-lens/
+/.container-platform/
+# Dependency trees are noise at any depth.
 node_modules/
