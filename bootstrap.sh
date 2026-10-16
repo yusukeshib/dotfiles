@@ -23,17 +23,25 @@ for repo in zsh-users/zsh-completions \
   fi
 done
 
-TPM_DIR="$HOME/.tmux/plugins/tpm"
+# TPM uses ~/.config/tmux/plugins/ because tmux.conf lives in the XDG location.
+TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 if [ ! -d "$TPM_DIR" ]; then
   echo "==> Installing the tmux plugin manager"
   mkdir -p "$(dirname "$TPM_DIR")"
   git clone --depth=1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
 fi
 if command -v tmux >/dev/null 2>&1; then
+  echo "==> Installing tmux plugins"
   "$TPM_DIR/bin/install_plugins"
+  tmux_plugins=installed
+else
+  tmux_plugins=pending
 fi
 
 echo "==> Done. Install packages:  brew bundle --file=~/Brewfile"
-echo "    Install tmux plugins:    ~/.tmux/plugins/tpm/bin/install_plugins"
+if [ "$tmux_plugins" = pending ]; then
+  echo "    tmux was not installed yet, so its plugins were skipped. After brew bundle:"
+  echo "      $TPM_DIR/bin/install_plugins"
+fi
 echo "    Open a new shell:        exec zsh"
 echo "    Check symlink health:    dots status"
