@@ -2,7 +2,7 @@
 
 usage() {
     echo 'Usage: brew-remove [--formula|--cask|--tap|other brew bundle remove options] name [...]'
-    echo 'Removes entries from ~/Brewfile, then runs brew-sync (including cleanup --force).'
+    echo 'Removes entries from ~/Brewfile, then runs brew-sync (install + cleanup; cleanup asks first on a terminal).'
 }
 
 if [ "$#" -eq 0 ]; then
@@ -23,5 +23,7 @@ for arg do
     esac
 done
 
+# Call the sibling script directly: ~/dotfiles/bin may not be on PATH (e.g. in
+# non-interactive shells that skip init.zsh).
 brew bundle remove --file="$HOME/Brewfile" "$@" &&
-    brew-sync
+    "$(dirname "$0")/brew-sync"

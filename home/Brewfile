@@ -21,11 +21,12 @@ brew "cloudflare-wrangler"
 brew "cmake"
 brew "colima"
 brew "coreutils"
+brew "difftastic" # `git dft`
 brew "direnv"
 brew "dylibbundler"
 brew "docker"
 brew "fd"
-brew "ffmpeg@7"
+brew "ffmpeg@7" # keg-only; init.zsh puts its bin/ on PATH
 brew "fzf"
 brew "gcalcli"
 brew "gh"
@@ -40,14 +41,12 @@ brew "kubernetes-cli"
 brew "libimobiledevice"
 brew "mosh"
 brew "neovim"
-brew "node@22"
 brew "ollama"
 brew "pkgconf"
 brew "procs"
 brew "pyright"
 brew "python@3.11"
 brew "ripgrep"
-brew "ruby@3.3"
 brew "ruff"
 brew "sccache"
 brew "sd"
@@ -75,4 +74,7 @@ cask "gcloud-cli" if OS.mac?
 # - babysit: cargo install --path ~/projects/babysit --locked
 #   Clone https://github.com/yusukeshib/babysit into ~/projects/babysit first.
 #   Keep ~/.cargo/bin ahead of Homebrew in PATH; reinstall after source changes.
+# - Rust toolchain: https://rustup.rs, then `rustup component add rust-analyzer`
+#   (pi lsp.json and Neovim use ~/.cargo/bin/rust-analyzer).
+# - cargo-expand (Neovim <leader>o on a Rust struct): cargo install cargo-expand --locked
 # - gh-dash: gh extension install dlvhdr/gh-dash
