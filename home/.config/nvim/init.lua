@@ -1,6 +1,6 @@
 -- Entry point. Configuration is split under lua/config/ and lua/plugins/.
 
--- Disable unused built-in plugins (netrw is replaced by oil.nvim/nvim-tree).
+-- Disable unused built-in plugins (nvim-tree replaces netrw for directories).
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_gzip = 1

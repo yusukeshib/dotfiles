@@ -21,16 +21,24 @@ local _is_remote = os.getenv("SSH_TTY") ~= nil or os.getenv("container") ~= nil
 local _no_native_clip = vim.fn.executable("pbcopy") == 0
   and vim.fn.executable("xclip") == 0
   and vim.fn.executable("wl-copy") == 0
+-- Copy only: with clipboard=unnamedplus every `p` would otherwise send an
+-- OSC 52 read request, which terminals block, prompt for, or time out on.
+-- Paste returns Neovim's own unnamed register (see :h clipboard-osc52); paste
+-- from the system clipboard with the terminal's paste instead.
 if _is_remote or _no_native_clip then
+  local osc52 = require("vim.ui.clipboard.osc52")
+  local function paste_unnamed()
+    return { vim.fn.split(vim.fn.getreg(""), "\n"), vim.fn.getregtype("") }
+  end
   vim.g.clipboard = {
-    name = "OSC 52",
+    name = "OSC 52 (copy only)",
     copy = {
-      ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
-      ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+      ["+"] = osc52.copy("+"),
+      ["*"] = osc52.copy("*"),
     },
     paste = {
-      ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
-      ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+      ["+"] = paste_unnamed,
+      ["*"] = paste_unnamed,
     },
   }
 end

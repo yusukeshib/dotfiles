@@ -15,9 +15,6 @@ vim.pack.add({
   -- Auto-change working directory to project root
   { src = "https://github.com/notjedi/nvim-rooter.lua" },
 
-  -- File
-  { src = "https://github.com/stevearc/oil.nvim" },
-
   --
   -- Theme and UI
   --

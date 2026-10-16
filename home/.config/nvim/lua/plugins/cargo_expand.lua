@@ -2,6 +2,9 @@ local M = {}
 
 local sessions = {}
 
+-- Same key as the global mapping in config/keymaps.lua, so it toggles back.
+M.key = "<leader>o"
+
 local function set_buffer_lines(buf, lines, filetype)
   if not vim.api.nvim_buf_is_valid(buf) then
     return
@@ -190,7 +193,7 @@ local function expand(buf, name)
 
   set_buffer_lines(expanded_buf, { ("// Expanding %s…"):format(name) }, "rust")
   vim.api.nvim_win_set_buf(0, expanded_buf)
-  vim.keymap.set("n", "<C-o>", M.toggle, {
+  vim.keymap.set("n", M.key, M.toggle, {
     buffer = expanded_buf,
     desc = "Return from cargo expand",
     silent = true,
@@ -221,7 +224,7 @@ local function expand(buf, name)
       if result.code ~= 0 then
         local message = result.stderr ~= "" and result.stderr or result.stdout
         set_buffer_lines(expanded_buf, vim.split(message, "\n", { plain = true }), "text")
-        vim.notify("cargo expand failed; press Ctrl-O to return", vim.log.levels.ERROR)
+        vim.notify("cargo expand failed; press <leader>o to return", vim.log.levels.ERROR)
         return
       end
 

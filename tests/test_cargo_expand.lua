@@ -100,6 +100,10 @@ do
     return vim.api.nvim_buf_get_lines(run.expanded, 0, 1, false)[1]:match("struct Widget") ~= nil
   end)
   eq(run.kills(), 0, "success cancellation count")
+  local mapping = vim.fn.maparg(run.module.key, "n", false, true)
+  eq(mapping.buffer, 1, "return mapping is buffer-local")
+  eq(mapping.callback, run.module.toggle, "return mapping toggles")
+  eq(vim.fn.maparg("<C-o>", "n"), "", "jumplist key stays unmapped")
   eq(run.module.toggle(), true, "success restore")
   eq(vim.api.nvim_get_current_buf(), run.source, "success restores source")
 end

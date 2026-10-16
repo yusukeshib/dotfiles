@@ -2,12 +2,6 @@
 -- HELPER FUNCTIONS
 -- ============================================================================
 
-local reload_configuration = function()
-  local vim_rc = os.getenv("MYVIMRC")
-  print("Reloading configuration from: " .. vim_rc)
-  vim.cmd.luafile(vim_rc)
-end
-
 local sidekick_toggle = function()
   require("sidekick.cli").toggle({ name = "pi", focus = true })
 end
@@ -99,16 +93,15 @@ wk.add({
   -- Leader key shortcuts (Space + ...)
   { "<leader>rg", telescope_rg,                         desc = "[R]ip[G]rep",                    mode = "n" },
   { "<leader>gd", vim.cmd.Gvdiffsplit,                  desc = "[G]it [D]iff",                   mode = "n" },
-  { "<leader>rc", reload_configuration,                 desc = "Reload configuration",           mode = "n" },
 
   -- Git
   { "<leader>gh", telescope_git_history,                desc = "Git history",                    mode = "n" },
 
-  -- LSP
+  -- LSP (Neovim's defaults provide grn rename, gra code action, gri, grt, ...;
+  -- grr is replaced with a Telescope picker, and <C-o> keeps its jumplist role)
   { "gd",         vim.lsp.buf.definition,               desc = "Go to definition",               mode = "n" },
-  { "lr",         vim.lsp.buf.rename,                   desc = "Rename symbol",                  mode = "n" },
-  { "gr",         telescope_lsp_refs,                   desc = "List references",                mode = "n" },
-  { "<C-o>",      cargo_expand_or_aerial,               desc = "Expand Rust struct / symbols",  mode = "n" },
+  { "grr",        telescope_lsp_refs,                   desc = "List references",                mode = "n" },
+  { "<leader>o",  cargo_expand_or_aerial,               desc = "Expand Rust struct / symbols",  mode = "n" },
 
   -- sidekick
   { "<C-.>",      sidekick_toggle,                      desc = "Toggle Sidekick",                mode = { "i", "n", "t", "x" } },

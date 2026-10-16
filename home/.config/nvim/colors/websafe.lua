@@ -1,4 +1,4 @@
--- websafe: pure web-safe palette, matches pi-coding-agent ~/.pi/agent/themes/websafe.json
+-- websafe: pure web-safe palette, matches pi-coding-agent ~/.pi/agent/theme-resources/websafe.json
 vim.cmd("hi clear")
 if vim.fn.exists("syntax_on") == 1 then vim.cmd("syntax reset") end
 vim.o.background = "dark"
