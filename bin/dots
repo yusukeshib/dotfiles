@@ -305,9 +305,15 @@ cmd_adopt() {
       die "$rel is already managed in ${candidate##*/}/; restore its repository source instead"
     fi
   done
-  if git -C "$REPO" --literal-pathspecs check-ignore -q -- "$root/$rel"; then
-    die "$rel is ignored by Git"
-  fi
+  # check-ignore takes literal paths and rejects --literal-pathspecs (exit 128),
+  # so distinguish "ignored" (0) from "not ignored" (1) and errors.
+  local ignored=0
+  git -C "$REPO" check-ignore -q -- "$root/$rel" || ignored=$?
+  case "$ignored" in
+    0) die "$rel is ignored by Git";;
+    1) ;;
+    *) die "cannot check whether $rel is ignored";;
+  esac
   mkdir -p "$(dirname "$src")"
   mv "$dst" "$src"
   if ! replace_with_link "$src" "$dst" missing; then

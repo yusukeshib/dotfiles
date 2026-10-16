@@ -207,9 +207,16 @@ class DotsTests(unittest.TestCase):
     def test_adopt_ignored_file_is_rejected(self):
         (self.repo / ".gitignore").write_text("home/a\n")
         dst = self.live()
-        self.run_dots("adopt", "a", success=False)
+        result = self.run_dots("adopt", "a", success=False)
+        self.assertIn("ignored by Git", result.stderr)
         self.assertFalse(dst.is_symlink())
         self.assertEqual(dst.read_text(), "live")
+
+    def test_adopt_reports_no_check_ignore_error(self):
+        dst = self.live()
+        result = self.run_dots("adopt", "a")
+        self.assertNotIn("fatal", result.stderr)
+        self.assertTrue(dst.is_symlink())
 
     def test_unlink_creates_independent_copy(self):
         src = self.managed(); self.run_dots("link")
