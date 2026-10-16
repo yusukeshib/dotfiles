@@ -86,6 +86,15 @@ commit. Only tracked files are linked; runtime state remains untracked.
 deliberately after reviewing the release), while first-party
 `@yusukeshib/*` packages track `0.x`.
 
+## Trusted box workspaces
+
+Repositories under `~/.box/workspaces/` are trusted automatically: direnv
+whitelists the prefix (`direnv.toml`) and pi loads project resources everywhere
+(`defaultProjectTrust: "always"`), so unattended agents and bots work in new
+workspaces without prompts. The cost is that checking out a branch runs its
+`.envrc` and project pi extensions without review. Only check out code you would
+execute; inspect `.envrc` and `.pi/` of untrusted branches before entering them.
+
 ## Pi theme loading
 
 `websafe` lives in `~/.pi/agent/theme-resources/` and is explicitly loaded by

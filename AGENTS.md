@@ -53,7 +53,7 @@ All paths below are real `$HOME` paths:
 | atuin / direnv | `~/.config/atuin/config.toml`, `~/.config/direnv/direnv.toml` |
 | Homebrew | `~/Brewfile` |
 | Shared agent skills | `~/.agents/skills/` |
-| pi agent | `~/.pi/agent/settings.json`, `models.json`, `lsp.json` |
+| pi agent | `~/.pi/agent/settings.json`, `lsp.json`, `AGENTS.md` |
 | macOS LaunchAgents | `~/Library/LaunchAgents/` (macOS only) |
 
 `~/.codex/` is intentionally untracked (`.gitignore`).
