@@ -28,7 +28,8 @@ class DotsTests(unittest.TestCase):
         (self.repo / "bin").mkdir()
         shutil.copy2(SOURCE, self.repo / "bin/dots")
         self.env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-        self.env.update(HOME=str(self.home), GIT_CONFIG_GLOBAL="/dev/null", GIT_CONFIG_NOSYSTEM="1")
+        self.env.update(HOME=str(self.home), GIT_CONFIG_GLOBAL="/dev/null", GIT_CONFIG_NOSYSTEM="1",
+                        DOTS_PLATFORM="testos")
         self.git("init", "-q")
 
     def git(self, *args):
@@ -37,11 +38,11 @@ class DotsTests(unittest.TestCase):
             check=True, capture_output=True, text=True,
         )
 
-    def managed(self, rel="a", content="repository"):
-        src = self.repo / "home" / rel
+    def managed(self, rel="a", content="repository", root="home"):
+        src = self.repo / root / rel
         src.parent.mkdir(parents=True, exist_ok=True)
         src.write_text(content)
-        self.git("--literal-pathspecs", "add", "--", "home/" + rel)
+        self.git("--literal-pathspecs", "add", "--", root + "/" + rel)
         return src
 
     def live(self, rel="a", content="live"):
@@ -296,6 +297,65 @@ class DotsTests(unittest.TestCase):
         self.assertEqual(src.stat().st_mode & 0o777, 0o700)
         self.run_dots("unlink", "a")
         self.assertEqual(dst.stat().st_mode & 0o777, 0o700)
+
+    def test_active_platform_tree_is_linked(self):
+        common = self.managed("a")
+        mine = self.managed("d/mine", root="home-testos")
+        self.managed("d/theirs", root="home-otheros")
+        self.run_dots("link")
+        self.assertEqual((self.home / "a").readlink(), common)
+        self.assertEqual((self.home / "d/mine").readlink(), mine)
+        self.assertFalse((self.home / "d/theirs").exists())
+        self.run_dots("status")
+
+    def test_same_path_in_common_and_platform_tree_is_rejected(self):
+        self.managed("a"); self.managed("a", root="home-testos")
+        self.run_dots("link", success=False)
+        self.run_dots("status", success=False)
+        self.assertFalse((self.home / "a").exists())
+
+    def test_stale_repository_link_is_replaced_without_backup(self):
+        src = self.managed("d/a", root="home-testos")
+        (self.home / "d").mkdir()
+        (self.home / "d/a").symlink_to(self.repo / "home/d/a")  # moved from home/
+        self.run_dots("status", success=False)
+        self.run_dots("link")
+        self.assertEqual((self.home / "d/a").readlink(), src)
+        self.assertEqual(self.backups("d/a"), [])
+
+    def test_other_platform_links_are_removed(self):
+        self.managed("d/e/theirs", root="home-otheros")
+        self.managed("foreign", root="home-otheros")
+        (self.home / "d/e").mkdir(parents=True)
+        (self.home / "d/e/theirs").symlink_to(self.repo / "home/d/e/theirs")
+        outside = self.base / "outside"; outside.write_text("keep")
+        (self.home / "foreign").symlink_to(outside)
+        result = self.run_dots("status", success=False)
+        self.assertIn("orphan", result.stdout)
+        self.run_dots("link", "--dry-run")
+        self.assertTrue((self.home / "d/e/theirs").is_symlink())
+        self.run_dots("link")
+        self.assertFalse((self.home / "d").exists())
+        self.assertEqual((self.home / "foreign").readlink(), outside)
+        self.run_dots("status")
+
+    def test_adopt_platform_stores_under_platform_tree(self):
+        dst = self.live("nested/a")
+        self.run_dots("adopt", "--platform", str(dst))
+        self.assertEqual(dst.readlink(), self.repo / "home-testos/nested/a")
+        self.git("ls-files", "--error-unmatch", "home-testos/nested/a")
+        self.run_dots("status")
+
+    def test_adopt_rejects_path_managed_on_other_platform(self):
+        self.managed("a", root="home-otheros"); dst = self.live()
+        self.run_dots("adopt", "a", success=False)
+        self.assertFalse(dst.is_symlink())
+        self.assertFalse((self.repo / "home/a").exists())
+
+    def test_help_prints_whole_header(self):
+        result = self.run_dots("help")
+        self.assertIn("never both.", result.stdout)
+        self.assertNotIn("set -euo", result.stdout)
 
     def test_bad_arguments_are_rejected(self):
         for args in (("link", "--typo"), ("status", "extra"), ("adopt",), ("unlink",), ("adopt", "a", "b")):

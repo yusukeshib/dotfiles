@@ -1,13 +1,19 @@
 # dotfiles
 
 A **normal git repo** (not a bare/`$HOME`-work-tree setup). Every tracked
-dotfile lives under [`home/`](home/) mirroring its real `$HOME` path, and is
-**symlinked** into `$HOME` by the [`bin/dots`](bin/dots) manager.
+dotfile lives under [`home/`](home/) (all platforms) or `home-<platform>/`
+(only that platform, e.g. [`home-darwin/`](home-darwin/)) mirroring its real
+`$HOME` path, and is **symlinked** into `$HOME` by the [`bin/dots`](bin/dots)
+manager.
 
 ```
 ~/dotfiles/
-├── home/            # everything symlinked into $HOME (home/.zshrc -> ~/.zshrc, …)
-├── bin/dots         # symlink manager
+├── home/            # symlinked into $HOME everywhere (home/.zshrc -> ~/.zshrc, …)
+├── home-darwin/     # macOS only: LaunchAgents, 1Password Git signing
+├── bin/
+│   ├── dots         # symlink manager
+│   └── brew-add / brew-remove / brew-sync   # Brewfile edits + convergence
+├── tests/           # isolated regression checks
 ├── bootstrap.sh     # fresh-machine setup
 └── README.md
 ```
@@ -18,7 +24,7 @@ dotfile lives under [`home/`](home/) mirroring its real `$HOME` path, and is
 git clone git@github.com:yusukeshib/dotfiles.git ~/dotfiles
 ~/dotfiles/bootstrap.sh          # symlinks everything into $HOME (backs up conflicts)
 brew bundle --file=~/Brewfile    # install packages
-~/.tmux/plugins/tpm/bin/install_plugins
+~/.config/tmux/plugins/tpm/bin/install_plugins   # if bootstrap ran before tmux existed
 exec zsh
 ```
 
@@ -35,12 +41,22 @@ git add -A && git commit -m "zsh: …" && git push
 ## Managing symlinks — `dots`
 
 ```sh
-dots link [--dry-run]   # create/repair all symlinks (backs up conflicts to *.predots-*/original)
-dots status             # show every managed path: ok / drift / missing
-dots relink [path…]     # re-adopt a path a tool rewrote in place (drift)
-dots adopt <path>       # start tracking a new regular $HOME file (moves it in + symlinks back)
-dots unlink <path>      # detach a symlink back into a real copy
+dots link [--dry-run]          # create/repair all symlinks (backs up conflicts to *.predots-*/original)
+dots status                    # show every managed path: ok / drift / missing / stale / orphan
+dots relink [path…]            # re-adopt a path a tool rewrote in place (drift)
+dots adopt [--platform] <path> # start tracking a new regular $HOME file (moves it in + symlinks back)
+dots unlink <path>             # detach a symlink back into a real copy
 ```
+
+The platform is the lowercase `uname -s` (`darwin`, `linux`); set
+`DOTS_PLATFORM` to override it. `adopt --platform` stores the file under
+`home-<platform>/` instead of `home/`. A path may exist in only one tree. To move
+a file between trees, `git mv` it and run `dots link`: links that still point into
+the repository are replaced without a backup (`stale`), and links for paths now
+managed only on other platforms are removed together with directories left empty
+(`orphan`). launchd remembers the resolved path of a loaded LaunchAgent, so after
+moving one, re-register it: `launchctl bootout gui/$UID/<label>` then
+`launchctl bootstrap gui/$UID ~/Library/LaunchAgents/<label>.plist`.
 
 Paths for `adopt`, `relink`, and `unlink` may be absolute under `$HOME` or
 relative to `$HOME` (not the current directory). Directory adoption, `..`
@@ -63,6 +79,12 @@ Some tools (such as pi and Claude Code) rewrite their config via atomic rename, 
 replaces a **file** symlink with a regular file. `dots status` flags these as
 `drift`; run `dots relink` to pull the new content back into the repo, then
 commit. Only tracked files are linked; runtime state remains untracked.
+
+## Pi packages
+
+`settings.json` pins third-party packages to exact versions (bump them
+deliberately after reviewing the release), while first-party
+`@yusukeshib/*` packages track `0.x`.
 
 ## Pi theme loading
 
@@ -87,9 +109,8 @@ python3 tests/check_configs.py
 
 The default manager tests use `/bin/bash` (Bash 3.2 on macOS). Shell helper tests
 require `/bin/zsh`. JSON/TOML parsing requires Python 3.11+ when running the
-separate config checker. TypeScript checks reuse the installed pi loader; set
-`PI_CLI` or `JITI_PATH` if pi is not discoverable on PATH. Run the six mocked
-Cargo Expand cases with isolated editor state:
+separate config checker. Run the six mocked Cargo Expand cases with isolated
+editor state:
 
 ```sh
 (

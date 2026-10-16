@@ -6,8 +6,9 @@ Guidance specific to the `~/dotfiles` repository. Follow the shared guidance in
 ## Dotfiles workflow
 
 This is a normal git repo at `~/dotfiles`. Tracked files live under
-`~/dotfiles/home/<path>` and are symlinked to the matching `$HOME` path by
-`~/dotfiles/bin/dots`; editing either path is live immediately. There is no
+`~/dotfiles/home/<path>` (all platforms) or `~/dotfiles/home-<platform>/<path>`
+(`darwin`, `linux`; that platform only) and are symlinked to the matching
+`$HOME` path by `~/dotfiles/bin/dots`; editing either path is live immediately. There is no
 chezmoi or templating. Use normal git commands in `~/dotfiles`, and never use the
 retired bare repo at `~/.dotfiles`.
 
@@ -15,9 +16,11 @@ Managed files use file-level symlinks so runtime and secret files are not expose
 
 When changing a dotfile:
 
-1. Edit its `$HOME` or `~/dotfiles/home` path directly.
+1. Edit its `$HOME` or repository path directly.
 2. For a new file, first create it under `$HOME`, then run
-   `dots adopt ~/path/to/file` to move it into the repo and symlink it back.
+   `dots adopt ~/path/to/file` (add `--platform` for a file that must exist only
+   on the current platform) to move it into the repo and symlink it back.
+   Platform-specific files such as LaunchAgents belong in `home-<platform>/`.
 3. Inspect the targeted diff, then stage, commit, and push from `~/dotfiles`.
    Commit messages use `<scope>: <what>` (for example, `zsh: add foo alias`).
 
@@ -44,13 +47,16 @@ All paths below are real `$HOME` paths:
 | zsh entry | `~/.zshenv`, `~/.zshrc` |
 | zsh init / aliases / env | `~/.config/zsh/init.zsh` |
 | zsh plugins / helpers | `~/.config/zsh/plugins.zsh`, `~/.config/zsh/utils.zsh` |
-| git | `~/.gitconfig`, `~/.config/git/gitconfig_darwin` |
+| git | `~/.gitconfig`, `~/.config/git/gitconfig_darwin` (macOS only) |
 | prompt / terminal | `~/.config/starship.toml`, `~/.config/tmux/tmux.conf`, `~/.config/ghostty/` |
 | neovim | `~/.config/nvim/` |
 | atuin / direnv | `~/.config/atuin/config.toml`, `~/.config/direnv/direnv.toml` |
 | Homebrew | `~/Brewfile` |
 | Shared agent skills | `~/.agents/skills/` |
-| Codex CLI | `~/.codex/config.toml` |
+| pi agent | `~/.pi/agent/settings.json`, `models.json`, `lsp.json` |
+| macOS LaunchAgents | `~/Library/LaunchAgents/` (macOS only) |
+
+`~/.codex/` is intentionally untracked (`.gitignore`).
 
 ## Configuration conventions
 
@@ -59,8 +65,8 @@ All paths below are real `$HOME` paths:
   variables required by non-interactive shells; tool-dependent PATH setup,
   completions, and plugins belong in `init.zsh`.
 - Edit `~/.gitconfig` directly. Put macOS-only settings in
-  `~/.config/git/gitconfig_darwin`; its trailing include in `~/.gitconfig` must
-  remain last so platform overrides win.
+  `~/.config/git/gitconfig_darwin` (tracked in `home-darwin/`); its trailing
+  include in `~/.gitconfig` must remain last so platform overrides win.
 - Track desired packages in the shared `~/Brewfile`. Guard platform-specific
   entries with `if OS.mac?` or `if OS.linux?`. Edit the file, then when requested
   converge and verify with:

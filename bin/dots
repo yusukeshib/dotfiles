@@ -1,53 +1,82 @@
 #!/usr/bin/env bash
 # dots — symlink manager for the dotfiles repo.
 #
-# Layout:  ~/dotfiles/home/<path>  is symlinked to  $HOME/<path>
+# Layout:  ~/dotfiles/home/<path>             -> $HOME/<path>  (every platform)
+#          ~/dotfiles/home-<platform>/<path>  -> $HOME/<path>  (that platform only)
+# <platform> is the lowercase `uname -s` (darwin, linux), or $DOTS_PLATFORM.
 # The repo is a NORMAL git repo (no bare/work-tree trickery).
 #
-#   dots link [--dry-run]   create/repair all symlinks (backs up conflicts)
-#   dots status             show state of every managed path
-#   dots relink [path...]   re-adopt drifted paths (tool rewrote a file in place)
-#   dots adopt <path>       move a real $HOME file into the repo and symlink it back
-#   dots unlink <path>      detach: replace a symlink with a real copy
+#   dots link [--dry-run]          create/repair links; remove other-platform links
+#   dots status                    show state of every managed path
+#   dots relink [path...]          re-adopt drifted paths (tool rewrote a file in place)
+#   dots adopt [--platform] <path> move a real $HOME file into the repo and symlink it
+#                                  back (--platform: store under home-<platform>/)
+#   dots unlink <path>             detach: replace a symlink with a real copy
 #
 # Policy:
-#   - File-level symlinks by default (only tracked files are linked; no runtime
-#     or secret files ever leak into the repo).
+#   - File-level symlinks only: only tracked files are linked, so runtime and
+#     secret files never leak into the repo.
+#   - A path may live in home/ or in one home-<platform>/ tree, never both.
 set -euo pipefail
 
 # --- locate repo -------------------------------------------------------------
 SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$SCRIPT/.." && pwd)"
-SRC="$REPO/home"
+COMMON_ROOT=home
 
 c_ok=$'\033[32m'; c_warn=$'\033[33m'; c_err=$'\033[31m'; c_dim=$'\033[2m'; c_off=$'\033[0m'
 
 die() { echo "${c_err}error:${c_off} $*" >&2; exit 1; }
 
-[ -d "$SRC" ] || die "no home/ dir at $SRC"
+[ -d "$REPO/$COMMON_ROOT" ] || die "no home/ dir at $REPO/$COMMON_ROOT"
+
+PLATFORM="${DOTS_PLATFORM:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
+case "$PLATFORM" in ''|*[!a-z0-9]*) die "invalid platform name: $PLATFORM";; esac
+PLATFORM_ROOT="home-$PLATFORM"
 
 # Eagerly read the index before changing files. An empty sentinel distinguishes
 # successful enumeration from a failed Git process substitution (whose status
-# Bash would otherwise discard).
+# Bash would otherwise discard). Paths of the active roots go into the parallel
+# MANAGED_ROOT/MANAGED_REL arrays; other platforms' paths go into INACTIVE_REL.
 load_managed_paths() {
-  local path complete=0 prefix
+  local path complete=0 prefix root rel i
   prefix="$(git -C "$REPO" rev-parse --show-prefix)" || die "cannot read repository"
   [ -z "$prefix" ] || die "$REPO is not the repository root"
-  MANAGED=()
+  MANAGED_ROOT=(); MANAGED_REL=(); INACTIVE_REL=()
   while IFS= read -r -d '' path; do
     if [ -z "$path" ]; then complete=1; break; fi
-    MANAGED+=("${path#home/}")
-  done < <(git -C "$REPO" ls-files -z -- home && printf '\0')
+    case "$path" in */*) ;; *) continue;; esac
+    root="${path%%/*}"; rel="${path#*/}"
+    case "$root" in
+      "$COMMON_ROOT"|"$PLATFORM_ROOT")
+        i=0
+        while [ "$i" -lt "${#MANAGED_REL[@]}" ]; do
+          [ "${MANAGED_REL[$i]}" != "$rel" ] || die "managed in both ${MANAGED_ROOT[$i]}/ and $root/: $rel"
+          i=$((i+1))
+        done
+        MANAGED_ROOT+=("$root"); MANAGED_REL+=("$rel");;
+      home-*)
+        case "${root#home-}" in ''|*[!a-z0-9]*) ;; *) INACTIVE_REL+=("$rel");; esac;;
+    esac
+  done < <(git -C "$REPO" ls-files -z && printf '\0')
   [ "$complete" -eq 1 ] || die "cannot enumerate managed files"
 }
 
-# NUL delimiters preserve spaces, Unicode, and newlines in tracked filenames.
-managed_paths() {
-  if [ "${#MANAGED[@]}" -gt 0 ]; then printf '%s\0' "${MANAGED[@]}"; fi
+# Set ROOT to the active root that manages REL; fail when unmanaged here.
+find_root() {
+  local rel="$1" i=0
+  while [ "$i" -lt "${#MANAGED_REL[@]}" ]; do
+    if [ "${MANAGED_REL[$i]}" = "$rel" ]; then ROOT="${MANAGED_ROOT[$i]}"; return 0; fi
+    i=$((i+1))
+  done
+  return 1
 }
+
+is_active() { local ROOT; find_root "$1"; }
 
 # Return a safe HOME-relative path in REPLY (not command substitution, which
 # would strip trailing newlines). Only file-level management is supported.
+# Parent directories must not be symlinks in $HOME or in the repository roots.
 relative_path() {
   local p="$1" parent root
   p="${p/#\~/$HOME}"
@@ -60,7 +89,7 @@ relative_path() {
     ''|.|..|../*|*/../*|*/..|./*|*/./*|*/.|*/|*//*) die "invalid file path: $1";;
   esac
   case "$HOME/$p" in "$REPO"|"$REPO"/*) die "cannot manage the repository itself";; esac
-  for root in "$HOME" "$SRC"; do
+  for root in "$HOME" "$REPO/$COMMON_ROOT" "$REPO/$PLATFORM_ROOT"; do
     parent="$root/$p"
     parent="${parent%/*}"
     while [ "$parent" != "$root" ]; do
@@ -72,7 +101,7 @@ relative_path() {
 }
 
 require_managed() {
-  git -C "$REPO" --literal-pathspecs ls-files --error-unmatch -- "home/$1" >/dev/null 2>&1 || die "not managed: $1"
+  find_root "$1" || die "not managed on $PLATFORM: $1"
 }
 
 # Each backup has its own directory; repeated operations cannot overwrite it.
@@ -88,16 +117,33 @@ backup() {
   printf '%s\n' "$dir/original"
 }
 
+# True when DST is a symlink whose target lies inside this repository.
+links_into_repo() {
+  local target
+  [ -L "$1" ] || return 1
+  target="$(readlink -n "$1"; printf .)"; target="${target%.}"
+  case "$target" in "$REPO"/*) return 0;; esac
+  return 1
+}
+
 # Prepare the link before moving any live content. Explicit checks are needed:
 # Bash disables errexit inside a function invoked from an if/! condition.
+# A stale link into the repository is replaced without a backup: it holds no
+# data, and the old target is restored if installing the new link fails.
 replace_with_link() {
-  local src="$1" dst="$2" state="$3" dir bak=''
+  local src="$1" dst="$2" state="$3" dir bak='' old=''
   dir="$(mktemp -d "${dst}.predots-link.XXXXXXXX")" || return 1
   if ! ln -s "$src" "$dir/link"; then
     rmdir "$dir"
     return 1
   fi
-  if [ "$state" != missing ]; then
+  if [ "$state" = stale ]; then
+    old="$(readlink -n "$dst"; printf .)"; old="${old%.}"
+    if ! rm "$dst"; then
+      rm -f "$dir/link"; rmdir "$dir"
+      return 1
+    fi
+  elif [ "$state" != missing ]; then
     if ! bak="$(backup "$dst")"; then
       rm -f "$dir/link"; rmdir "$dir"
       return 1
@@ -106,6 +152,8 @@ replace_with_link() {
   if ! mv "$dir/link" "$dst"; then
     if [ -n "$bak" ]; then
       mv "$bak" "$dst" || echo "restore failed; recover from $bak" >&2
+    elif [ -n "$old" ]; then
+      ln -s "$old" "$dst" || echo "restore failed; old link pointed to $old" >&2
     fi
     rm -f "$dir/link"; rmdir "$dir"
     return 1
@@ -113,13 +161,15 @@ replace_with_link() {
   rmdir "$dir"
 }
 
-# classify one path: ok | wronglink | drift | missing | source-missing
+# classify one path: ok | stale | wronglink | drift | missing | source-missing
 classify() {
-  local rel="$1" src="$SRC/$1" dst="$HOME/$1"
+  local root="$1" rel="$2" src="$REPO/$1/$2" dst="$HOME/$2"
   if [ ! -f "$src" ] || [ -L "$src" ]; then
     echo source-missing
   elif [ -L "$dst" ]; then
-    if [ "$(readlink -n "$dst"; printf .)" = "$src." ]; then echo ok; else echo wronglink; fi
+    if [ "$(readlink -n "$dst"; printf .)" = "$src." ]; then echo ok
+    elif links_into_repo "$dst"; then echo stale
+    else echo wronglink; fi
   elif [ -e "$dst" ]; then
     echo drift
   else
@@ -127,43 +177,73 @@ classify() {
   fi
 }
 
+# Links left behind for paths that are now managed only on other platforms
+# (e.g. after moving a file from home/ to home-darwin/). NUL-separated output.
+orphan_paths() {
+  local rel
+  if [ "${#INACTIVE_REL[@]}" -eq 0 ]; then return 0; fi
+  for rel in "${INACTIVE_REL[@]}"; do
+    is_active "$rel" && continue
+    links_into_repo "$HOME/$rel" && printf '%s\0' "$rel"
+  done
+  return 0
+}
+
 cmd_link() {
   local dry=0; [ "${1:-}" = "--dry-run" ] && dry=1
   [ "$#" -eq 0 ] || { [ "$#" -eq 1 ] && [ "$dry" -eq 1 ]; } || die "usage: dots link [--dry-run]"
-  local rel src dst state
-  while IFS= read -r -d '' rel; do
+  local i=0 root rel src dst state parent
+  while [ "$i" -lt "${#MANAGED_REL[@]}" ]; do
+    root="${MANAGED_ROOT[$i]}"; rel="${MANAGED_REL[$i]}"; i=$((i+1))
     relative_path "$rel"
-    src="$SRC/$rel"; dst="$HOME/$rel"; state="$(classify "$rel")"
+    src="$REPO/$root/$rel"; dst="$HOME/$rel"; state="$(classify "$root" "$rel")"
     case "$state" in
-      source-missing) die "repository source is not a regular file: $rel";;
+      source-missing) die "repository source is not a regular file: $root/$rel";;
       ok) [ "$dry" = 1 ] && echo "${c_ok}ok${c_off}    $rel";;
       *)
         echo "${c_ok}link${c_off}  $rel"
         [ "$dry" = 1 ] && continue
         mkdir -p "$(dirname "$dst")"
-        # Conflicting real file/dir -> back it up; stale symlink -> replace it.
-        replace_with_link "$src" "$dst" "$state"
+        # Conflicting real file/dir/foreign link -> back it up; stale repo link -> replace it.
+        replace_with_link "$src" "$dst" "$state" || die "failed to link $rel"
         ;;
     esac
-  done < <(managed_paths)
+  done
+  while IFS= read -r -d '' rel; do
+    relative_path "$rel"
+    echo "${c_warn}unlink${c_off} $rel ${c_dim}(managed only on other platforms)${c_off}"
+    [ "$dry" = 1 ] && continue
+    rm "$HOME/$rel"
+    # Drop directories that only existed for the removed link.
+    parent="$HOME/$rel"; parent="${parent%/*}"
+    while [ "$parent" != "$HOME" ] && rmdir "$parent" 2>/dev/null; do
+      parent="${parent%/*}"
+    done
+  done < <(orphan_paths)
   [ "$dry" = 1 ] && echo "${c_dim}(dry-run — nothing changed)${c_off}"
   return 0
 }
 
 cmd_status() {
   [ "$#" -eq 0 ] || die "usage: dots status"
-  local rel state ok=0 bad=0
-  while IFS= read -r -d '' rel; do
-    state="$(classify "$rel")"
+  local i=0 root rel state ok=0 bad=0
+  while [ "$i" -lt "${#MANAGED_REL[@]}" ]; do
+    root="${MANAGED_ROOT[$i]}"; rel="${MANAGED_REL[$i]}"; i=$((i+1))
+    state="$(classify "$root" "$rel")"
     case "$state" in
       ok)        printf "${c_ok}✓ ok      ${c_off}%s\n" "$rel"; ok=$((ok+1));;
       source-missing) printf "${c_err}✗ source  ${c_off}%s (repository file missing or not regular)\n" "$rel"; bad=$((bad+1));;
       missing)   printf "${c_err}✗ missing ${c_off}%s\n" "$rel"; bad=$((bad+1));;
       drift)     printf "${c_warn}⚠ drift   ${c_off}%s ${c_dim}(regular file — run: dots relink)${c_off}\n" "$rel"; bad=$((bad+1));;
+      stale)     printf "${c_warn}⚠ stale   ${c_off}%s ${c_dim}(old repository link — run: dots link)${c_off}\n" "$rel"; bad=$((bad+1));;
       wronglink) printf "${c_warn}⚠ wrong   ${c_off}%s ${c_dim}(symlink to elsewhere)${c_off}\n" "$rel"; bad=$((bad+1));;
     esac
-  done < <(managed_paths)
-  echo "${c_dim}---${c_off} ${c_ok}$ok ok${c_off}, ${c_warn}$bad need attention${c_off}"
+  done
+  while IFS= read -r -d '' rel; do
+    printf "${c_warn}⚠ orphan  ${c_off}%s ${c_dim}(managed only on other platforms — run: dots link)${c_off}\n" "$rel"
+    bad=$((bad+1))
+  done < <(orphan_paths)
+  echo "${c_dim}---${c_off} ${c_ok}$ok ok${c_off}, ${c_warn}$bad need attention${c_off} ${c_dim}(platform: $PLATFORM)${c_off}"
   if [ "$bad" -ne 0 ]; then
     return 1
   fi
@@ -171,18 +251,21 @@ cmd_status() {
 
 # Re-adopt drifted paths: copy the live $HOME file back into the repo, then relink.
 cmd_relink() {
-  local targets=("$@") rel src dst dir
+  local targets=("$@") rel src dst dir i=0 ROOT
   if [ ${#targets[@]} -eq 0 ]; then
-    while IFS= read -r -d '' rel; do
-      if [ "$(classify "$rel")" = drift ]; then targets+=("$rel"); fi
-    done < <(managed_paths)
+    while [ "$i" -lt "${#MANAGED_REL[@]}" ]; do
+      if [ "$(classify "${MANAGED_ROOT[$i]}" "${MANAGED_REL[$i]}")" = drift ]; then
+        targets+=("${MANAGED_REL[$i]}")
+      fi
+      i=$((i+1))
+    done
   fi
   [ ${#targets[@]} -eq 0 ] && { echo "nothing drifted."; return 0; }
   for rel in "${targets[@]}"; do
     relative_path "$rel"; rel="$REPLY"
     require_managed "$rel"
-    src="$SRC/$rel"; dst="$HOME/$rel"
-    [ -f "$src" ] && [ ! -L "$src" ] || die "repository source is not a regular file: $rel"
+    src="$REPO/$ROOT/$rel"; dst="$HOME/$rel"
+    [ -f "$src" ] && [ ! -L "$src" ] || die "repository source is not a regular file: $ROOT/$rel"
     [ -L "$dst" ] && { echo "${c_dim}skip (already symlink):${c_off} $rel"; continue; }
     [ -f "$dst" ] || die "$rel is not a regular file"
     echo "${c_ok}re-adopt${c_off} $rel"
@@ -207,16 +290,22 @@ cmd_relink() {
 
 # Move a real $HOME file into the repo, then symlink it back.
 cmd_adopt() {
-  [ "$#" -eq 1 ] || die "usage: dots adopt <path>"
-  local rel src dst
+  local root="$COMMON_ROOT"
+  if [ "${1:-}" = "--platform" ]; then root="$PLATFORM_ROOT"; shift; fi
+  [ "$#" -eq 1 ] || die "usage: dots adopt [--platform] <path>"
+  local rel src dst candidate
   relative_path "$1"; rel="$REPLY"
-  src="$SRC/$rel"; dst="$HOME/$rel"
+  src="$REPO/$root/$rel"; dst="$HOME/$rel"
   [ -f "$dst" ] && [ ! -L "$dst" ] || die "$dst is not a regular non-symlink file"
   [ ! -e "$src" ] && [ ! -L "$src" ] || die "$rel already exists in the repository (use dots relink)"
-  if git -C "$REPO" --literal-pathspecs ls-files --error-unmatch -- "home/$rel" >/dev/null 2>&1; then
-    die "$rel is already managed; restore its missing repository source first"
-  fi
-  if git -C "$REPO" --literal-pathspecs check-ignore -q -- "home/$rel"; then
+  # Refuse a second copy in any root, including other platforms' trees.
+  for candidate in "$REPO/$COMMON_ROOT" "$REPO"/home-*; do
+    [ -d "$candidate" ] || continue
+    if git -C "$REPO" --literal-pathspecs ls-files --error-unmatch -- "${candidate##*/}/$rel" >/dev/null 2>&1; then
+      die "$rel is already managed in ${candidate##*/}/; restore its repository source instead"
+    fi
+  done
+  if git -C "$REPO" --literal-pathspecs check-ignore -q -- "$root/$rel"; then
     die "$rel is ignored by Git"
   fi
   mkdir -p "$(dirname "$src")"
@@ -230,19 +319,19 @@ cmd_adopt() {
     mv "$src" "$dst" || die "restore failed; recover from $src"
     die "failed to stage $rel (original restored)"
   fi
-  echo "${c_ok}adopted${c_off} $rel  ${c_dim}(staged; commit in ~/dotfiles)${c_off}"
+  echo "${c_ok}adopted${c_off} $rel -> $root/  ${c_dim}(staged; commit in ~/dotfiles)${c_off}"
 }
 
 # Detach: replace a symlink with a real independent copy.
 cmd_unlink() {
   [ "$#" -eq 1 ] || die "usage: dots unlink <path>"
-  local rel dst dir bak
+  local rel dst dir bak ROOT
   relative_path "$1"; rel="$REPLY"
   require_managed "$rel"
   dst="$HOME/$rel"
-  [ -L "$dst" ] && [ "$(classify "$rel")" = ok ] || die "$dst is not a healthy managed symlink"
+  [ -L "$dst" ] && [ "$(classify "$ROOT" "$rel")" = ok ] || die "$dst is not a healthy managed symlink"
   dir="$(mktemp -d "${dst}.predots-unlink.XXXXXXXX")"
-  if ! cp -p "$SRC/$rel" "$dir/copy"; then
+  if ! cp -p "$REPO/$ROOT/$rel" "$dir/copy"; then
     rm -f "$dir/copy"; rmdir "$dir"
     die "failed to copy $dst (symlink left intact)"
   fi
@@ -259,7 +348,10 @@ cmd_unlink() {
   echo "${c_ok}detached${c_off} $dst  ${c_dim}(now a real copy)${c_off}"
 }
 
-usage() { sed -n '2,14p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+# Print the header comment block (everything after the shebang up to `set`).
+usage() {
+  awk 'NR == 1 { next } /^#/ { sub(/^# ?/, ""); print; next } { exit }' "${BASH_SOURCE[0]}"
+}
 
 case "${1:-}" in
   link|status|relink|adopt|unlink) load_managed_paths;;
