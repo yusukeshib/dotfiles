@@ -49,6 +49,20 @@ Shared guidance for coding agents working under `$HOME`.
   high-risk concerns, or explicit requests—not routine approval. Verify its
   suggestions against the code and user goal.
 
+## Handoff and summary readability
+
+- Keep normal grammar, word spacing, and readable bullets in all handoffs,
+  summaries, compaction instructions, and continuation prompts.
+- Do not concatenate words, invent abbreviations, or use telegraphic fragments
+  to squeeze more information into less space. Preserve exact code identifiers,
+  paths, and existing technical terms when needed.
+- Shorten by removing repetition and obsolete history, not by dropping conditions,
+  negations, or the scope of verification.
+- Separate current state, settled decisions, verified and unverified results,
+  and concrete next actions.
+- If details do not fit, save them in a file and reference its path from a readable
+  summary. Apply these same rules when instructing a delegated summarizer.
+
 ## Git and task completion
 
 - Prefer independent PRs from the base branch. Stack only for a real dependency
