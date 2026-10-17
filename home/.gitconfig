@@ -5,7 +5,7 @@
 
 [core]
   # Never block non-interactive callers (agents, scripts) on a pager or editor.
-  # Interactive zsh opts back into $EDITOR through its git() wrapper.
+  # Keep this default in interactive shells too; opt in with GIT_EDITOR explicitly.
   pager = cat
   editor = true
 

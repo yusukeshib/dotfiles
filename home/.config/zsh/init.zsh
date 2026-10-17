@@ -247,18 +247,6 @@ function git_current_branch() {
   command git symbolic-ref --short HEAD 2>/dev/null
 }
 
-# ~/.gitconfig sets core.editor=true so agents and other non-interactive callers
-# never block on an editor. Interactive commands opt back into $EDITOR per call:
-# unlike an exported GIT_EDITOR, a shell function is not inherited by child
-# processes such as pi, which must keep the non-blocking editor.
-git() {
-  if [[ -n ${GIT_EDITOR:-$EDITOR} ]]; then
-    GIT_EDITOR=${GIT_EDITOR:-$EDITOR} command git "$@"
-  else
-    command git "$@"
-  fi
-}
-
 alias g='git'
 
 # dotfiles: normal git repo at ~/dotfiles (home/ and home-<platform>/ trees are
