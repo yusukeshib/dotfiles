@@ -4,8 +4,7 @@
   "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "high",
   "defaultTools": [
-    "+tool_search",
-    "+codemode"
+    "+tool_search"
   ],
   "theme": "websafe",
   "themes": [
