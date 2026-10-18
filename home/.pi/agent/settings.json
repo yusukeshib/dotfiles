@@ -27,7 +27,9 @@
   "skills": [
     "~/.agents/skills"
   ],
-  "extensions": [],
+  "extensions": [
+    "-builtin:codemode"
+  ],
   "warnings": {
     "anthropicExtraUsage": false
   },
