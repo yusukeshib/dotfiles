@@ -64,7 +64,7 @@ brew "hashicorp/tap/terraform"
 # macOS-only formulae and casks
 brew "terminal-notifier" if OS.mac?
 cask "blackhole-2ch" if OS.mac?
-cask "abue-ammar/tinycast/tinycast" if OS.mac?
+cask "abue-ammar/tinycast/tinycast" if OS.mac? && MacOS.version >= :tahoe
 
 # After installation, run: gcloud components install gke-gcloud-auth-plugin
 cask "gcloud-cli" if OS.mac?
