@@ -48,10 +48,8 @@
     "npm:@yusukeshib/pi-ping@0.x"
   ],
   "enabledModels": [
-    "openai-codex/gpt-6-astra",
     "openai-codex/gpt-6.1-sol",
-    "anthropic/claude-opus-5-5",
-    "anthropic/claude-sonnet-5-5"
+    "anthropic/claude-opus-5-5"
   ],
   "compaction": {
     "enabled": true
