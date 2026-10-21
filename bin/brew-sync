@@ -1,7 +1,6 @@
 #!/bin/sh
 # Converge Homebrew on ~/Brewfile: install what is listed, then remove what is
-# not. On a terminal, show the removal list and ask first; non-interactive
-# callers (brew-add/brew-remove from agents) keep full convergence.
+# not, without asking for confirmation.
 
 brewfile="$HOME/Brewfile"
 
@@ -18,14 +17,5 @@ case "$preview" in
     *) printf '%s\n' "$preview" >&2; exit 1 ;;
 esac
 printf '%s\n' "$preview"
-
-if [ -t 0 ] && [ -t 1 ]; then
-    printf 'Remove these packages? [y/N] '
-    read -r answer
-    case "$answer" in
-        y|Y|yes|YES) ;;
-        *) echo 'Cleanup skipped.'; exit 0 ;;
-    esac
-fi
 
 brew bundle cleanup --force --file="$brewfile"

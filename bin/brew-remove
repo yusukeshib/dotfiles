@@ -2,7 +2,7 @@
 
 usage() {
     echo 'Usage: brew-remove [--formula|--cask|--tap|other brew bundle remove options] name [...]'
-    echo 'Removes entries from ~/Brewfile, then runs brew-sync (install + cleanup; cleanup asks first on a terminal).'
+    echo 'Removes entries from ~/Brewfile, then runs brew-sync (install + cleanup; cleanup runs without confirmation).'
 }
 
 if [ "$#" -eq 0 ]; then
