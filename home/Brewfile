@@ -77,3 +77,5 @@ cask "gcloud-cli" if OS.mac?
 #   (pi lsp.json and Neovim use ~/.cargo/bin/rust-analyzer).
 # - cargo-expand (Neovim <leader>o on a Rust struct): cargo install cargo-expand --locked
 # - gh-dash: gh extension install dlvhdr/gh-dash
+# Next-generation test runner for Rust
+brew "cargo-nextest"
