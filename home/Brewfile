@@ -25,6 +25,7 @@ brew "difftastic" # `git dft`
 brew "direnv"
 brew "dylibbundler"
 brew "docker"
+brew "dust"
 brew "fd"
 brew "ffmpeg@7" # keg-only; init.zsh puts its bin/ on PATH
 brew "fzf"
@@ -63,7 +64,6 @@ brew "hashicorp/tap/terraform"
 
 # macOS-only formulae and casks
 brew "terminal-notifier" if OS.mac?
-cask "blackhole-2ch" if OS.mac?
 cask "abue-ammar/tinycast/tinycast" if OS.mac? && MacOS.version >= :tahoe
 
 # After installation, run: gcloud components install gke-gcloud-auth-plugin
