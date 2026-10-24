@@ -48,7 +48,8 @@ All paths below are real `$HOME` paths:
 | zsh init / aliases / env | `~/.config/zsh/init.zsh` |
 | zsh plugins / helpers | `~/.config/zsh/plugins.zsh`, `~/.config/zsh/utils.zsh` |
 | git | `~/.gitconfig`, `~/.config/git/gitconfig_darwin` (macOS only) |
-| prompt / terminal | `~/.config/starship.toml`, `~/.config/tmux/tmux.conf`, `~/.config/ghostty/` |
+| prompt (native zsh + gitstatus) | `~/.config/zsh/prompt.zsh` |
+| terminal | `~/.config/tmux/tmux.conf`, `~/.config/ghostty/` |
 | neovim | `~/.config/nvim/` |
 | atuin / direnv | `~/.config/atuin/config.toml`, `~/.config/direnv/direnv.toml` |
 | Homebrew | `~/Brewfile` |
@@ -56,7 +57,12 @@ All paths below are real `$HOME` paths:
 | pi agent | `~/.pi/agent/settings.json`, `lsp.json`, `AGENTS.md` |
 | macOS LaunchAgents | `~/Library/LaunchAgents/` (macOS only) |
 
-`~/.codex/` is intentionally untracked (`.gitignore`).
+`~/.codex/` is intentionally untracked (`.gitignore`). Machine-local environment
+and secrets go in the untracked `~/.config/zsh/local.zsh` (sourced by `init.zsh`);
+do not put them in `~/.envrc`, which would make direnv run on every prompt.
+
+Keep the per-prompt path free of external commands: Homebrew binaries can take
+200-300ms to start after a few idle seconds on the work Mac (endpoint security).
 
 ## Configuration conventions
 

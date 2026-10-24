@@ -15,6 +15,7 @@ for repo in zsh-users/zsh-completions \
             zsh-users/zsh-autosuggestions \
             zsh-users/zsh-history-substring-search \
             Aloxaf/fzf-tab \
+            romkatv/gitstatus \
             zsh-users/zsh-syntax-highlighting; do
   name="${repo##*/}"
   if [ ! -d "$ZSH_PLUGIN_DIR/$name" ]; then
@@ -22,6 +23,8 @@ for repo in zsh-users/zsh-completions \
     git clone --depth=1 "https://github.com/$repo" "$ZSH_PLUGIN_DIR/$name"
   fi
 done
+# Prefetch gitstatusd (used by the prompt) so the first shell doesn't download it.
+"$ZSH_PLUGIN_DIR/gitstatus/install"
 
 # TPM uses ~/.config/tmux/plugins/ because tmux.conf lives in the XDG location.
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"

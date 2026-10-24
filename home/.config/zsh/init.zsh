@@ -110,39 +110,32 @@ bindkey '^[[B' history-substring-search-down
 # Native tool integrations
 #
 
-if type "starship" > /dev/null; then
-  # Keep distinct hostname badges, using ANSI colors from the terminal's theme.
-  _starship_config_for_host() {
-    local base="$HOME/.config/starship.toml"
-    local -a colors
-    local platform checksum bytes color config tmp
-    if [[ $OSTYPE == darwin* ]]; then
-      platform=macos
-      colors=( purple blue red cyan )
-    else
-      platform=linux
-      colors=( cyan red yellow green blue purple )
-    fi
-    read -r checksum bytes < <(printf '%s' "$HOST" | cksum)
-    color=${colors[$((checksum % ${#colors} + 1))]}
-    config="$ZSH_CACHE_DIR/starship-host-palette-${platform}-${checksum}.toml"
-    if [[ ! -s $config || $config -ot $base ]]; then
-      tmp=$(mktemp "$config.XXXXXXXX") || return 1
-      if ! sed "s/^style = \"bold black bg:purple\"$/style = \"bold black bg:$color\"/" "$base" > "$tmp"; then
-        rm -f "$tmp"
-        return 1
-      fi
-      mv -f "$tmp" "$config" || { rm -f "$tmp"; return 1; }
-    fi
-    export STARSHIP_CONFIG=$config
-  }
-  _starship_config_for_host
-  unfunction _starship_config_for_host
-  _cached_eval starship starship init zsh
-fi
+# Prompt: native zsh + gitstatusd; no external exec per prompt.
+source ${0:A:h}/prompt.zsh
+
+# Machine-local, untracked environment (API keys etc.). Formerly ~/.envrc via
+# direnv, which forced a direnv exec on every prompt everywhere under $HOME.
+[[ -r $HOME/.config/zsh/local.zsh ]] && source "$HOME/.config/zsh/local.zsh"
 
 if type "direnv" > /dev/null; then
   _cached_eval direnv direnv hook zsh
+  # direnv's hook execs `direnv export` on every prompt. Run it only when an
+  # .envrc exists in $PWD or an ancestor, or when an environment is loaded and
+  # may need unloading ($DIRENV_DIR). This check is a few stat calls.
+  _direnv_gate() {
+    if [[ -z $DIRENV_DIR ]]; then
+      local d=$PWD
+      while [[ ! -e $d/.envrc ]]; do
+        [[ $d == / ]] && return 0
+        d=${d:h}
+      done
+    fi
+    _direnv_hook
+  }
+  add-zsh-hook -d precmd _direnv_hook
+  add-zsh-hook -d chpwd _direnv_hook
+  add-zsh-hook precmd _direnv_gate
+  add-zsh-hook chpwd _direnv_gate
 fi
 
 if type "fzf" > /dev/null; then
@@ -460,6 +453,23 @@ fi
 
 
 if type "atuin" > /dev/null; then
+  # Generate the session id (UUIDv7, simple format, as `atuin uuid` prints)
+  # in-shell so the init below skips its `atuin uuid` exec.
+  if [[ -z ${ATUIN_SESSION:-} || ${ATUIN_SHLVL:-} != $SHLVL ]]; then
+    () {
+      emulate -L zsh -o no_multibyte
+      zmodload zsh/system zsh/datetime 2>/dev/null || return
+      local buf c hex
+      sysread -s 10 buf < /dev/urandom 2>/dev/null && (( $#buf == 10 )) || return
+      for c in ${(s::)buf}; do hex+=${(l:2::0:)$(( [##16] #c ))}; done
+      hex=${(L)hex}
+      local -i ms=$(( ${EPOCHREALTIME%.*} * 1000 + 10#${${EPOCHREALTIME#*.}[1,3]} ))
+      local ts=${(L)${(l:12::0:)$(( [##16] ms ))}}
+      local -i v=$(( 0x${hex[4,5]} & 0x3f | 0x80 ))
+      export ATUIN_SESSION="${ts}7${hex[1,3]}${(L)$(( [##16] v ))}${hex[6,19]}"
+      export ATUIN_SHLVL=$SHLVL
+    }
+  fi
   _cached_eval atuin atuin init zsh --disable-up-arrow
   bindkey '^r' atuin-search
 fi
