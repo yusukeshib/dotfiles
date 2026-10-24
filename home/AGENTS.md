@@ -67,6 +67,8 @@ Shared guidance for coding agents working under `$HOME`.
 
 - Prefer independent PRs from the base branch. Stack only for a real dependency
   and with user approval. Do not start CI watchers unless explicitly requested.
+- Always add the `auto-approval-allowed` label to every PR you create (for
+  example, `gh pr create --label auto-approval-allowed`), and verify it is set.
 - After completing and validating repository changes, commit and push task-owned
   files unless told not to. If unsafe or unsuccessful, report the blocker.
 - For PR feedback, track each thread through fix, validation, commit, and push.
