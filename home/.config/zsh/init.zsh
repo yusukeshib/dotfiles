@@ -487,6 +487,8 @@ if type "box" > /dev/null; then
   _cached_eval box box config zsh
   # The layer strategy (APFS disk image clones) is macOS-only.
   [[ $OSTYPE == darwin* ]] && export BOX_STRATEGY=layer
+  # Skip fetching sources on `box workspace add`; refresh with `box workspace update`.
+  export BOX_UPDATE=no
 fi
 
 # Google Cloud SDK: add its bin/ to PATH and load completions. Homebrew installs
