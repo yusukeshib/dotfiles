@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "1.4.0",
-  "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6.1-sol",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-5-5",
   "defaultThinkingLevel": "high",
   "defaultTools": [
     "+tool_search"
@@ -43,7 +43,6 @@
     "npm:@yusukeshib/pi-stash@0.x",
     "npm:@yusukeshib/pi-datetime@0.x",
     "npm:@yusukeshib/pi-colored-model-status@0.x",
-    "npm:@yusukeshib/pi-image-context-cache@0.x",
     "npm:@yusukeshib/pi-agent-controls@0.x",
     "npm:@yusukeshib/pi-ping@0.x"
   ],
@@ -64,8 +63,9 @@
   "tuiMode": "fullscreen",
   "showHardwareCursor": true,
   "images": {
-    "blockImages": true
+    "blockImages": false
   },
   "fullscreenWheelScrollLines": "auto",
-  "fullscreenScrollbar": "always"
+  "fullscreenScrollbar": "always",
+  "deviceId": "620ff0be-172a-49e2-b84c-320f6b99fb75"
 }
