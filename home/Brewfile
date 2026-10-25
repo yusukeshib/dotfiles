@@ -4,7 +4,7 @@
 tap "abue-ammar/tinycast", trusted: true
 tap "hashicorp/tap", trusted: { formula: "terraform" }
 tap "withgraphite/tap", trusted: { formula: "graphite" }
-tap "yusukeshib/tap", trusted: { formula: "box" }
+tap "yusukeshib/tap", trusted: { formula: ["box", "babysit"] }
 
 # CLI tools and runtimes
 brew "ast-grep"
@@ -14,9 +14,11 @@ brew "bash"
 brew "bat"
 brew "binaryen"
 brew "yusukeshib/tap/box"
+brew "yusukeshib/tap/babysit"
 brew "bottom"
 brew "buf"
 brew "bun"
+brew "cargo-nextest"
 brew "cloudflare-wrangler"
 brew "cmake"
 brew "colima"
@@ -68,12 +70,7 @@ cask "abue-ammar/tinycast/tinycast" if OS.mac? && MacOS.version >= :tahoe
 cask "gcloud-cli" if OS.mac?
 
 # Tools managed outside Homebrew:
-# - babysit: cargo install --path ~/projects/babysit --locked
-#   Clone https://github.com/yusukeshib/babysit into ~/projects/babysit first.
-#   Keep ~/.cargo/bin ahead of Homebrew in PATH; reinstall after source changes.
 # - Rust toolchain: https://rustup.rs, then `rustup component add rust-analyzer`
 #   (pi lsp.json and Neovim use ~/.cargo/bin/rust-analyzer).
 # - cargo-expand (Neovim <leader>o on a Rust struct): cargo install cargo-expand --locked
 # - gh-dash: gh extension install dlvhdr/gh-dash
-# Next-generation test runner for Rust
-brew "cargo-nextest"
