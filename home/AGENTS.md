@@ -14,6 +14,9 @@ Shared guidance for coding agents working under `$HOME`.
   another checkout. Confirm the target repo and worktree with `pwd` and
   `git status --short --branch`; recheck before committing or pushing. Never
   include unrelated changes in commits.
+- After a task's PR merges (or the task is abandoned), remove its task-owned
+  worktrees and their build outputs (`target/`, scratch `tmp/`). Do not delete
+  shared caches or other tasks' worktrees.
 - Home configuration may be symlinked into `~/dotfiles`. Check the link target
   and follow that repository's `AGENTS.md` for managed files.
 - Routine history updates on your task branch need no separate approval; use
