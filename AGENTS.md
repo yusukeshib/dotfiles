@@ -73,6 +73,10 @@ Keep the per-prompt path free of external commands: Homebrew binaries can take
 - Edit `~/.gitconfig` directly. Put macOS-only settings in
   `~/.config/git/gitconfig_darwin` (tracked in `home-darwin/`); its trailing
   include in `~/.gitconfig` must remain last so platform overrides win.
+- Git must stay fully non-interactive (`core.editor = true`, `core.pager = cat`,
+  `credential.interactive = false`). Do not add config or aliases that open an
+  editor, pager, or prompt (`--interactive`, `--patch`, commit/tag without a
+  message).
 - Track desired packages in the shared `~/Brewfile`. Guard platform-specific
   entries with `if OS.mac?` or `if OS.linux?`. Edit the file, then when requested
   converge and verify with:

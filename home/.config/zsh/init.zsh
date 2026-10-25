@@ -249,7 +249,6 @@ alias g='git'
 # add
 alias ga='git add'
 alias gaa='git add --all'
-alias gapa='git add --patch'
 alias gau='git add --update'
 
 # branch
@@ -278,16 +277,13 @@ alias grss='git restore --source'
 alias grst='git restore --staged'
 
 # commit
-alias gc='git commit --verbose'
-alias gca='git commit --verbose --all'
+# Git never opens an editor (core.editor = true), so every commit alias must
+# carry its message (--message) or keep the existing one (--no-edit).
 alias gcam='git commit --all --message'
 alias gcams='git commit --all --signoff --message'
 alias gcmsg='git commit --message'
-alias gc!='git commit --verbose --amend'
-alias gca!='git commit --verbose --all --amend'
-alias gcn!='git commit --verbose --no-edit --amend'
-alias gcan!='git commit --verbose --all --no-edit --amend'
-alias gcas='git commit --all --signoff'
+alias gcn!='git commit --no-edit --amend'
+alias gcan!='git commit --all --no-edit --amend'
 alias gcfx='git commit --fixup'
 
 # clone
@@ -303,7 +299,6 @@ alias gds='git diff --staged'
 alias gdw='git diff --word-diff'
 alias gdup='git diff @{upstream}'
 alias gdt='git diff-tree --no-commit-id --name-only -r'
-function gdv() { git diff -w "$@" | view -; }
 
 # fetch
 alias gf='git fetch'
@@ -344,7 +339,6 @@ alias gcount='git shortlog --summary --numbered'
 alias grb='git rebase'
 alias grba='git rebase --abort'
 alias grbc='git rebase --continue'
-alias grbi='git rebase --interactive'
 alias grbs='git rebase --skip'
 alias grbo='git rebase --onto'
 alias grbm='git rebase $(git_main_branch)'
@@ -397,7 +391,6 @@ alias gcpa='git cherry-pick --abort'
 alias gcpc='git cherry-pick --continue'
 
 # clean / rm
-alias gclean='git clean --interactive -d'
 alias grm='git rm'
 alias grmc='git rm --cached'
 
@@ -415,7 +408,6 @@ alias gwch='git log --raw --no-merges -p --abbrev-commit --pretty=medium'
 
 # tag
 alias gtv='git tag | sort -V'
-alias gta='git tag --annotate'
 
 # worktree
 alias gwt='git worktree'

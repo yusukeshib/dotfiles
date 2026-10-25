@@ -4,8 +4,9 @@
   signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHU+tFJRax7dVnTEiFM2+kwasijxiQ/GxXm0UqOXTTE
 
 [core]
-  # Never block non-interactive callers (agents, scripts) on a pager or editor.
-  # Keep this default in interactive shells too; opt in with GIT_EDITOR explicitly.
+  # Git is fully non-interactive everywhere: no pager, no editor, no prompts.
+  # `editor = true` also covers the rebase todo list (sequence.editor), so pass
+  # messages with -m/-F/--no-edit and never use -i/-p/--interactive commands.
   pager = cat
   editor = true
 
@@ -19,12 +20,8 @@
   process = git-lfs filter-process
   required = true
 
-[interactive]
-  diffFilter = delta --color-only
-
-# Used when delta is run directly (e.g. `git diff | delta`). Git itself never pages
-# through delta (core.pager = cat), and --color-only above keeps `git add -p`
-# hunks structurally unchanged, so these layout options do not apply there.
+# Used only when delta is run directly (e.g. `git diff | delta`); Git itself
+# never pages through delta (core.pager = cat).
 [delta]
   navigate = true  # use n and N to move between diff sections
   line-numbers = true
@@ -45,7 +42,6 @@
 
 [commit]
   gpgsign = false
-  verbose = true
 
 [branch]
   sort = -committerdate
@@ -79,6 +75,10 @@
 
 [alias]
   dft = "-c diff.external=difft diff"
+
+[credential]
+  # Fail instead of prompting for a username/password (Git 2.46+).
+  interactive = false
 
 [credential "https://github.com"]
 	helper =
