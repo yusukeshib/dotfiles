@@ -22,7 +22,6 @@ brew "cmake"
 brew "colima"
 brew "coreutils"
 brew "difftastic" # `git dft`
-brew "direnv"
 brew "dylibbundler"
 brew "docker"
 brew "dust"
