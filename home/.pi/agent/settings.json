@@ -60,7 +60,7 @@
   "collapseChangelog": false,
   "treeFilterMode": "user-only",
   "defaultProjectTrust": "always",
-  "tuiMode": "regular",
+  "tuiMode": "fullscreen",
   "showHardwareCursor": true,
   "images": {
     "blockImages": false
