@@ -18,6 +18,9 @@ typeset -U path
 path=(
   "$HOME/.local/bin"
   "$HOME/.cargo/bin"
+  # Homebrew, so non-interactive SSH commands (e.g. `ssh host babysit ...`)
+  # find brew-installed tools; (N-/) keeps only directories that exist.
+  /opt/homebrew/bin(N-/) /opt/homebrew/sbin(N-/)
   $path
 )
 if [[ -d /home/linuxbrew/.linuxbrew/bin ]]; then
