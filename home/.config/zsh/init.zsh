@@ -157,10 +157,6 @@ fi
 # Aliases
 #
 
-# ls
-alias ll='ls -lg --color'
-alias la='ls -la --color'
-
 # Session helpers for tmux.
 if type "tmux" > /dev/null; then
   _tmux_new() {
@@ -221,6 +217,14 @@ fi
 if type "nvim" > /dev/null; then
   alias vi="nvim"
   alias vim="nvim"
+fi
+
+if type "lsd" > /dev/null; then
+  alias ls='lsd'
+  alias ll='lsd -l'
+  alias la='lsd -a'
+  alias lla='lsd -la'
+  alias lt='lsd --tree'
 fi
 
 # git aliases (replaces the ohmyzsh git plugin)
