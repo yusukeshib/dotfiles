@@ -80,20 +80,6 @@ replaces a **file** symlink with a regular file. `dots status` flags these as
 `drift`; run `dots relink` to pull the new content back into the repo, then
 commit. Only tracked files are linked; runtime state remains untracked.
 
-## Rex GUI preferences (macOS)
-
-`~/Library/Preferences/com.superlogical.rex.plist` is symlinked directly to
-`home-darwin/Library/Preferences/com.superlogical.rex.plist`. No export/apply
-helper is needed. This tracks the entire plist, including custom themes,
-session/activity state, and machine-specific preferences; review diffs before
-committing. Rex's Lua `init.lua` configuration is separate.
-
-macOS may replace the symlink when saving preferences. If `dots status` reports
-`drift`, run `dots relink Library/Preferences/com.superlogical.rex.plist` before
-committing. Quit Rex before restoring preferences on another Mac and reopen it
-afterward; macOS preference caching may delay recognition of external changes.
-The font `Paper Mono` must be installed separately.
-
 ## Pi packages
 
 `settings.json` pins third-party packages to exact versions (bump them
