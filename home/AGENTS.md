@@ -92,11 +92,22 @@ Shared guidance for coding agents working under `$HOME`.
 
 ## Agent tools
 
-- Use `openai-codex/gpt-6.1-sol`. Instruct every pi implementation subagent to call
+- Do the work yourself, sequentially, by default. Use a subagent only when the
+  user asks, when a task needs far more context to read than its result size
+  (so it would bloat your context), or when several independent, long-running
+  tasks can truly run in parallel without touching the same files. Never delegate
+  quick lookups, single-file edits, or short command runs. Delegate only work
+  that you can specify completely up front and that the subagent can finish
+  without further guidance; if it would need back-and-forth, do it yourself.
+  When you delegate, state the reason in one sentence. Do not steer a running
+  subagent repeatedly; if it returns blocked or with an unusable result, finish
+  the work yourself instead of re-delegating.
+- If you use a pi implementation subagent, use `openai-codex/gpt-6.1-sol` with the
+  provider-qualified name, and instruct it to call
   `set_thinking_level({"level":"low"})` before work and report the effective level;
   do not assume it inherits the parent's level. If blocked by a design issue,
   have it stop and return to the parent for replanning at `high`, not improvise
-  beyond the plan at `low`. Use the provider-qualified name for model overrides.
+  beyond the plan at `low`.
 - At the plan-to-work handoff, if reported context usage is 65% or higher, save
   the plan, decisions, exact state needed for implementation, and next action;
   then compact and begin work at `low`. Below 65%, switch directly to `low`
@@ -105,7 +116,7 @@ Shared guidance for coding agents working under `$HOME`.
 - In pi, use `babysit_run` for commands lasting more than a few seconds; no legacy
   `process`, `&`, or `nohup`. Name sessions clearly. After a background start, wait
   for notification instead of polling; use `continueAfterStart` only for immediate,
-  specific work. Collect every delegated subagent's result before finishing.
+  specific work.
 - A Linux machine is available over SSH as `yusuke-t4`. When Linux is needed,
   use `babysit_run` with `host: "yusuke-t4"`, for example
   `babysit_run({"host":"yusuke-t4","command":"uname -a","foreground":true})`.
