@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.4.0",
+  "lastChangelogVersion": "1.5.0",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6.1-sol",
   "defaultThinkingLevel": "high",
@@ -67,5 +67,8 @@
   },
   "fullscreenWheelScrollLines": "auto",
   "fullscreenScrollbar": "always",
-  "deviceId": "620ff0be-172a-49e2-b84c-320f6b99fb75"
+  "deviceId": "620ff0be-172a-49e2-b84c-320f6b99fb75",
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-web-access@0.41.0\",\"scope\":\"user\"}": "0.41.0"
+  }
 }
