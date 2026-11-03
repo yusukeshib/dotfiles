@@ -9,7 +9,8 @@ that finds any of:
   - an unresolved review thread whose latest comment is not by you,
   - a new review (with a body or CHANGES_REQUESTED) or PR comment by someone
     else, posted after the watch started,
-  - the head commit changing (someone else pushed).
+  - the head commit changing (someone else pushed), or not reaching --head
+    within 120 s.
 
 All events found in that poll are printed, so handle every one of them.
 
@@ -110,6 +111,8 @@ EXIT_ACTION = 10
 EXIT_CLOSED = 20
 
 MAX_API_FAILURES = 5
+HEAD_SYNC_TIMEOUT = 120
+HEAD_SYNC_INTERVAL = 5
 LOW_BUDGET = 100
 RATE_LIMIT_BACKOFF = 60
 RATE_LIMIT_BACKOFF_MAX = 900
@@ -313,6 +316,11 @@ def main():
         "having none (default 180)",
     )
     parser.add_argument(
+        "--head",
+        help="commit SHA you just pushed; wait until the PR reports it before "
+        "judging, so a stale green head is never reported ready",
+    )
+    parser.add_argument(
         "--ignore-author",
         action="append",
         default=[],
@@ -325,6 +333,22 @@ def main():
             lambda: resolve_pr(args.pr, args.repo), args.interval
         )
         me, pr, rate = call_api(lambda: fetch(owner, name, number), args.interval)
+        deadline = time.monotonic() + HEAD_SYNC_TIMEOUT
+        while (
+            args.head
+            and pr["state"] == "OPEN"
+            and not pr["headRefOid"].startswith(args.head)
+        ):
+            if time.monotonic() >= deadline:
+                log(
+                    f"EVENT head_mismatch expected={args.head[:10]}"
+                    f" pr={pr['headRefOid'][:10]}"
+                )
+                log("RESULT action_needed events=1")
+                return EXIT_ACTION
+            log(f"WAIT head expected={args.head[:10]} pr={pr['headRefOid'][:10]}")
+            time.sleep(HEAD_SYNC_INTERVAL)
+            me, pr, rate = call_api(lambda: fetch(owner, name, number), args.interval)
     except ApiError as e:
         log(f"RESULT api_error {e}")
         return EXIT_API

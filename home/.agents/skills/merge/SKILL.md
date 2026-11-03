@@ -21,14 +21,19 @@ the current branch or other open PRs.
    the diff. Add a test for behavior fixes. Resolve conflicts against the
    latest base, keeping both sides' intent. Ask only if a fix would change the
    agreed design.
+   Verify locally only with fast, targeted checks (the failing test, lint on
+   touched files). Do not run heavy builds, full suites, or GPU jobs that CI
+   already runs; push and let CI and the watcher report.
 3. **Push**, reply to each addressed thread (what changed, test name), and
    resolve it. Leave disagreements open with a reply giving evidence.
 4. **Watch** right after each push, and before the first round: run
-   `~/.agents/skills/merge/watch_pr.py <pr> [--repo OWNER/REPO]` as a
-   supervised background process with no idle timeout. Never end the task
-   while it runs. On exit:
+   `~/.agents/skills/merge/watch_pr.py <pr> --head <pushed SHA> [--repo
+   OWNER/REPO]` as a supervised background process with no idle timeout.
+   `--head` is required after a push: GitHub reports the old head for a few
+   seconds, and without it a stale green head can be reported ready. Never end
+   the task while it runs. On exit:
    - `10` action needed: handle every `EVENT` line, then go to 1. Pull first
-     on `head_changed`.
+     on `head_changed` or `head_mismatch`.
    - `0` ready: go to 5. On `mergeStateStatus=BEHIND`, update the branch and
      watch again.
    - `20` closed or merged: stop.
