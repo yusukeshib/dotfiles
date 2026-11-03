@@ -34,12 +34,11 @@ the current branch or other open PRs.
    the task while it runs. On exit:
    - `10` action needed: handle every `EVENT` line, then go to 1. Pull first
      on `head_changed` or `head_mismatch`.
-   - `0` ready: go to 5. On `mergeStateStatus=BEHIND`, update the branch and
-     watch again.
+   - `0` ready (green and approved): go to 5. On `mergeStateStatus=BEHIND`,
+     update the branch and watch again.
    - `20` closed or merged: stop.
    - `3` API kept failing: report the blocker.
-5. **Merge** when ready and approved, using the repo's merge method and label
-   policy without bypass. Confirm the merge and clean up.
+5. **Merge** using the repo's merge method and label policy, without bypass. Confirm the merge and clean up.
 
 Report once at the end: rounds, fixes, tests, final state, anything unverified.
 
@@ -52,5 +51,9 @@ Report once at the end: rounds, fixes, tests, final state, anything unverified.
 - Waits for each review bot (bots that already reviewed this PR, plus
   `--bot LOGIN`) to review the head commit, up to `--bot-timeout` (900 s)
   after checks pass.
+- Then waits, without a time limit, until the PR is approved: GitHub's
+  `reviewDecision` when reviews are required, otherwise another reviewer's
+  latest approval with no outstanding change request. Keep it running while
+  waiting; new feedback still ends it at once.
 - `--ignore-author LOGIN` skips noisy comment bots (coverage, preview deploys).
 - Waits out rate limits by itself; `3` means a non-rate-limit failure.

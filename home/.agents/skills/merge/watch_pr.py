@@ -15,8 +15,9 @@ that finds any of:
 All events found in that poll are printed, so handle every one of them.
 
 Exit codes:
-  0   ready: all checks finished green, no conflict, no new feedback, and every
-      review bot posted a review for the head commit (or --bot-timeout passed)
+  0   ready: all checks finished green, no conflict, no new feedback, every
+      review bot posted a review for the head commit (or --bot-timeout passed),
+      and the PR is approved (waits indefinitely; --no-approval skips this)
   10  action needed: see the EVENT lines
   20  PR is closed or merged
   3   GitHub API kept failing (not counting rate limits)
@@ -279,6 +280,30 @@ def review_bots(pr, extra):
     return bots
 
 
+def approval_state(pr, me):
+    """Return APPROVED, CHANGES_REQUESTED, or PENDING.
+
+    Uses GitHub's reviewDecision when branch protection requires reviews;
+    otherwise each other reviewer's latest decisive review.
+    """
+    decision = pr.get("reviewDecision")
+    if decision in ("APPROVED", "CHANGES_REQUESTED"):
+        return decision
+    if decision == "REVIEW_REQUIRED":
+        return "PENDING"
+    latest = {}
+    for r in pr["reviews"]["nodes"]:  # oldest first
+        who = login_of(r)
+        if who != me and r["state"] in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED"):
+            latest[who] = r["state"]
+    states = set(latest.values())
+    if "CHANGES_REQUESTED" in states:
+        return "CHANGES_REQUESTED"
+    if "APPROVED" in states:
+        return "APPROVED"
+    return "PENDING"
+
+
 def bots_missing(pr, bots, head):
     reviewed = {
         login_of(r)
@@ -314,6 +339,11 @@ def main():
         default=180,
         help="seconds to wait for checks to appear before treating the PR as "
         "having none (default 180)",
+    )
+    parser.add_argument(
+        "--no-approval",
+        action="store_true",
+        help="report ready without waiting for an approval",
     )
     parser.add_argument(
         "--head",
@@ -389,10 +419,13 @@ def main():
         checks_done = no_checks or (total > 0 and not pending)
         bots = review_bots(pr, args.bot)
         missing = bots_missing(pr, bots, head)
+        approval = approval_state(pr, me)
+        approved = args.no_approval or approval == "APPROVED"
 
         status = (
             f"checks={total - len(pending)}/{total} done"
             f" mergeable={pr['mergeable']} bots_missing={','.join(missing) or '-'}"
+            f" approval={approval}"
         )
         if status != last_status:
             log(f"STATUS {status}")
@@ -401,11 +434,12 @@ def main():
         if checks_done:
             checks_done_at = checks_done_at or time.monotonic()
             waited = time.monotonic() - checks_done_at
-            if pr["mergeable"] != "UNKNOWN" and (not missing or waited >= args.bot_timeout):
+            bots_done = not missing or waited >= args.bot_timeout
+            if pr["mergeable"] != "UNKNOWN" and bots_done and approved:
                 note = f" bots_never_reviewed={','.join(missing)}" if missing else ""
                 log(
                     f"RESULT ready mergeStateStatus={pr['mergeStateStatus']}"
-                    f" reviewDecision={pr['reviewDecision']}{note}"
+                    f" approval={approval}{note}"
                 )
                 return EXIT_READY
 
