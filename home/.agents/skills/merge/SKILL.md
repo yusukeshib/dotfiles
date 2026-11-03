@@ -25,7 +25,8 @@ the current branch or other open PRs.
    touched files). Do not run heavy builds, full suites, or GPU jobs that CI
    already runs; push and let CI and the watcher report.
 3. **Push**, reply to each addressed thread (what changed, test name), and
-   resolve it. Leave disagreements open with a reply giving evidence.
+   resolve it. Resolve declined findings too (won't fix, out of scope,
+   policy): reply with the evidence, then resolve. Do not leave threads open.
 4. **Watch** right after each push, and before the first round: run
    `~/.agents/skills/merge/watch_pr.py <pr> --head <pushed SHA> [--repo
    OWNER/REPO]` as a supervised background process with no idle timeout.
@@ -46,8 +47,7 @@ Report once at the end: rounds, fixes, tests, final state, anything unverified.
 
 - Polls every 20 s (`--interval`) and exits on the first poll that finds a
   failed check, a conflict, an unresolved thread whose last comment is not
-  yours, or a new review or comment by someone else. Reply in every thread you
-  leave open, or it fires again.
+  yours, or a new review or comment by someone else.
 - Waits for each review bot (bots that already reviewed this PR, plus
   `--bot LOGIN`) to review the head commit, up to `--bot-timeout` (900 s)
   after checks pass.
