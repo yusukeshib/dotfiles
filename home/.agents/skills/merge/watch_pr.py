@@ -18,11 +18,16 @@ Exit codes:
       review bot posted a review for the head commit (or --bot-timeout passed)
   10  action needed: see the EVENT lines
   20  PR is closed or merged
-  3   GitHub API kept failing
+  3   GitHub API kept failing (not counting rate limits)
   2   usage error
 
 Output lines: "STATUS ..." when the state changes, "EVENT <kind> ..." for each
-problem, and a final "RESULT ..." line.
+problem, "WAIT ..." while rate limited, and a final "RESULT ..." line.
+
+Rate limits: when GitHub rate-limits the watcher, it sleeps until the GraphQL
+budget resets (primary limit) or backs off 60 s doubling to 15 min (secondary
+limit), then resumes. When fewer than 100 GraphQL points remain, it stops
+polling until the reset so the budget is left for fixing the PR.
 """
 
 import argparse
@@ -31,10 +36,12 @@ import re
 import subprocess
 import sys
 import time
+from datetime import datetime
 
 QUERY = """
 query($owner: String!, $name: String!, $number: Int!) {
   viewer { login }
+  rateLimit { remaining resetAt }
   repository(owner: $owner, name: $name) {
     pullRequest(number: $number) {
       state
@@ -102,6 +109,22 @@ EXIT_API = 3
 EXIT_ACTION = 10
 EXIT_CLOSED = 20
 
+MAX_API_FAILURES = 5
+LOW_BUDGET = 100
+RATE_LIMIT_BACKOFF = 60
+RATE_LIMIT_BACKOFF_MAX = 900
+RATE_LIMIT_PATTERN = re.compile(
+    r"rate limit|submitted too quickly|abuse detection|secondary", re.IGNORECASE
+)
+
+
+class RateLimited(RuntimeError):
+    pass
+
+
+class ApiError(RuntimeError):
+    pass
+
 
 def log(line):
     print(f"{time.strftime('%H:%M:%S')} {line}", flush=True)
@@ -110,8 +133,50 @@ def log(line):
 def gh(args):
     result = subprocess.run(["gh", *args], capture_output=True, text=True)
     if result.returncode != 0:
-        raise RuntimeError(result.stderr.strip() or f"gh {args[0]} failed")
+        message = result.stderr.strip() or f"gh {args[0]} failed"
+        if RATE_LIMIT_PATTERN.search(message):
+            raise RateLimited(message)
+        raise RuntimeError(message)
     return result.stdout
+
+
+def seconds_until(reset_epoch):
+    return max(0.0, reset_epoch - time.time()) + 5
+
+
+def primary_limit_wait():
+    """Seconds until the GraphQL budget resets, or None if it is not exhausted."""
+    try:
+        budget = json.loads(gh(["api", "rate_limit"]))["resources"]["graphql"]
+    except (RuntimeError, KeyError, TypeError, json.JSONDecodeError):
+        return None
+    if budget["remaining"] > 0:
+        return None
+    return seconds_until(budget["reset"])
+
+
+def call_api(fn, retry_delay):
+    """Call fn, waiting out rate limits and retrying transient failures."""
+    failures = 0
+    backoff = RATE_LIMIT_BACKOFF
+    while True:
+        try:
+            return fn()
+        except RateLimited as e:
+            wait = primary_limit_wait()
+            kind = "primary"
+            if wait is None:
+                wait, kind = backoff, "secondary"
+                backoff = min(backoff * 2, RATE_LIMIT_BACKOFF_MAX)
+            reason = str(e).splitlines()[0]
+            log(f"WAIT rate_limited ({kind}) {int(wait)}s: {reason}")
+            time.sleep(wait)
+        except (RuntimeError, KeyError, TypeError, json.JSONDecodeError) as e:
+            failures += 1
+            log(f"WARN api failure {failures}/{MAX_API_FAILURES}: {e}")
+            if failures >= MAX_API_FAILURES:
+                raise ApiError(str(e)) from e
+            time.sleep(retry_delay)
 
 
 def resolve_pr(pr, repo):
@@ -137,7 +202,17 @@ def fetch(owner, name, number):
         ]
     )
     data = json.loads(out)["data"]
-    return data["viewer"]["login"], data["repository"]["pullRequest"]
+    return data["viewer"]["login"], data["repository"]["pullRequest"], data["rateLimit"]
+
+
+def next_delay(interval, rate):
+    """Poll interval, stretched to the budget reset when the budget is low."""
+    if rate["remaining"] >= LOW_BUDGET:
+        return interval
+    reset = datetime.fromisoformat(rate["resetAt"].replace("Z", "+00:00"))
+    wait = max(interval, seconds_until(reset.timestamp()))
+    log(f"WAIT low_budget remaining={rate['remaining']} {int(wait)}s")
+    return wait
 
 
 def login_of(node):
@@ -246,9 +321,11 @@ def main():
     args = parser.parse_args()
 
     try:
-        owner, name, number = resolve_pr(args.pr, args.repo)
-        me, pr = fetch(owner, name, number)
-    except RuntimeError as e:
+        owner, name, number = call_api(
+            lambda: resolve_pr(args.pr, args.repo), args.interval
+        )
+        me, pr, rate = call_api(lambda: fetch(owner, name, number), args.interval)
+    except ApiError as e:
         log(f"RESULT api_error {e}")
         return EXIT_API
 
@@ -260,7 +337,6 @@ def main():
     started = time.monotonic()
     checks_done_at = None
     last_status = None
-    api_failures = 0
     log(f"WATCH {pr['url']} head={head[:10]} as {me}")
 
     while True:
@@ -309,16 +385,12 @@ def main():
                 )
                 return EXIT_READY
 
-        time.sleep(args.interval)
+        time.sleep(next_delay(args.interval, rate))
         try:
-            _, pr = fetch(owner, name, number)
-            api_failures = 0
-        except (RuntimeError, KeyError, TypeError, json.JSONDecodeError) as e:
-            api_failures += 1
-            log(f"WARN api failure {api_failures}/5: {e}")
-            if api_failures >= 5:
-                log("RESULT api_error")
-                return EXIT_API
+            _, pr, rate = call_api(lambda: fetch(owner, name, number), args.interval)
+        except ApiError as e:
+            log(f"RESULT api_error {e}")
+            return EXIT_API
 
 
 if __name__ == "__main__":
