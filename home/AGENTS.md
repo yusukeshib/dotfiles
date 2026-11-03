@@ -42,6 +42,11 @@ Shared guidance for coding agents working under `$HOME`.
   clarify consequential ambiguities in user intent. Necessary refactoring for
   the agreed goal is not by itself scope expansion requiring approval.
 - Run targeted checks first, then broader validation appropriate to the change.
+- Prefer CI for checks that CI already runs. Do not spend local CPU/GPU time
+  duplicating heavy builds, test suites, lints, or pre-push hooks that CI will
+  run anyway; run locally only fast, targeted checks that shorten the edit loop,
+  or checks CI does not cover. Before a slow local run, confirm whether CI runs
+  it. Report CI-only checks as unverified until CI passes.
   Normal local tests need no separate approval. For substantial model-backed
   evaluations, state case/call count, expected runtime/cost, and pass/fail criteria.
   Get approval for expensive, long-running, or externally consequential validation
