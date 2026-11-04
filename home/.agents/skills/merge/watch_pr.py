@@ -15,8 +15,8 @@ first poll that finds, in ANY target:
     polls in a row: the PR diffs against a stale parent and must be
     retargeted or resubmitted,
   - an unresolved review thread whose latest comment is not by you,
-  - a new review (with a body or CHANGES_REQUESTED) or PR comment by someone
-    else, posted after the watch started,
+  - a new review (with a body or CHANGES_REQUESTED; approvals are not
+    events) or PR comment by someone else, posted after the watch started,
   - the head commit changing (someone else pushed), or not reaching --head
     within 120 s,
   - a new open PR by --author (exit 10, EVENT new_pr),
@@ -293,6 +293,10 @@ def feedback_events(pr, me, ignored, baseline_ids):
     for r in pr["reviews"]["nodes"]:
         who = login_of(r)
         if r["id"] in baseline_ids or who == me or who in ignored:
+            continue
+        # An approval is progress, not feedback: it feeds approval_state, and
+        # any inline findings arrive as unresolved threads.
+        if r["state"] == "APPROVED":
             continue
         if (r.get("body") or "").strip() or r["state"] == "CHANGES_REQUESTED":
             events.append(f"review {r['state']} by {who} {r['url']}")
