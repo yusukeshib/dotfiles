@@ -475,6 +475,10 @@ if type "babysit" > /dev/null; then
   _cached_eval babysit babysit config zsh
 fi
 
+if type "tvctl" > /dev/null; then
+  _cached_eval tvctl tvctl config zsh
+fi
+
 if type "goal" > /dev/null; then
   _cached_eval goal goal config zsh
 fi
