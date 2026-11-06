@@ -1,0 +1,10 @@
+# User-level Cargo config (macOS only). Project `.cargo/config.toml` files and
+# the RUSTC_WRAPPER environment variable take precedence.
+#
+# sccache caches only non-incremental rustc invocations, i.e. registry/git
+# dependencies; workspace members and path dependencies stay on Cargo's
+# incremental compilation. Measured on jerboa (cold `cargo test -p renderer
+# --no-run` in a fresh worktree): 288 dependency hits, wall time ~320s -> ~240s,
+# summed unit time ~1970s -> ~1200s.
+[build]
+rustc-wrapper = "sccache"
